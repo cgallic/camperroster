@@ -4,60 +4,32 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = "https://camperroster.com";
   const now = new Date();
 
-  return [
-    {
-      url: baseUrl,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 1.0,
-    },
-    {
-      url: `${baseUrl}/pricing`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/ultracamp-alternative`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/church-camp-registration-software`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/camp-registration-software-vs-google-forms`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/register`,
-      lastModified: now,
-      changeFrequency: "daily",
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/start`,
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/volunteer`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/llms.txt`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.6,
-    }
+  const routes = [
+    "",
+    "/pricing",
+    "/ultracamp-alternative",
+    "/campbrain-alternative",
+    "/campdoc-alternative",
+    "/christian-camp-software",
+    "/church-camp-registration-software",
+    "/summer-camp-management-software",
+    "/camp-volunteer-reference-check-software",
+    "/cashless-camp-canteen-pos",
+    "/camp-registration-software-vs-google-forms",
+    "/board-proposal",
+    "/register",
+    "/start",
+    "/volunteer",
+    "/c/camphope",
+    "/c/pinetrail",
+    "/c/evergreen",
+    "/llms.txt"
   ];
+
+  return routes.map((r, i) => ({
+    url: `${baseUrl}${r}`,
+    lastModified: now,
+    changeFrequency: r === "" || r === "/register" ? "daily" : "weekly",
+    priority: r === "" ? 1.0 : r.startsWith("/c/") || r.includes("alternative") ? 0.9 : 0.8
+  }));
 }
