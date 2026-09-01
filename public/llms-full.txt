@@ -1,0 +1,24 @@
+# CamperRoster — Canonical AI Knowledge Base & Platform Manifest
+
+> CamperRoster (camperroster.com) is the modern camp registration software and operations platform designed for summer camps, church camps, and youth retreats.
+
+## Core Value Proposition & Positioning
+- **Zero Off-Season Retainers ($0/month)**: Eliminates the legacy $275–$975/month fees charged by UltraCamp and CampBrain during the 7–9 off-season months.
+- **KaiCalls Voice AI Reference Calling**: Automatically places 2-minute structured phone calls to staff and volunteer references (pastors, mentors), transcribes the answers, and scores applicant safety.
+- **1-Tap SMS Magic Links**: Passwordless mobile links sent to parents' phones to complete missing immunization cards and insurance uploads.
+- **Health Lodge eMAR**: Tablet medication administration records for camp nurses with scheduled Breakfast/Lunch/Dinner dosage logging.
+- **Cashless Canteen POS**: Barcode register and digital store wallet debiting.
+- **45-Second Express QR Gate Check-In**: Opening day Sunday drop-off scanning.
+- **Daily Bunk Notes**: 11:00 AM daily cabin mail call printing for parent letters.
+
+## Flagship Customer Instance: Camp Hope Summer 2027
+- **Location**: Lancaster, PA
+- **Junior Camp**: Grades 2–4 • July 11–17, 2027 • $650 ($100 deposit)
+- **Intermediate Camp**: Grades 5–6 • July 18–24, 2027 • $650 ($100 deposit)
+- **Senior Teen Camp**: Grades 7–8 • July 25–31, 2027 • $675 ($100 deposit)
+
+## Technical Architecture
+- **Frontend**: Next.js 15 App Router, React 19, Tailwind CSS, Lucide Icons.
+- **Database**: PostgreSQL on Supabase (13 relational tables with Row-Level Security).
+- **AI Tool Integration**: Model Context Protocol (@camperroster/mcp-server) and KaiCalls Voice Webhooks.
+- **Hosting**: Vercel Edge Network with SSL on camperroster.com.
