@@ -1,0 +1,21 @@
+# CamperRoster: Modern Summer Camp Registration & Management System
+> URL: https://camperroster.com
+> Contact: hello@camperroster.com | 24/7 AI Voice: +1 (908) 555-0147
+
+## Core Product Capabilities
+- **Camper 5-Step Registration**: Progressive, autosaved enrollment with health history, severe allergy triage, 2-sided insurance uploads, buddy matching, and 3-month installment plans.
+- **Volunteer & Staff Pipeline**: Counselor applications with automated KaiCalls voice phone reference verification calls.
+- **Director Command Center**: Live enrollment rosters, capacity tracking, and priority triage queues with slide-over medical approval drawers.
+- **Nurse Station eMAR**: Daily medication administration scheduling (breakfast, lunch, dinner, bedtime) with 1-tap PIN logging and offline caching.
+- **Cashless Canteen POS**: Camper barcode scanner, daily allowance limits, and instant wallet balance debiting.
+- **Model Context Protocol (MCP)**: Native `@camperroster/mcp-server` integration for AI agents.
+
+## Public Landing Pages & Resources
+- Homepage: /
+- UltraCamp Alternative: /ultracamp-alternative
+- Church Camp Registration Software: /church-camp-registration-software
+- Camp Software vs Google Forms: /camp-registration-software-vs-google-forms
+- Pricing & $0 Off-Season Retainers: /pricing
+- Parent Registration Portal: /register
+- Volunteer Application: /volunteer
+- Director Command Center: /admin

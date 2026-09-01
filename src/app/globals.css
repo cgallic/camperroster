@@ -1,0 +1,101 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #fafaf9;
+  --foreground: #1c1917;
+  --forest-deep: #13392e;
+  --forest-accent: #1b4d3e;
+  --sun-gold: #e98024;
+  --sand-bg: #f5f2eb;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-feature-settings: "rlig" 1, "calt" 1, "cv02" 1, "cv03" 1, "cv04" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* HIGH-END DOUBLE-BEZEL CONCENTRIC CARD ARCHITECTURE */
+.double-bezel-outer {
+  background: rgba(19, 57, 46, 0.04);
+  border: 1px solid rgba(28, 25, 23, 0.08);
+  padding: 0.5rem;
+  border-radius: 2.25rem;
+  transition: all 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.double-bezel-outer:hover {
+  border-color: rgba(27, 77, 62, 0.25);
+  box-shadow: 0 20px 40px -15px rgba(19, 57, 46, 0.08);
+}
+
+.double-bezel-inner {
+  background: #ffffff;
+  border-radius: calc(2.25rem - 0.5rem);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02), inset 0 1px 1px rgba(255, 255, 255, 0.8);
+}
+
+/* FLOATING GLASS ISLAND */
+.glass-island {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(28, 25, 23, 0.08);
+  box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.06);
+}
+
+/* BUTTON-IN-BUTTON KINETIC TENSION */
+.btn-primary-agency {
+  background-color: #13392e;
+  color: #ffffff;
+  border-radius: 9999px;
+  padding: 0.875rem 1.75rem;
+  font-weight: 700;
+  font-size: 0.875rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  transition: all 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+  box-shadow: 0 4px 14px rgba(19, 57, 46, 0.25);
+}
+
+.btn-primary-agency:hover {
+  background-color: #0b241c;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 25px rgba(19, 57, 46, 0.35);
+}
+
+.btn-icon-circle {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.btn-primary-agency:hover .btn-icon-circle {
+  transform: translate(2px, -2px) scale(1.08);
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* MICRO EYEBROW BADGES */
+.eyebrow-pill {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  padding: 0.375rem 0.875rem;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
