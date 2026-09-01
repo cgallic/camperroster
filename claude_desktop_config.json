@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "camperroster": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@camperroster/mcp-server"
+      ]
+    }
+  }
+}

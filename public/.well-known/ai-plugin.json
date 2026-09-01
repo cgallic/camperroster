@@ -1,0 +1,17 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "CamperRoster",
+  "name_for_model": "camperroster",
+  "description_for_human": "Register campers, manage camp cabin rosters, schedule bunk notes, and run KaiCalls volunteer reference checks.",
+  "description_for_model": "Plugin for interacting with CamperRoster. Use this to check summer camp availability, register campers for sessions, query cabin rosters, send daily bunk notes, and trigger voice AI reference checks for camp counselors.",
+  "auth": {
+    "type": "none"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "https://camperroster.com/openapi.json"
+  },
+  "logo_url": "https://camperroster.com/images/camp_hero.jpg",
+  "contact_email": "director@camperroster.com",
+  "legal_info_url": "https://camperroster.com"
+}

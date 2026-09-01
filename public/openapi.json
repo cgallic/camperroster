@@ -1,0 +1,58 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "CamperRoster API for AI Agents",
+    "description": "API allowing AI agents in ChatGPT, Claude, and Cursor to register campers, check cabin placements, trigger KaiCalls voice reference calls, and send bunk notes.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://camperroster.com/api"
+    }
+  ],
+  "paths": {
+    "/mcp": {
+      "post": {
+        "summary": "Execute MCP Tool Call",
+        "description": "Standard JSON-RPC 2.0 endpoint for MCP tools",
+        "operationId": "executeMcpTool",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "jsonrpc": {
+                    "type": "string",
+                    "example": "2.0"
+                  },
+                  "method": {
+                    "type": "string",
+                    "example": "tools/call"
+                  },
+                  "params": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "arguments": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful tool response"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,20 +1,12 @@
 {
   "name": "@camperroster/mcp-server",
   "version": "1.0.0",
-  "description": "Native Model Context Protocol (MCP) Server for CamperRoster and KaiCalls AI Voice Agent",
-  "main": "dist/index.js",
+  "description": "Official Model Context Protocol (MCP) Server for CamperRoster",
+  "main": "index.js",
   "bin": {
-    "camperroster-mcp": "./dist/index.js"
+    "camperroster-mcp": "./index.js"
   },
-  "scripts": {
-    "build": "tsc",
-    "start": "node dist/index.js"
-  },
-  "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.30.0"
-  },
-  "devDependencies": {
-    "@types/node": "^22.10.1",
-    "typescript": "^5.7.2"
-  }
+  "keywords": ["mcp", "model-context-protocol", "claude", "chatgpt", "summer-camp", "camperroster"],
+  "author": "CamperRoster Inc.",
+  "license": "MIT"
 }
