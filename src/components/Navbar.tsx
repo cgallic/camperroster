@@ -11,36 +11,36 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 w-full px-4 sm:px-8 lg:px-12 pt-6 pb-2">
-        <div className="max-w-7xl mx-auto glass-island rounded-full px-6 sm:px-10 py-4 flex items-center justify-between transition-all">
+      <header className="sticky top-0 z-40 w-full px-4 sm:px-8 lg:px-12 pt-4 pb-2 bg-stone-100/90 backdrop-blur-md">
+        <div className="max-w-7xl mx-auto bg-white border-2 border-stone-300 rounded-full px-6 sm:px-10 py-3.5 flex items-center justify-between shadow-md">
           
           {/* BRAND */}
           <Link href="/" className="flex items-center gap-3.5 group">
-            <div className="w-10 h-10 rounded-2xl bg-forest-900 text-white flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
-              <Trees className="w-5 h-5 text-emerald-300" />
+            <div className="w-10 h-10 rounded-2xl bg-forest-950 text-white flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
+              <Trees className="w-6 h-6 text-emerald-300" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-display font-black text-xl tracking-tight text-stone-900">CamperRoster</span>
-                <span className="font-mono text-[9px] font-bold uppercase tracking-widest text-emerald-800 bg-emerald-100/80 px-2 py-0.5 rounded-full">
+                <span className="font-display font-black text-xl tracking-tight text-stone-950">CamperRoster</span>
+                <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-emerald-950 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-300">
                   OS
                 </span>
               </div>
-              <span className="text-[11px] text-stone-500 font-medium hidden sm:block">Modern Camp Software</span>
+              <span className="text-xs text-stone-600 font-bold hidden sm:block">Modern Camp Software</span>
             </div>
           </Link>
 
-          {/* CLEAN SPACIOUS NAVIGATION (ONLY 3 CORE LINKS) */}
-          <nav className="hidden md:flex items-center gap-8 text-sm font-extrabold text-stone-600">
-            <Link href="/" className="hover:text-stone-950 transition-colors">
+          {/* CLEAN SPACIOUS NAVIGATION */}
+          <nav className="hidden md:flex items-center gap-8 text-sm font-extrabold text-stone-900">
+            <Link href="/" className="hover:text-forest-900 transition-colors">
               Platform
             </Link>
-            <Link href="/pricing" className="hover:text-stone-950 transition-colors">
+            <Link href="/pricing" className="hover:text-forest-900 transition-colors">
               Pricing
             </Link>
-            <Link href="/ultracamp-alternative" className="text-sun-600 hover:text-sun-700 transition-colors flex items-center gap-1">
+            <Link href="/ultracamp-alternative" className="text-amber-800 hover:text-amber-900 transition-colors flex items-center gap-1.5">
               <span>vs UltraCamp</span>
-              <span className="text-[10px] font-mono font-bold bg-sun-100 text-sun-800 px-2 py-0.5 rounded-full">$0 Off-Season</span>
+              <span className="text-[11px] font-bold bg-amber-100 text-amber-950 px-2 py-0.5 rounded-full border border-amber-300">$0 Off-Season</span>
             </Link>
           </nav>
 
@@ -48,26 +48,25 @@ export default function Navbar() {
           <div className="flex items-center gap-4">
             <button
               onClick={() => setModalOpen(true)}
-              className="hidden lg:inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-emerald-50 text-emerald-900 border border-emerald-200 font-bold text-xs hover:bg-emerald-100 hover:scale-102 transition-all cursor-pointer shadow-xs"
+              className="hidden lg:inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-100 text-emerald-950 border border-emerald-300 font-extrabold text-xs hover:bg-emerald-200 transition-all cursor-pointer shadow-xs"
             >
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              <PhoneCall className="w-3.5 h-3.5 text-emerald-700" />
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 animate-pulse"></span>
+              <PhoneCall className="w-4 h-4 text-emerald-900" />
               <span>KaiCalls Voice AI</span>
             </button>
 
             <Link
               href="/register"
-              className="btn-primary-agency text-xs py-3 px-6 group"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-forest-900 hover:bg-forest-950 text-white font-black text-xs shadow-md transition-all hover:scale-102"
             >
               <span>Get Started</span>
-              <span className="btn-icon-circle w-6 h-6">
-                <ArrowUpRight className="w-3.5 h-3.5" />
-              </span>
+              <ArrowUpRight className="w-4 h-4 stroke-[3]" />
             </Link>
 
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-xl text-stone-700 hover:bg-stone-100 cursor-pointer"
+              className="md:hidden p-2 rounded-xl text-stone-900 hover:bg-stone-100 cursor-pointer"
+              aria-label="Toggle Navigation Menu"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -76,18 +75,18 @@ export default function Navbar() {
 
         {/* MOBILE MENU */}
         {mobileMenuOpen && (
-          <div className="md:hidden mt-3 p-6 glass-island rounded-3xl space-y-4 border border-stone-200 shadow-xl animate-in fade-in slide-in-from-top-4 duration-300">
-            <div className="grid grid-cols-2 gap-2 text-xs font-bold text-stone-800">
-              <Link href="/" onClick={() => setMobileMenuOpen(false)} className="p-3 rounded-xl bg-stone-50 hover:bg-stone-100">Platform Overview</Link>
-              <Link href="/pricing" onClick={() => setMobileMenuOpen(false)} className="p-3 rounded-xl bg-stone-50 hover:bg-stone-100">Pricing ($0 Off-Season)</Link>
-              <Link href="/ultracamp-alternative" onClick={() => setMobileMenuOpen(false)} className="p-3 rounded-xl bg-sun-50 text-sun-700 font-bold">vs UltraCamp</Link>
-              <Link href="/register" onClick={() => setMobileMenuOpen(false)} className="p-3 rounded-xl bg-forest-50 text-forest-900 font-bold">Camp Hope Demo</Link>
-              <Link href="/portal" onClick={() => setMobileMenuOpen(false)} className="p-3 rounded-xl bg-stone-50 hover:bg-stone-100">Parent Portal</Link>
-              <Link href="/admin" onClick={() => setMobileMenuOpen(false)} className="p-3 rounded-xl bg-stone-50 hover:bg-stone-100">Director Hub</Link>
+          <div className="md:hidden mt-3 p-6 bg-white rounded-3xl space-y-4 border-2 border-stone-300 shadow-2xl animate-in fade-in slide-in-from-top-4 duration-300">
+            <div className="grid grid-cols-2 gap-2 text-xs font-bold text-stone-950">
+              <Link href="/" onClick={() => setMobileMenuOpen(false)} className="p-3.5 rounded-xl bg-stone-100 hover:bg-stone-200">Platform Overview</Link>
+              <Link href="/pricing" onClick={() => setMobileMenuOpen(false)} className="p-3.5 rounded-xl bg-stone-100 hover:bg-stone-200">Pricing</Link>
+              <Link href="/ultracamp-alternative" onClick={() => setMobileMenuOpen(false)} className="p-3.5 rounded-xl bg-amber-100 text-amber-950 font-black">vs UltraCamp</Link>
+              <Link href="/register" onClick={() => setMobileMenuOpen(false)} className="p-3.5 rounded-xl bg-forest-100 text-forest-950 font-black">Camp Hope Demo</Link>
+              <Link href="/portal" onClick={() => setMobileMenuOpen(false)} className="p-3.5 rounded-xl bg-stone-100 hover:bg-stone-200">Parent Portal</Link>
+              <Link href="/admin" onClick={() => setMobileMenuOpen(false)} className="p-3.5 rounded-xl bg-stone-100 hover:bg-stone-200">Director Hub</Link>
             </div>
             <button
               onClick={() => { setMobileMenuOpen(false); setModalOpen(true); }}
-              className="w-full py-3.5 rounded-xl bg-emerald-600 text-white font-bold text-xs flex items-center justify-center gap-2"
+              className="w-full py-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs flex items-center justify-center gap-2"
             >
               <PhoneCall className="w-4 h-4" />
               <span>Launch KaiCalls AI Voice Demo</span>
