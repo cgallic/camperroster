@@ -1,437 +1,386 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
 import {
+  CheckCircle2,
   ArrowRight,
-  ShieldCheck,
   PhoneCall,
   Sparkles,
-  Calendar,
+  QrCode,
+  DollarSign,
   Users,
-  ArrowUpRight,
+  Tablet,
+  FileSpreadsheet,
   ChevronDown,
-  Stethoscope,
-  ShoppingBag,
-  TrendingDown,
-  Smartphone,
-  Zap,
-  Check
+  Mail
 } from "lucide-react";
-import KaiCallsSimulatorModal from "@/components/KaiCallsSimulatorModal";
 
-export default function HomePage() {
-  const [modalOpen, setModalOpen] = useState(false);
+export default function B2BSaasHomePage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
-  const programs = [
-    {
-      title: "Junior Camp (Grades 2–4)",
-      dates: "July 11 – July 17, 2027",
-      price: "$650",
-      deposit: "$100",
-      ratio: "1:4 Staff Ratio",
-      spotsLeft: "8 Spots Left",
-      desc: "Gentle introduction to overnight camp with nurturing cabin counselors, beginner lake kayaking, craft lodge, and campfire fellowship.",
-    },
-    {
-      title: "Intermediate Camp (Grades 5–6)",
-      dates: "July 18 – July 24, 2027",
-      price: "$650",
-      deposit: "$100",
-      ratio: "1:5 Staff Ratio",
-      spotsLeft: "14 Spots Left",
-      desc: "High-energy adventure featuring archery, ropes course challenges, wilderness survival skills, and lake canoeing.",
-    },
-    {
-      title: "Senior Teen Camp (Grades 7–8)",
-      dates: "July 25 – July 31, 2027",
-      price: "$675",
-      deposit: "$100",
-      ratio: "1:6 Staff Ratio",
-      spotsLeft: "6 Spots Left",
-      desc: "Leadership development, night games, acoustic worship by the lake, deep cabin discussions, and outdoor expeditions.",
-    }
-  ];
-
-  const painPoints = [
-    {
-      legacy: "UltraCamp charges $475–$975/month in winter",
-      camperroster: "$0/month in the off-season — pay only when operating",
-      icon: TrendingDown,
-      color: "text-emerald-800",
-      bg: "bg-emerald-100"
-    },
-    {
-      legacy: "Weeks of telephone tag checking volunteer references",
-      camperroster: "Automated 2-minute KaiCalls AI voice interviews & transcripts",
-      icon: PhoneCall,
-      color: "text-amber-800",
-      bg: "bg-amber-100"
-    },
-    {
-      legacy: "Incomplete paper health forms on opening day check-in",
-      camperroster: "1-Tap SMS magic links sent directly to parents' mobile phones",
-      icon: Smartphone,
-      color: "text-blue-800",
-      bg: "bg-blue-100"
-    },
-    {
-      legacy: "Clunky 2004 desktop interface that fails on iPhones",
-      camperroster: "High-contrast mobile web app with camera insurance card capture",
-      icon: Zap,
-      color: "text-purple-800",
-      bg: "bg-purple-100"
-    }
-  ];
+  const toggleFaq = (idx: number) => {
+    setOpenFaq(openFaq === idx ? null : idx);
+  };
 
   const faqs = [
     {
-      q: "How does the $0 off-season pricing model work?",
-      a: "Unlike legacy systems that lock camps into $275–$975 monthly retainers year-round, CamperRoster charges $0/month during your 7–9 off-season months. You only pay a simple, transparent fee during active registration periods."
+      q: "How does the $0 off-season pricing model work for our camp?",
+      a: "Unlike legacy systems like UltraCamp that bill camps $275 to $975 every month year-round, CamperRoster charges $0/month during your 7 to 9 off-season months. You only pay a flat $4 to $6 per registered camper during active registration seasons."
     },
     {
-      q: "How does the KaiCalls automated reference calling work?",
-      a: "When a volunteer or counselor applies, KaiCalls AI Voice Assistant calls their pastor or professional mentor directly. It conducts a structured 2-minute safety interview, records the audio, and saves the verified transcript and safety score directly into your director dashboard."
+      q: "How does the KaiCalls automated volunteer reference check work?",
+      a: "When a counselor or staff applicant applies, KaiCalls AI Voice Assistant automatically dials their pastor, youth leader, or mentor. It conducts a friendly 2-minute safety interview, records the call, and delivers a verified transcript and safety assessment directly to your director dashboard."
     },
     {
-      q: "Can parents register multiple children and choose installment plans?",
-      a: "Yes! Parents can register their entire household in one session, choose between $100 deposit plans, 3-month automated installment schedules, or pay-in-full, and upload medical records with zero password friction."
+      q: "How do we migrate our existing roster data from UltraCamp or spreadsheets?",
+      a: "Our built-in 1-Click Importer (/admin/import) auto-maps your past UltraCamp CSV or Google Sheets export in 60 seconds. All family contacts, camper records, and allergy histories transfer instantly with zero manual re-typing."
     },
     {
       q: "Is CamperRoster HIPAA and ACA safety compliant?",
-      a: "Yes. All medical disclosures, EpiPen care plans, and health insurance card uploads are encrypted with Row-Level Security (RLS) in PostgreSQL, isolating confidential medical records exclusively to licensed Health Lodge staff."
+      a: "Yes. All medical disclosures, EpiPen care plans, and health insurance card uploads are encrypted with Row-Level Security (RLS) in PostgreSQL, isolating confidential medical records exclusively to licensed Health Lodge staff in compliance with ACA and HIPAA standards."
     }
   ];
 
   return (
-    <main className="space-y-16 sm:space-y-28 lg:space-y-36 pb-20 sm:pb-28">
+    <main className="space-y-16 sm:space-y-24 pb-24 overflow-x-hidden">
       
-      {/* 1. HERO SECTION: 100% ADA & MOBILE RESPONSIVE */}
-      <section className="pt-2 sm:pt-6 px-3 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
+      {/* 1. HERO SECTION (B2B SAAS SOFTWARE FOR CAMP DIRECTORS) */}
+      <section className="px-3 sm:px-6 lg:px-8 pt-4 sm:pt-10">
+        <div className="max-w-6xl mx-auto rounded-3xl overflow-hidden relative min-h-[580px] sm:min-h-[640px] flex flex-col justify-between p-6 sm:p-12 lg:p-16 border-2 border-stone-800 shadow-2xl bg-stone-950">
           
-          <div className="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden bg-stone-950 shadow-2xl border sm:border-2 border-stone-800">
-            {/* Background Image with High-Contrast Dark Scrim */}
-            <div className="absolute inset-0 z-0">
-              <Image
-                src="/images/camp_hero.jpg"
-                alt="Camp Hope lake at golden hour with canoes"
-                fill
-                priority
-                className="object-cover object-center opacity-40 scale-102"
-              />
-              <div className="absolute inset-0 bg-gradient-to-r from-stone-950 via-stone-950/90 to-stone-950/70 sm:to-stone-950/50"></div>
+          {/* BACKGROUND WITH SOLID DARK SCRIM */}
+          <Image
+            src="/images/camp_hero.jpg"
+            alt="Camp Management Software Background"
+            fill
+            priority
+            className="object-cover opacity-25 filter brightness-75"
+          />
+
+          {/* TOP EYEBROW BADGES */}
+          <div className="relative z-10 flex flex-wrap items-center gap-2 sm:gap-3">
+            <span className="bg-amber-400 text-stone-950 font-black text-xs px-3.5 py-1.5 rounded-full shadow-md">
+              THE CAMP OPERATING SYSTEM
+            </span>
+            <span className="bg-emerald-400 text-stone-950 font-black text-xs px-3.5 py-1.5 rounded-full shadow-md flex items-center gap-1">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>$0/MO IN OFF-SEASON</span>
+            </span>
+            <Link
+              href="/ultracamp-alternative"
+              className="text-xs font-mono font-bold text-stone-300 bg-white/10 hover:bg-white/20 px-3.5 py-1.5 rounded-full transition-colors backdrop-blur-xs flex items-center gap-1"
+            >
+              <span>vs UltraCamp ($6k Saved) →</span>
+            </Link>
+          </div>
+
+          {/* HERO HEADLINE & B2B SOFTWARE CTAS */}
+          <div className="relative z-10 max-w-3xl space-y-6 pt-8 sm:pt-12">
+            <h1 className="font-display font-black text-3xl sm:text-5xl lg:text-6xl text-white tracking-tight leading-[1.1] drop-shadow-md">
+              Get every camper and volunteer ready <span className="text-emerald-400">before opening day.</span>
+            </h1>
+
+            <p className="text-base sm:text-xl text-stone-200 font-medium leading-relaxed max-w-2xl drop-shadow-sm">
+              The modern camp registration and operations platform. Built to eliminate parent drop-off, automate staff reference checks with KaiCalls Voice AI, and cut winter software retainers to $0.
+            </p>
+
+            {/* ACTION BUTTONS */}
+            <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5">
+              <Link
+                href="/start"
+                className="px-8 py-4 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-stone-950 font-black text-sm sm:text-base flex items-center justify-center gap-2 shadow-xl cursor-pointer active:scale-98 transition-transform"
+              >
+                <span>Launch Your Camp ($0 Setup)</span>
+                <ArrowRight className="w-4 h-4 stroke-[3]" />
+              </Link>
+              <Link
+                href="/c/camphope"
+                className="px-6 py-4 rounded-xl bg-stone-900/90 hover:bg-stone-900 text-white font-bold text-xs sm:text-sm border border-stone-700 flex items-center justify-center gap-2 backdrop-blur-xs"
+              >
+                <span>View Live Camp Hope Demo →</span>
+              </Link>
             </div>
 
-            <div className="relative z-10 p-5 sm:p-10 lg:p-14 flex flex-col justify-between min-h-[520px] sm:min-h-[600px] text-white space-y-8 sm:space-y-10">
-              
-              {/* TOP ACCESSIBLE BADGES */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-amber-400 text-stone-950 font-extrabold text-[11px] sm:text-xs tracking-wider uppercase shadow-md">
-                    <Sparkles className="w-3.5 h-3.5 text-stone-950 shrink-0" />
-                    <span>SUMMER 2027 REGISTRATION</span>
-                  </span>
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-emerald-400 text-stone-950 font-extrabold text-[11px] sm:text-xs tracking-wider uppercase shadow-md">
-                    <Check className="w-3.5 h-3.5 text-stone-950 shrink-0" />
-                    <span>LIMITED SPOTS</span>
-                  </span>
-                </div>
+            {/* TRUST BAR / HIGHLIGHTS */}
+            <div className="pt-4 flex flex-wrap items-center gap-4 sm:gap-6 text-xs text-stone-300 font-bold border-t border-stone-800/80">
+              <span className="flex items-center gap-1.5 text-stone-200">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <span>Zero Off-Season Fees</span>
+              </span>
+              <span className="flex items-center gap-1.5 text-stone-200">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <span>KaiCalls Voice AI References</span>
+              </span>
+              <span className="flex items-center gap-1.5 text-stone-200">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <span>Health Lodge eMAR</span>
+              </span>
+              <span className="flex items-center gap-1.5 text-stone-200">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <span>ACA & HIPAA Compliant</span>
+              </span>
+            </div>
 
-                <Link
-                  href="/portal"
-                  className="w-max px-4 py-2 sm:px-5 sm:py-2.5 rounded-full bg-stone-800/90 hover:bg-stone-700 text-white font-extrabold text-xs border border-stone-600 transition-colors shadow-sm"
-                >
-                  Parent Portal Login →
-                </Link>
+          </div>
+
+        </div>
+      </section>
+
+      {/* 2. THE COMPLETE SOFTWARE OPERATIONS SUITE (WHAT WE SELL) */}
+      <section className="px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-12">
+        <div className="text-center max-w-3xl mx-auto space-y-3">
+          <span className="eyebrow-pill bg-forest-100 text-forest-900 border border-forest-200">
+            ALL-IN-ONE CAMP OPERATING SYSTEM
+          </span>
+          <h2 className="font-display font-black text-3xl sm:text-5xl text-stone-950">
+            Everything your camp needs in one unified platform.
+          </h2>
+          <p className="text-sm sm:text-base text-stone-600 font-medium">
+            Replace 4 fragmented software subscriptions with one intuitive platform built for directors, nurses, counselors, and parents.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          
+          {/* TOOL 1: 5-STEP REGISTRATION WIZARD */}
+          <div className="bg-white rounded-3xl p-7 border-2 border-stone-200 shadow-md space-y-4 hover:border-forest-800 transition-all flex flex-col justify-between">
+            <div className="space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-forest-50 text-forest-900 flex items-center justify-center border border-forest-200">
+                <Users className="w-6 h-6" />
               </div>
+              <h3 className="font-display font-black text-xl text-stone-950">5-Step Mobile Parent Registration</h3>
+              <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
+                Frictionless registration wizard with 16px touch inputs (no iOS zoom bugs), multi-camper household discounts, camera insurance uploads, and deposit schedules.
+              </p>
+            </div>
+            <Link href="/register" className="text-xs font-black text-forest-900 flex items-center gap-1 hover:underline pt-2">
+              <span>Test Registration Flow →</span>
+            </Link>
+          </div>
 
-              {/* MAIN HERO CONTENT */}
-              <div className="space-y-4 sm:space-y-6 max-w-3xl">
-                <h1 className="font-display font-black text-3xl sm:text-5xl lg:text-7xl text-white leading-[1.12] tracking-tight">
-                  Where lifelong friendships and faith take root.
-                </h1>
-                
-                <p className="text-base sm:text-xl lg:text-2xl text-stone-100 font-semibold leading-relaxed max-w-2xl">
-                  An unforgettable week of outdoor canoeing, rustic timber cabin fellowship, and character-building adventures for campers entering grades 2–8.
-                </p>
-
-                {/* PRIMARY ACTIONS */}
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 pt-2 sm:pt-4">
-                  <Link
-                    href="/register"
-                    className="inline-flex items-center justify-center gap-2.5 px-6 py-4 sm:px-8 sm:py-4.5 rounded-2xl sm:rounded-full bg-emerald-500 hover:bg-emerald-400 text-stone-950 font-black text-sm sm:text-base shadow-xl transition-all active:scale-98 text-center"
-                  >
-                    <span>Register a Camper ($100 Deposit)</span>
-                    <ArrowUpRight className="w-5 h-5 stroke-[3] shrink-0" />
-                  </Link>
-
-                  <button
-                    onClick={() => setModalOpen(true)}
-                    className="inline-flex items-center justify-center gap-2 px-5 py-3.5 sm:px-6 sm:py-4.5 rounded-2xl sm:rounded-full bg-stone-900/90 hover:bg-stone-800 text-white font-extrabold text-xs sm:text-sm border border-stone-600 transition-all cursor-pointer shadow-lg active:scale-98 text-center"
-                  >
-                    <PhoneCall className="w-4 h-4 text-amber-400 shrink-0" />
-                    <span>Call KaiCalls AI Assistant (24/7)</span>
-                  </button>
-                </div>
+          {/* TOOL 2: KAICALLS VOICE AI REFERENCES */}
+          <div className="bg-white rounded-3xl p-7 border-2 border-amber-300 shadow-md space-y-4 hover:border-amber-500 transition-all flex flex-col justify-between bg-amber-50/20">
+            <div className="space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-900 flex items-center justify-center border border-amber-300">
+                <PhoneCall className="w-6 h-6" />
               </div>
-
-              {/* BOTTOM ATTRIBUTE PILLARS */}
-              <div className="pt-4 sm:pt-6 border-t border-stone-700 grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 text-xs sm:text-sm font-bold text-stone-200">
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-amber-400 shrink-0" />
-                  <span>July 11 – 31, 2027</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Users className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span>Grades 2–8 Co-Ed</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Stethoscope className="w-4 h-4 text-sky-400 shrink-0" />
-                  <span>24/7 RN Onsite</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-purple-400 shrink-0" />
-                  <span>ACA Safety</span>
-                </div>
+              <div className="flex items-center gap-2">
+                <h3 className="font-display font-black text-xl text-stone-950">KaiCalls Voice AI References</h3>
+                <span className="text-[10px] font-bold bg-amber-400 text-stone-950 px-2 py-0.5 rounded-full">AI MOAT</span>
               </div>
+              <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
+                Cuts 40+ hours of spring phone tag. Voice AI calls pastoral and mentor references, conducts 2-minute interviews, and saves verified transcripts with safety scores.
+              </p>
+            </div>
+            <Link href="/volunteer" className="text-xs font-black text-amber-900 flex items-center gap-1 hover:underline pt-2">
+              <span>See Volunteer Voice Demo →</span>
+            </Link>
+          </div>
 
+          {/* TOOL 3: HEALTH LODGE EMAR */}
+          <div className="bg-white rounded-3xl p-7 border-2 border-stone-200 shadow-md space-y-4 hover:border-forest-800 transition-all flex flex-col justify-between">
+            <div className="space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-900 flex items-center justify-center border border-emerald-200">
+                <Tablet className="w-6 h-6" />
+              </div>
+              <h3 className="font-display font-black text-xl text-stone-950">Health Lodge Tablet eMAR</h3>
+              <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
+                Tablet medication dispenser for camp nurses. Schedule and log Breakfast, Lunch, Dinner, and Bedtime doses with timestamped records compliant with ACA and HIPAA.
+              </p>
+            </div>
+            <Link href="/nurse/emar" className="text-xs font-black text-emerald-900 flex items-center gap-1 hover:underline pt-2">
+              <span>View Nurse Tablet eMAR →</span>
+            </Link>
+          </div>
+
+          {/* TOOL 4: 45-SEC EXPRESS GATE CHECK-IN */}
+          <div className="bg-white rounded-3xl p-7 border-2 border-stone-200 shadow-md space-y-4 hover:border-forest-800 transition-all flex flex-col justify-between">
+            <div className="space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-purple-50 text-purple-900 flex items-center justify-center border border-purple-200">
+                <QrCode className="w-6 h-6" />
+              </div>
+              <h3 className="font-display font-black text-xl text-stone-950">45-Second Express Gate QR Check-In</h3>
+              <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
+                Eliminate Sunday vehicle drop-off traffic. Parents show their digital boarding pass QR; gate counselors scan to verify RN medical clearance and cabin placement instantly.
+              </p>
+            </div>
+            <Link href="/admin/checkin" className="text-xs font-black text-purple-900 flex items-center gap-1 hover:underline pt-2">
+              <span>Test Express Gate Scanner →</span>
+            </Link>
+          </div>
+
+          {/* TOOL 5: CASHLESS CANTEEN STORE POS */}
+          <div className="bg-white rounded-3xl p-7 border-2 border-stone-200 shadow-md space-y-4 hover:border-forest-800 transition-all flex flex-col justify-between">
+            <div className="space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-sky-50 text-sky-900 flex items-center justify-center border border-sky-200">
+                <DollarSign className="w-6 h-6" />
+              </div>
+              <h3 className="font-display font-black text-xl text-stone-950">Cashless Canteen Store POS</h3>
+              <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
+                Campers buy snacks and merchandise with digital wristbands. Parents reload balances online from the portal with zero cash lost in the lake or cabin.
+              </p>
+            </div>
+            <Link href="/canteen/pos" className="text-xs font-black text-sky-900 flex items-center gap-1 hover:underline pt-2">
+              <span>View Canteen POS Register →</span>
+            </Link>
+          </div>
+
+          {/* TOOL 6: DAILY BUNK NOTES BATCH PRINTER */}
+          <div className="bg-white rounded-3xl p-7 border-2 border-stone-200 shadow-md space-y-4 hover:border-forest-800 transition-all flex flex-col justify-between">
+            <div className="space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-900 flex items-center justify-center border border-rose-200">
+                <Mail className="w-6 h-6" />
+              </div>
+              <h3 className="font-display font-black text-xl text-stone-950">Daily Bunk Notes 11:00 AM Mail Call</h3>
+              <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
+                Parents submit daily letters online. Directors click 1 button to print sorted, formatted 8.5x11 sheets grouped by cabin for daily counselor mail call.
+              </p>
+            </div>
+            <Link href="/admin/bunk-notes" className="text-xs font-black text-rose-900 flex items-center gap-1 hover:underline pt-2">
+              <span>View Bunk Notes Batch Sheet →</span>
+            </Link>
+          </div>
+
+        </div>
+      </section>
+
+      {/* 3. FLAGSHIP TENANT SHOWCASE (CASE STUDY: CAMP HOPE 2027) */}
+      <section className="px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="bg-stone-950 text-white rounded-3xl p-6 sm:p-12 border-2 border-stone-800 shadow-2xl space-y-8">
+          
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-stone-800 pb-6">
+            <div className="space-y-1">
+              <span className="font-mono text-xs font-bold text-amber-400 uppercase tracking-widest">
+                FLAGSHIP CUSTOMER CASE STUDY
+              </span>
+              <h3 className="font-display font-black text-2xl sm:text-4xl text-white">
+                How Camp Hope Cut $6,150 in Software Costs & 40 Hours of Phone Tag
+              </h3>
+            </div>
+            <Link
+              href="/c/camphope"
+              className="px-5 py-3 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-stone-950 font-black text-xs sm:text-sm shrink-0 flex items-center gap-1.5"
+            >
+              <span>Explore Camp Hope Portal</span>
+              <ArrowRight className="w-4 h-4 stroke-[3]" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="p-6 rounded-2xl bg-stone-900 border border-stone-800 space-y-2">
+              <b className="font-display font-black text-3xl sm:text-4xl text-emerald-400 block">$6,150 / yr</b>
+              <span className="text-xs font-bold text-stone-300 block">Annual Software Savings</span>
+              <p className="text-xs text-stone-400 leading-relaxed pt-1">
+                Eliminated UltraCamp&apos;s winter monthly retainer and bundled CampDoc and Bunk1 into one subscription.
+              </p>
+            </div>
+
+            <div className="p-6 rounded-2xl bg-stone-900 border border-stone-800 space-y-2">
+              <b className="font-display font-black text-3xl sm:text-4xl text-amber-400 block">40 Hours</b>
+              <span className="text-xs font-bold text-stone-300 block">Director Phone Tag Eliminated</span>
+              <p className="text-xs text-stone-400 leading-relaxed pt-1">
+                KaiCalls Voice AI automated 90+ volunteer pastoral reference check interviews with audio and transcripts.
+              </p>
+            </div>
+
+            <div className="p-6 rounded-2xl bg-stone-900 border border-stone-800 space-y-2">
+              <b className="font-display font-black text-3xl sm:text-4xl text-sky-400 block">45 Seconds</b>
+              <span className="text-xs font-bold text-stone-300 block">Opening Day Gate Drop-Off</span>
+              <p className="text-xs text-stone-400 leading-relaxed pt-1">
+                Zero vehicle lines on Sunday check-in with 100% digital medical clearance on parents&apos; phones.
+              </p>
             </div>
           </div>
 
         </div>
       </section>
 
-      {/* 2. SUMMER 2027 SESSIONS */}
-      <section className="px-3 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto space-y-8 sm:space-y-12">
+      {/* 4. MIGRATION & ULTRACAMP TEARDOWN */}
+      <section className="px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="bg-white rounded-3xl p-6 sm:p-12 border-2 border-stone-300 shadow-xl space-y-8">
           
-          <div className="text-center max-w-2xl mx-auto space-y-2 sm:space-y-3">
-            <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-forest-900 text-white font-bold text-[11px] sm:text-xs uppercase tracking-widest">
-              SUMMER 2027 SESSIONS
+          <div className="max-w-3xl space-y-2">
+            <span className="eyebrow-pill bg-rose-100 text-rose-950 border border-rose-300">
+              MIGRATION MADE SIMPLE
             </span>
-            <h2 className="font-display font-black text-2xl sm:text-4xl lg:text-5xl text-stone-950 tracking-tight">
-              Choose the perfect week for your camper.
-            </h2>
-            <p className="text-xs sm:text-base text-stone-700 font-medium max-w-lg mx-auto">
-              All sessions include 6 nights of lodging, all meals, snacks, camp t-shirt, water sports, and daily activities.
+            <h3 className="font-display font-black text-2xl sm:text-4xl text-stone-950">
+              Switching from UltraCamp or Spreadsheets takes 60 seconds.
+            </h3>
+            <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
+              Export your existing roster CSV and drop it into our 1-Click Importer. All parent contacts, camper medical profiles, and history map automatically into your new camp database.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-            {programs.map((p, idx) => (
-              <div key={idx} className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 border-2 border-stone-200 shadow-md space-y-5 flex flex-col justify-between">
-                <div className="space-y-3.5">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="font-bold text-[11px] sm:text-xs text-forest-950 bg-forest-100 px-3 py-1 rounded-full border border-forest-200">
-                      {p.ratio}
-                    </span>
-                    <span className="font-bold text-[11px] sm:text-xs text-amber-950 bg-amber-100 px-3 py-1 rounded-full border border-amber-300">
-                      {p.spotsLeft}
-                    </span>
-                  </div>
-
-                  <h3 className="font-display font-black text-xl sm:text-2xl text-stone-950">{p.title}</h3>
-                  
-                  <div className="text-xs sm:text-sm font-bold text-forest-900 flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-forest-800 shrink-0" />
-                    <span>{p.dates}</span>
-                  </div>
-
-                  <p className="text-xs sm:text-sm text-stone-700 leading-relaxed font-medium">{p.desc}</p>
-                </div>
-
-                <div className="space-y-3.5 pt-4 border-t border-stone-200">
-                  <div className="flex items-baseline justify-between">
-                    <div>
-                      <span className="font-display font-black text-2xl sm:text-3xl text-stone-950">{p.price}</span>
-                      <span className="text-xs text-stone-600 font-semibold"> / week</span>
-                    </div>
-                    <span className="text-xs font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-                      {p.deposit} deposit
-                    </span>
-                  </div>
-
-                  <Link
-                    href="/register"
-                    className="w-full py-3.5 px-4 rounded-xl sm:rounded-2xl bg-forest-900 hover:bg-forest-950 text-white font-extrabold text-xs sm:text-sm shadow-md transition-all flex items-center justify-center gap-2 active:scale-98"
-                  >
-                    <span>Reserve Spot ({p.deposit} Deposit)</span>
-                    <ArrowRight className="w-4 h-4 shrink-0" />
-                  </Link>
-                </div>
-              </div>
-            ))}
+          <div className="flex flex-col sm:flex-row gap-4">
+            <Link href="/admin/import" className="btn-primary-agency text-xs sm:text-sm py-4 px-8">
+              <FileSpreadsheet className="w-4 h-4" />
+              <span>Test 1-Click Roster Importer</span>
+            </Link>
+            <Link href="/pricing" className="px-6 py-4 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-800 font-bold text-xs sm:text-sm text-center">
+              Calculate Your Camp&apos;s Savings →
+            </Link>
           </div>
 
         </div>
       </section>
 
-      {/* 3. FLAGSHIP SHOWCASE: CAMP HOPE */}
-      <section className="px-3 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto rounded-2xl sm:rounded-3xl overflow-hidden bg-stone-900 text-white p-6 sm:p-12 lg:p-14 border border-stone-800 shadow-xl">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-center">
-            
-            <div className="lg:col-span-7 space-y-4 sm:space-y-6">
-              <div className="flex items-center gap-2.5">
-                <span className="px-3 py-1 rounded-full bg-amber-400 text-stone-950 font-black text-[11px] sm:text-xs uppercase tracking-wider">
-                  FLAGSHIP CUSTOMER
-                </span>
-                <span className="text-xs sm:text-sm font-bold text-stone-300">
-                  Camp Hope • Summer 2027
-                </span>
-              </div>
+      {/* 5. FAQ ACCORDION */}
+      <section className="px-3 sm:px-6 lg:px-8 max-w-4xl mx-auto space-y-6">
+        <div className="text-center space-y-2">
+          <span className="font-mono text-xs font-bold uppercase text-stone-500 tracking-wider">FAQ</span>
+          <h2 className="font-display font-black text-2xl sm:text-4xl text-stone-950">
+            Frequently Asked Questions by Camp Directors
+          </h2>
+        </div>
 
-              <h2 className="font-display font-black text-2xl sm:text-4xl text-white leading-tight">
-                &quot;We switched from UltraCamp and eliminated 40 hours of volunteer phone tag.&quot;
-              </h2>
-
-              <p className="text-xs sm:text-base text-stone-200 leading-relaxed font-medium">
-                Camp Hope uses CamperRoster to power its 5-step parent registration, automated pastoral reference calling, health lodge eMAR, and cashless canteen point-of-sale.
-              </p>
-
-              <div className="grid grid-cols-3 gap-2 sm:gap-4 pt-3 border-t border-stone-800 text-xs sm:text-sm font-bold text-stone-300">
-                <div>
-                  <b className="font-display font-black text-xl sm:text-3xl text-amber-400 block">100</b>
-                  <span>Campers</span>
+        <div className="space-y-3">
+          {faqs.map((faq, idx) => (
+            <div
+              key={idx}
+              className="bg-white rounded-2xl border-2 border-stone-200 overflow-hidden shadow-xs"
+            >
+              <button
+                onClick={() => toggleFaq(idx)}
+                className="w-full p-5 text-left font-black text-sm sm:text-base text-stone-900 flex items-center justify-between gap-4 hover:bg-stone-50 transition-colors cursor-pointer"
+              >
+                <span>{faq.q}</span>
+                <ChevronDown className={`w-5 h-5 text-stone-500 transition-transform ${openFaq === idx ? "rotate-180" : ""}`} />
+              </button>
+              {openFaq === idx && (
+                <div className="p-5 pt-0 text-xs sm:text-sm text-stone-600 font-medium leading-relaxed border-t border-stone-100">
+                  {faq.a}
                 </div>
-                <div>
-                  <b className="font-display font-black text-xl sm:text-3xl text-emerald-400 block">100%</b>
-                  <span>Med Forms</span>
-                </div>
-                <div>
-                  <b className="font-display font-black text-xl sm:text-3xl text-sky-400 block">2 Min</b>
-                  <span>Ref Checks</span>
-                </div>
-              </div>
-
-              <div className="pt-2 flex flex-col sm:flex-row gap-3">
-                <Link
-                  href="/register"
-                  className="px-6 py-3 rounded-xl sm:rounded-full bg-emerald-400 text-stone-950 font-black text-xs sm:text-sm hover:bg-emerald-300 transition-colors text-center"
-                >
-                  Test Registration Flow →
-                </Link>
-                <Link
-                  href="/portal"
-                  className="px-6 py-3 rounded-xl sm:rounded-full bg-stone-800 hover:bg-stone-700 text-white font-bold text-xs sm:text-sm border border-stone-600 transition-colors text-center"
-                >
-                  Parent Portal Demo
-                </Link>
-              </div>
+              )}
             </div>
+          ))}
+        </div>
+      </section>
 
-            <div className="lg:col-span-5 relative h-56 sm:h-80 lg:h-96 rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl border border-stone-700">
-              <Image
-                src="/images/camp_hero.jpg"
-                alt="Camp Hope lake scenery"
-                fill
-                className="object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent flex items-end p-4 sm:p-6">
-                <div>
-                  <span className="font-mono text-[10px] sm:text-xs font-bold text-amber-300 uppercase tracking-widest block">
-                    Camp Hope • Session 1
-                  </span>
-                  <b className="text-white text-sm sm:text-base font-extrabold">July 11–17, 2027 • Grades 2–8</b>
-                </div>
-              </div>
-            </div>
-
+      {/* 6. BOTTOM CTA (B2B SOFTWARE ONBOARDING) */}
+      <section className="px-3 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+        <div className="bg-forest-950 text-white rounded-3xl p-8 sm:p-14 text-center space-y-6 shadow-2xl border-2 border-emerald-400">
+          <span className="eyebrow-pill bg-emerald-400/20 text-emerald-300 border border-emerald-400/30">
+            READY FOR SUMMER 2027?
+          </span>
+          <h2 className="font-display font-black text-3xl sm:text-5xl text-white">
+            Launch your camp portal in 3 minutes.
+          </h2>
+          <p className="text-sm sm:text-base text-stone-300 max-w-xl mx-auto leading-relaxed">
+            $0 setup, $0 off-season retainers, and free 1-click roster migration. Join the modern standard for camp management.
+          </p>
+          <div className="pt-2 flex flex-col sm:flex-row justify-center gap-3">
+            <Link
+              href="/start"
+              className="px-10 py-4 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-stone-950 font-black text-sm shadow-xl active:scale-98 transition-transform"
+            >
+              Create Camp Portal ($0 Setup) →
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* 4. ULTRACAMP TEARDOWN */}
-      <section className="px-3 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto space-y-8 sm:space-y-12">
-          
-          <div className="text-center max-w-2xl mx-auto space-y-2 sm:space-y-3">
-            <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-200 text-amber-950 font-black text-[11px] sm:text-xs uppercase tracking-widest">
-              THE ULTRACAMP TEARDOWN
-            </span>
-            <h2 className="font-display font-black text-2xl sm:text-4xl lg:text-5xl text-stone-950 tracking-tight">
-              Built to fix what camp directors hate about legacy software.
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-            {painPoints.map((item, idx) => {
-              const Icon = item.icon;
-              return (
-                <div key={idx} className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 border-2 border-stone-200 shadow-md space-y-4 flex flex-col justify-between">
-                  <div className="space-y-3">
-                    <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl ${item.bg} flex items-center justify-center`}>
-                      <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${item.color}`} />
-                    </div>
-
-                    <div className="space-y-1">
-                      <span className="font-bold text-[10px] sm:text-xs uppercase text-rose-950 bg-rose-100 px-2.5 py-0.5 rounded-full border border-rose-200">
-                        Legacy UltraCamp
-                      </span>
-                      <p className="text-xs sm:text-sm font-bold text-stone-700 line-through decoration-rose-500 pt-0.5">
-                        {item.legacy}
-                      </p>
-                    </div>
-
-                    <div className="space-y-1 pt-2 border-t border-stone-100">
-                      <span className="font-bold text-[10px] sm:text-xs uppercase text-emerald-950 bg-emerald-100 px-2.5 py-0.5 rounded-full border border-emerald-300">
-                        CamperRoster Standard
-                      </span>
-                      <p className="text-sm sm:text-base font-black text-stone-950 pt-0.5">
-                        {item.camperroster}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-        </div>
-      </section>
-
-      {/* 5. FAQS ACCORDION */}
-      <section className="px-3 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8">
-          
-          <div className="text-center space-y-2">
-            <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-stone-200 text-stone-950 font-bold text-[11px] sm:text-xs uppercase tracking-widest">
-              CAMP DIRECTORS & PARENTS
-            </span>
-            <h2 className="font-display font-black text-2xl sm:text-4xl text-stone-950">
-              Frequently Asked Questions
-            </h2>
-          </div>
-
-          <div className="space-y-3 sm:space-y-4">
-            {faqs.map((faq, idx) => {
-              const isOpen = openFaq === idx;
-              return (
-                <div key={idx} className="bg-white rounded-xl sm:rounded-2xl border-2 border-stone-200 shadow-xs overflow-hidden">
-                  <button
-                    onClick={() => setOpenFaq(isOpen ? null : idx)}
-                    className="w-full p-4 sm:p-6 text-left flex items-center justify-between gap-3 font-display font-extrabold text-sm sm:text-lg text-stone-950 hover:text-forest-900 transition-colors cursor-pointer"
-                  >
-                    <span>{faq.q}</span>
-                    <ChevronDown className={`w-4 h-4 sm:w-5 sm:h-5 shrink-0 transition-transform duration-300 ${isOpen ? "rotate-180 text-forest-900" : "text-stone-500"}`} />
-                  </button>
-                  {isOpen && (
-                    <div className="px-4 sm:px-6 pb-4 sm:pb-6 pt-1 text-xs sm:text-sm text-stone-800 font-medium leading-relaxed border-t border-stone-100 animate-in fade-in duration-300">
-                      {faq.a}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-        </div>
-      </section>
-
-      <KaiCallsSimulatorModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
     </main>
   );
 }
