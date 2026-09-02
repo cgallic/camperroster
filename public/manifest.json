@@ -1,0 +1,98 @@
+{
+  "name": "CamperRoster \u2014 Camp Registration & Operations OS",
+  "short_name": "CamperRoster",
+  "description": "The modern camp registration and operations platform for directors, nurses, counselors, and parents.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0c1713",
+  "theme_color": "#10b981",
+  "orientation": "portrait",
+  "categories": [
+    "business",
+    "education",
+    "lifestyle",
+    "utilities"
+  ],
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/maskable-icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Parent Household Portal",
+      "short_name": "Parent Portal",
+      "description": "View camper packing list, Bunk Notes, and Canteen Wallet",
+      "url": "/portal",
+      "icons": [
+        {
+          "src": "/icons/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Express Gate QR Check-In",
+      "short_name": "Gate Check-In",
+      "description": "Sunday opening-day 45-second gate drop-off scanner",
+      "url": "/admin/checkin",
+      "icons": [
+        {
+          "src": "/icons/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Health Lodge Tablet eMAR",
+      "short_name": "Nurse eMAR",
+      "description": "Medication dosage dispensing and electronic health records",
+      "url": "/nurse/emar",
+      "icons": [
+        {
+          "src": "/icons/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Counselor Cabin Roster",
+      "short_name": "Counselor Roster",
+      "description": "Live cabin attendance and parent phone contacts",
+      "url": "/counselor",
+      "icons": [
+        {
+          "src": "/icons/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Cashless Canteen Store POS",
+      "short_name": "Canteen POS",
+      "description": "Digital wristband scanner for camp snacks and store",
+      "url": "/canteen/pos",
+      "icons": [
+        {
+          "src": "/icons/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}
