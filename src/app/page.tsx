@@ -30,8 +30,8 @@ export default function B2BSaasHomePage() {
       a: "Unlike legacy systems like UltraCamp that bill camps $275 to $975 every month year-round, CamperRoster charges $0/month during your 7 to 9 off-season months. You only pay a flat $4 to $6 per registered camper during active registration seasons."
     },
     {
-      q: "How does the KaiCalls automated volunteer reference check work?",
-      a: "When a counselor or staff applicant applies, KaiCalls AI Voice Assistant automatically dials their pastor, youth leader, or mentor. It conducts a friendly 2-minute safety interview, records the call, and delivers a verified transcript and safety assessment directly to your director dashboard."
+      q: "How does the automated volunteer reference check work?",
+      a: "When a counselor or staff applicant applies, KaiCalls Voice Assistant automatically dials their pastor, youth leader, or mentor. It conducts a friendly 2-minute character interview, records the call, and delivers a verified transcript and safety assessment directly to your director dashboard."
     },
     {
       q: "How do we migrate our existing roster data from UltraCamp or spreadsheets?",
@@ -56,7 +56,7 @@ export default function B2BSaasHomePage() {
             alt="Camp Management Software Background"
             fill
             priority
-            className="object-cover opacity-25 filter brightness-75"
+            className="object-cover opacity-30 filter brightness-75"
           />
 
           {/* TOP EYEBROW BADGES */}
@@ -111,11 +111,11 @@ export default function B2BSaasHomePage() {
               </span>
               <span className="flex items-center gap-1.5 text-stone-200">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                <span>KaiCalls Voice AI References</span>
+                <span>Automated Pastoral Phone Checks</span>
               </span>
               <span className="flex items-center gap-1.5 text-stone-200">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                <span>Health Lodge eMAR</span>
+                <span>Health Lodge Tablet eMAR</span>
               </span>
               <span className="flex items-center gap-1.5 text-stone-200">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400" />
@@ -128,7 +128,7 @@ export default function B2BSaasHomePage() {
         </div>
       </section>
 
-      {/* 2. THE COMPLETE SOFTWARE OPERATIONS SUITE (WHAT WE SELL) */}
+      {/* 2. THE COMPLETE SOFTWARE OPERATIONS SUITE WITH AUTHENTIC PHOTOGRAPHY */}
       <section className="px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-12">
         <div className="text-center max-w-3xl mx-auto space-y-3">
           <span className="eyebrow-pill bg-forest-100 text-forest-900 border border-forest-200">
@@ -145,102 +145,156 @@ export default function B2BSaasHomePage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           
           {/* TOOL 1: 5-STEP REGISTRATION WIZARD */}
-          <div className="bg-white rounded-3xl p-7 border-2 border-stone-200 shadow-md space-y-4 hover:border-forest-800 transition-all flex flex-col justify-between">
-            <div className="space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-forest-50 text-forest-900 flex items-center justify-center border border-forest-200">
-                <Users className="w-6 h-6" />
-              </div>
-              <h3 className="font-display font-black text-xl text-stone-950">5-Step Mobile Parent Registration</h3>
-              <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-                Frictionless registration wizard with 16px touch inputs (no iOS zoom bugs), multi-camper household discounts, camera insurance uploads, and deposit schedules.
-              </p>
+          <div className="bg-white rounded-3xl overflow-hidden border-2 border-stone-200 shadow-md hover:border-forest-800 transition-all flex flex-col justify-between">
+            <div className="relative h-48 w-full bg-stone-100">
+              <Image
+                src="/images/camp_parent_reg.jpg"
+                alt="Mobile Parent Registration at Home"
+                fill
+                className="object-cover"
+              />
             </div>
-            <Link href="/register" className="text-xs font-black text-forest-900 flex items-center gap-1 hover:underline pt-2">
-              <span>Test Registration Flow →</span>
-            </Link>
+            <div className="p-6 space-y-3 flex-1 flex flex-col justify-between">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-display font-black text-xl text-stone-950">5-Step Mobile Parent Registration</h3>
+                  <span className="text-[10px] font-bold bg-emerald-100 text-emerald-900 px-2.5 py-0.5 rounded-full">NO ZOOM BUGS</span>
+                </div>
+                <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
+                  Frictionless registration wizard with 16px touch inputs (no iOS zoom bugs), multi-camper household discounts, camera insurance uploads, and deposit schedules.
+                </p>
+              </div>
+              <Link href="/register" className="text-xs font-black text-forest-900 flex items-center gap-1 hover:underline pt-3">
+                <span>Test Registration Flow →</span>
+              </Link>
+            </div>
           </div>
 
           {/* TOOL 2: KAICALLS VOICE AI REFERENCES */}
-          <div className="bg-white rounded-3xl p-7 border-2 border-amber-300 shadow-md space-y-4 hover:border-amber-500 transition-all flex flex-col justify-between bg-amber-50/20">
-            <div className="space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-900 flex items-center justify-center border border-amber-300">
-                <PhoneCall className="w-6 h-6" />
-              </div>
-              <div className="flex items-center gap-2">
-                <h3 className="font-display font-black text-xl text-stone-950">KaiCalls Voice AI References</h3>
-                <span className="text-[10px] font-bold bg-amber-400 text-stone-950 px-2 py-0.5 rounded-full">AI MOAT</span>
-              </div>
-              <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-                Cuts 40+ hours of spring phone tag. Voice AI calls pastoral and mentor references, conducts 2-minute interviews, and saves verified transcripts with safety scores.
-              </p>
+          <div className="bg-white rounded-3xl overflow-hidden border-2 border-amber-300 shadow-md hover:border-amber-500 transition-all flex flex-col justify-between">
+            <div className="relative h-48 w-full bg-stone-100">
+              <Image
+                src="/images/camp_pastor_call.jpg"
+                alt="Pastoral and Mentor Reference Check"
+                fill
+                className="object-cover"
+              />
             </div>
-            <Link href="/volunteer" className="text-xs font-black text-amber-900 flex items-center gap-1 hover:underline pt-2">
-              <span>See Volunteer Voice Demo →</span>
-            </Link>
+            <div className="p-6 space-y-3 flex-1 flex flex-col justify-between bg-amber-50/20">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-display font-black text-xl text-stone-950">KaiCalls Automated Reference Checks</h3>
+                  <span className="text-[10px] font-bold bg-amber-400 text-stone-950 px-2.5 py-0.5 rounded-full">AUTOMATED CALLING</span>
+                </div>
+                <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
+                  Cuts 40+ hours of spring phone tag. Voice Assistant dials pastoral and mentor references, conducts 2-minute interviews, and saves verified transcripts with character scores.
+                </p>
+              </div>
+              <Link href="/volunteer" className="text-xs font-black text-amber-900 flex items-center gap-1 hover:underline pt-3">
+                <span>See Volunteer Voice Demo →</span>
+              </Link>
+            </div>
           </div>
 
           {/* TOOL 3: HEALTH LODGE EMAR */}
-          <div className="bg-white rounded-3xl p-7 border-2 border-stone-200 shadow-md space-y-4 hover:border-forest-800 transition-all flex flex-col justify-between">
-            <div className="space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-900 flex items-center justify-center border border-emerald-200">
-                <Tablet className="w-6 h-6" />
-              </div>
-              <h3 className="font-display font-black text-xl text-stone-950">Health Lodge Tablet eMAR</h3>
-              <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-                Tablet medication dispenser for camp nurses. Schedule and log Breakfast, Lunch, Dinner, and Bedtime doses with timestamped records compliant with ACA and HIPAA.
-              </p>
+          <div className="bg-white rounded-3xl overflow-hidden border-2 border-stone-200 shadow-md hover:border-forest-800 transition-all flex flex-col justify-between">
+            <div className="relative h-48 w-full bg-stone-100">
+              <Image
+                src="/images/camp_counselor_tablet.jpg"
+                alt="Health Lodge Nurse Tablet eMAR"
+                fill
+                className="object-cover"
+              />
             </div>
-            <Link href="/nurse/emar" className="text-xs font-black text-emerald-900 flex items-center gap-1 hover:underline pt-2">
-              <span>View Nurse Tablet eMAR →</span>
-            </Link>
+            <div className="p-6 space-y-3 flex-1 flex flex-col justify-between">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-display font-black text-xl text-stone-950">Health Lodge Tablet eMAR</h3>
+                  <span className="text-[10px] font-bold bg-emerald-100 text-emerald-900 px-2.5 py-0.5 rounded-full">ACA & HIPAA</span>
+                </div>
+                <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
+                  Tablet medication dispenser for camp nurses. Schedule and log Breakfast, Lunch, Dinner, and Bedtime doses with timestamped records compliant with ACA and HIPAA.
+                </p>
+              </div>
+              <Link href="/nurse/emar" className="text-xs font-black text-emerald-900 flex items-center gap-1 hover:underline pt-3">
+                <span>View Nurse Tablet eMAR →</span>
+              </Link>
+            </div>
           </div>
 
           {/* TOOL 4: 45-SEC EXPRESS GATE CHECK-IN */}
-          <div className="bg-white rounded-3xl p-7 border-2 border-stone-200 shadow-md space-y-4 hover:border-forest-800 transition-all flex flex-col justify-between">
-            <div className="space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-purple-50 text-purple-900 flex items-center justify-center border border-purple-200">
-                <QrCode className="w-6 h-6" />
-              </div>
-              <h3 className="font-display font-black text-xl text-stone-950">45-Second Express Gate QR Check-In</h3>
-              <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-                Eliminate Sunday vehicle drop-off traffic. Parents show their digital boarding pass QR; gate counselors scan to verify RN medical clearance and cabin placement instantly.
-              </p>
+          <div className="bg-white rounded-3xl overflow-hidden border-2 border-stone-200 shadow-md hover:border-forest-800 transition-all flex flex-col justify-between">
+            <div className="relative h-48 w-full bg-stone-100">
+              <Image
+                src="/images/camp_opening_checkin.jpg"
+                alt="Sunday Opening Day Gate Check-in"
+                fill
+                className="object-cover"
+              />
             </div>
-            <Link href="/admin/checkin" className="text-xs font-black text-purple-900 flex items-center gap-1 hover:underline pt-2">
-              <span>Test Express Gate Scanner →</span>
-            </Link>
+            <div className="p-6 space-y-3 flex-1 flex flex-col justify-between">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-display font-black text-xl text-stone-950">45-Second Express Gate QR Check-In</h3>
+                  <span className="text-[10px] font-bold bg-purple-100 text-purple-900 px-2.5 py-0.5 rounded-full">ZERO TRAFFIC</span>
+                </div>
+                <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
+                  Eliminate Sunday vehicle drop-off traffic. Parents show their digital boarding pass QR; gate counselors scan to verify RN medical clearance and cabin placement instantly.
+                </p>
+              </div>
+              <Link href="/admin/checkin" className="text-xs font-black text-purple-900 flex items-center gap-1 hover:underline pt-3">
+                <span>Test Express Gate Scanner →</span>
+              </Link>
+            </div>
           </div>
 
           {/* TOOL 5: CASHLESS CANTEEN STORE POS */}
-          <div className="bg-white rounded-3xl p-7 border-2 border-stone-200 shadow-md space-y-4 hover:border-forest-800 transition-all flex flex-col justify-between">
-            <div className="space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-sky-50 text-sky-900 flex items-center justify-center border border-sky-200">
-                <DollarSign className="w-6 h-6" />
-              </div>
-              <h3 className="font-display font-black text-xl text-stone-950">Cashless Canteen Store POS</h3>
-              <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-                Campers buy snacks and merchandise with digital wristbands. Parents reload balances online from the portal with zero cash lost in the lake or cabin.
-              </p>
+          <div className="bg-white rounded-3xl overflow-hidden border-2 border-stone-200 shadow-md hover:border-forest-800 transition-all flex flex-col justify-between">
+            <div className="relative h-48 w-full bg-stone-100">
+              <Image
+                src="/images/camp_canteen_wristband.jpg"
+                alt="Camp Canteen Wristband POS"
+                fill
+                className="object-cover"
+              />
             </div>
-            <Link href="/canteen/pos" className="text-xs font-black text-sky-900 flex items-center gap-1 hover:underline pt-2">
-              <span>View Canteen POS Register →</span>
-            </Link>
+            <div className="p-6 space-y-3 flex-1 flex flex-col justify-between">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-display font-black text-xl text-stone-950">Cashless Canteen Store POS</h3>
+                  <span className="text-[10px] font-bold bg-sky-100 text-sky-900 px-2.5 py-0.5 rounded-full">WRISTBAND POS</span>
+                </div>
+                <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
+                  Campers buy snacks and merchandise with digital wristbands. Parents reload balances online from the portal with zero cash lost in the lake or cabin.
+                </p>
+              </div>
+              <Link href="/canteen/pos" className="text-xs font-black text-sky-900 flex items-center gap-1 hover:underline pt-3">
+                <span>View Canteen POS Register →</span>
+              </Link>
+            </div>
           </div>
 
           {/* TOOL 6: DAILY BUNK NOTES BATCH PRINTER */}
-          <div className="bg-white rounded-3xl p-7 border-2 border-stone-200 shadow-md space-y-4 hover:border-forest-800 transition-all flex flex-col justify-between">
-            <div className="space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-900 flex items-center justify-center border border-rose-200">
-                <Mail className="w-6 h-6" />
+          <div className="bg-white rounded-3xl overflow-hidden border-2 border-stone-200 shadow-md hover:border-forest-800 transition-all flex flex-col justify-between">
+            <div className="relative h-48 w-full bg-rose-50 flex items-center justify-center p-8">
+              <div className="w-16 h-16 rounded-3xl bg-rose-100 text-rose-900 flex items-center justify-center border-2 border-rose-300 shadow-md">
+                <Mail className="w-8 h-8" />
               </div>
-              <h3 className="font-display font-black text-xl text-stone-950">Daily Bunk Notes 11:00 AM Mail Call</h3>
-              <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-                Parents submit daily letters online. Directors click 1 button to print sorted, formatted 8.5x11 sheets grouped by cabin for daily counselor mail call.
-              </p>
             </div>
-            <Link href="/admin/bunk-notes" className="text-xs font-black text-rose-900 flex items-center gap-1 hover:underline pt-2">
-              <span>View Bunk Notes Batch Sheet →</span>
-            </Link>
+            <div className="p-6 space-y-3 flex-1 flex flex-col justify-between">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-display font-black text-xl text-stone-950">Daily Bunk Notes 11:00 AM Mail Call</h3>
+                  <span className="text-[10px] font-bold bg-rose-100 text-rose-900 px-2.5 py-0.5 rounded-full">1-CLICK PRINT</span>
+                </div>
+                <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
+                  Parents submit daily letters online. Directors click 1 button to print sorted, formatted 8.5x11 sheets grouped by cabin for daily counselor mail call.
+                </p>
+              </div>
+              <Link href="/admin/bunk-notes" className="text-xs font-black text-rose-900 flex items-center gap-1 hover:underline pt-3">
+                <span>View Bunk Notes Batch Sheet →</span>
+              </Link>
+            </div>
           </div>
 
         </div>
@@ -281,7 +335,7 @@ export default function B2BSaasHomePage() {
               <b className="font-display font-black text-3xl sm:text-4xl text-amber-400 block">40 Hours</b>
               <span className="text-xs font-bold text-stone-300 block">Director Phone Tag Eliminated</span>
               <p className="text-xs text-stone-400 leading-relaxed pt-1">
-                KaiCalls Voice AI automated 90+ volunteer pastoral reference check interviews with audio and transcripts.
+                KaiCalls automated 90+ volunteer pastoral reference check interviews with audio and transcripts.
               </p>
             </div>
 
@@ -358,7 +412,7 @@ export default function B2BSaasHomePage() {
         </div>
       </section>
 
-      {/* 6. BOTTOM CTA (B2B SOFTWARE ONBOARDING) */}
+      {/* 6. BOTTOM CTA */}
       <section className="px-3 sm:px-6 lg:px-8 max-w-5xl mx-auto">
         <div className="bg-forest-950 text-white rounded-3xl p-8 sm:p-14 text-center space-y-6 shadow-2xl border-2 border-emerald-400">
           <span className="eyebrow-pill bg-emerald-400/20 text-emerald-300 border border-emerald-400/30">
