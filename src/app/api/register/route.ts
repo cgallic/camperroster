@@ -7,12 +7,22 @@ export async function POST(req: Request) {
     const {
       firstName,
       lastName,
+      camperFirstName,
+      camperLastName,
       dob,
+      camperDob,
       gender,
       grade,
-      address,
+      parentStreet,
+      parentCity,
+      parentState,
+      parentZip,
       guardianName,
       guardianPhone,
+      parentFirstName,
+      parentLastName,
+      parentEmail,
+      parentPhone,
       hasAllergies,
       allergyDetails,
       hasEpipen,
@@ -20,11 +30,44 @@ export async function POST(req: Request) {
       memberId,
       groupNumber,
       buddyName,
+      cabinBuddy,
       waiverMedical,
       waiverWater,
+      emergencyAuth,
+      waterfrontConsent,
       paymentPlan,
+      payment_plan,
       signature,
     } = body;
+
+    const submittedGuardianName = guardianName || [parentFirstName, parentLastName].filter(Boolean).join(" ");
+    const submittedCamperFirstName = firstName || camperFirstName;
+    const submittedCamperLastName = lastName || camperLastName;
+    const submittedDob = dob || camperDob;
+    const submittedGuardianPhone = guardianPhone || parentPhone;
+    const submittedBuddyName = buddyName || cabinBuddy;
+    const submittedPaymentPlan = paymentPlan || payment_plan;
+    const medicalConsent = waiverMedical ?? emergencyAuth;
+    const waterConsent = waiverWater ?? waterfrontConsent;
+
+    if (
+      !submittedGuardianName ||
+      !parentEmail ||
+      !submittedGuardianPhone ||
+      !parentStreet ||
+      !parentCity ||
+      !parentState ||
+      !parentZip ||
+      !submittedCamperFirstName ||
+      !submittedCamperLastName ||
+      !submittedDob ||
+      !signature
+    ) {
+      return NextResponse.json(
+        { success: false, error: "Missing required registration fields." },
+        { status: 400 }
+      );
+    }
 
     const orgId = process.env.CAMP_ORGANIZATION_ID || "11111111-1111-1111-1111-111111111111";
     const sessionId = process.env.CAMP_SESSION_ID || "22222222-2222-2222-2222-222222222222";
@@ -33,15 +76,15 @@ export async function POST(req: Request) {
       .from("guardians")
       .insert({
         organization_id: orgId,
-        first_name: guardianName ? guardianName.split(" ")[0] : "Guardian",
-        last_name: guardianName ? guardianName.split(" ").slice(1).join(" ") : "Parent",
-        email: "parent." + Date.now() + "@example.com",
-        phone: guardianPhone || "(908) 555-0147",
+        first_name: submittedGuardianName.split(" ")[0],
+        last_name: submittedGuardianName.split(" ").slice(1).join(" ") || "Guardian",
+        email: parentEmail,
+        phone: submittedGuardianPhone,
         relationship: "Parent / Guardian",
-        address_line1: address || "12 Evergreen Lane",
-        city: "Bernardsville",
-        state: "NJ",
-        zip: "07924",
+        address_line1: parentStreet,
+        city: parentCity,
+        state: parentState,
+        zip: parentZip,
       })
       .select("id")
       .single();
@@ -52,9 +95,9 @@ export async function POST(req: Request) {
       .from("campers")
       .insert({
         guardian_id: guardian.id,
-        legal_first_name: firstName || "Camper",
-        legal_last_name: lastName || "Camper",
-        birth_date: dob || "2017-08-14",
+        legal_first_name: submittedCamperFirstName,
+        legal_last_name: submittedCamperLastName,
+        birth_date: submittedDob,
         gender: gender || "male",
         grade_entering: parseInt(grade) || 4,
       })
@@ -80,13 +123,13 @@ export async function POST(req: Request) {
       await supabaseAdmin.from("insurance_policies").insert({
         camper_id: camper.id,
         insurance_company: insuranceCarrier,
-        policyholder_name: guardianName || "Guardian",
+        policyholder_name: submittedGuardianName,
         relationship_to_camper: "Guardian",
-        member_id: memberId || "MEMBER123",
-        group_number: groupNumber || "GRP123",
-        card_front_url: "verified_card_front.jpg",
-        card_back_url: "verified_card_back.jpg",
-        status: "verified",
+        member_id: memberId || null,
+        group_number: groupNumber || null,
+        card_front_url: null,
+        card_back_url: null,
+        status: "pending_review",
       });
     }
 
@@ -101,15 +144,15 @@ export async function POST(req: Request) {
         step_completed: 5,
         progress_percentage: 100,
         consents_agreed: {
-          emergency_medical: Boolean(waiverMedical),
-          waterfront_swimming: Boolean(waiverWater),
+          emergency_medical: Boolean(medicalConsent),
+          waterfront_swimming: Boolean(waterConsent),
         },
-        signed_by: signature || guardianName || "Peter Gallic",
+        signed_by: signature,
         signed_at: new Date().toISOString(),
-        buddy_requests: buddyName ? [buddyName] : [],
-        payment_plan: paymentPlan || "installment_3mo",
+        buddy_requests: submittedBuddyName ? [submittedBuddyName] : [],
+        payment_plan: submittedPaymentPlan || "installment_3mo",
         total_tuition_cents: 65000,
-        amount_paid_cents: 10000,
+        amount_paid_cents: 0,
       })
       .select("id")
       .single();
