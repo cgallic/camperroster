@@ -25,12 +25,19 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { camper_name, sender_name, sender_relation, message, delivery_date, registration_id } = body;
 
+    if (!camper_name || !sender_name || !message) {
+      return NextResponse.json(
+        { success: false, error: "Missing required bunk note fields." },
+        { status: 400 }
+      );
+    }
+
     const { data, error } = await supabaseAdmin.from("bunk_notes").insert({
       registration_id: registration_id || null,
-      camper_name: camper_name || "Jamie Gallic",
-      sender_name: sender_name || "Mom & Dad",
+      camper_name,
+      sender_name,
       sender_relation: sender_relation || "Parent",
-      message: message,
+      message,
       delivery_date: delivery_date || new Date().toISOString().split("T")[0]
     }).select().single();
 
