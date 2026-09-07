@@ -19,7 +19,7 @@ import {
 export default function RegisterPage() {
   const [step, setStep] = useState(1);
   const [session, setSession] = useState("session-1");
-  const [paymentPlan, setPaymentPlan] = useState("installment");
+  const [paymentPlan, setPaymentPlan] = useState("installment_3mo");
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
@@ -635,9 +635,9 @@ export default function RegisterPage() {
               <label className="text-xs sm:text-sm font-bold text-stone-800">Select Tuition Schedule *</label>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div
-                  onClick={() => setPaymentPlan("installment")}
+                  onClick={() => setPaymentPlan("installment_3mo")}
                   className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                    paymentPlan === "installment" ? "border-forest-800 bg-forest-50 shadow-sm" : "border-stone-200 bg-white"
+                    paymentPlan === "installment_3mo" ? "border-forest-800 bg-forest-50 shadow-sm" : "border-stone-200 bg-white"
                   }`}
                 >
                   <b className="text-xs sm:text-sm font-black text-stone-900 block">3-Month Plan (Recommended)</b>
