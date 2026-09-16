@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { badRequest, fromZod, requireMailAdmin } from "../_guard";
+import type { Database } from "@/lib/supabase/database.types";
+
+type MessagePatch = Database["public"]["Tables"]["outgoing_messages"]["Update"];
 
 export const dynamic = "force-dynamic";
 
@@ -36,7 +39,9 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
   if (!existing) return NextResponse.json({ error: "No such message" }, { status: 404 });
   if (existing.status === "sent") return badRequest("That message has already gone out");
 
-  const patch: Record<string, unknown> = {};
+  // Typed against the generated row, so a misspelled column fails the build
+  // rather than silently doing nothing at runtime.
+  const patch: MessagePatch = {};
   if (input.subject !== undefined) patch.subject = input.subject;
   if (input.body !== undefined) patch.body = input.body;
   if (input.audienceLabel !== undefined) patch.audience_label = input.audienceLabel;

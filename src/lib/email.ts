@@ -15,8 +15,9 @@
  * deliberately separate, so rendering a page can never post a letter.
  */
 
-import { createHash, timingSafeEqual as nodeTimingSafeEqual } from "crypto";
+import { createHash, timingSafeEqual as nodeTimingSafeEqual } from "node:crypto";
 import nodemailer from "nodemailer";
+import type { Transporter } from "nodemailer";
 import { PROVISIONAL_HOLD_MESSAGE } from "./registration-status";
 
 export type Recipient = {
@@ -324,9 +325,9 @@ export function smtpConfig(): SmtpConfig | null {
   return { host, port, user, pass, from, secure: port === 465 };
 }
 
-let cachedTransport: nodemailer.Transporter | null = null;
+let cachedTransport: Transporter | null = null;
 
-function transport(config: SmtpConfig): nodemailer.Transporter {
+function transport(config: SmtpConfig): Transporter {
   if (!cachedTransport) {
     cachedTransport = nodemailer.createTransport({
       host: config.host,

@@ -18,9 +18,10 @@ export default async function MailQueuePage() {
 
   const { data } = await supabase
     .from("outgoing_messages")
+    // One literal string, not a concatenation: the generated types only resolve
+    // a select list the compiler can read at build time.
     .select(
-      "id, subject, body, audience_label, recipients, source_view, scheduled_for, status, " +
-        "approved_at, sent_at, failure_reason, created_at, template_id"
+      "id, subject, body, audience_label, recipients, source_view, scheduled_for, status, approved_at, sent_at, failure_reason, created_at, template_id"
     )
     .order("created_at", { ascending: false })
     .limit(200);
