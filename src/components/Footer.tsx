@@ -51,6 +51,7 @@ export default function Footer() {
               <li><Link href="/church-camp-registration-software" className="hover:text-white transition-colors">Church & Faith-Based Camps</Link></li>
               <li><Link href="/camp-registration-software-vs-google-forms" className="hover:text-white transition-colors">vs Google Forms & Venmo</Link></li>
               <li><Link href="/pricing" className="hover:text-white transition-colors">Transparent Pricing</Link></li>
+              <li><Link href="/blog" className="hover:text-white transition-colors">Camp Operations Guides</Link></li>
               <li><Link href="/start" className="text-emerald-400 hover:text-emerald-300 font-bold transition-colors">Launch Your Camp ($0 Setup)</Link></li>
             </ul>
           </div>
