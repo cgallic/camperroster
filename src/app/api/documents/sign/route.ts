@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { NextResponse } from "next/server";
-import { createHash } from "node:crypto";
 import { z } from "zod";
 import { requireDocumentAccess, fromZod, clientIp } from "../_guard";
+import { sha256Hex } from "@/lib/signatures";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -17,12 +17,6 @@ const BodySchema = z.object({
   /** Typed-name signing: the signer retypes their name to affirm. */
   typedConfirmation: z.string().min(2).max(120),
 });
-
-export function sha256Hex(text: string): string {
-  // Normalize only line endings — everything else, including whitespace, is
-  // part of what was agreed to and must hash exactly as displayed.
-  return createHash("sha256").update(text.replace(/\r\n/g, "\n"), "utf8").digest("hex");
-}
 
 /**
  * Records a typed-name signature.
