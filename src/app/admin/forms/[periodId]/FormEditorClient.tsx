@@ -28,6 +28,7 @@ import {
   type RegistrationPeriod,
   type VisibleWhen,
 } from "@/lib/forms";
+import { Badge, Button, Notice, Panel } from "@/components/ui";
 import { rotateAccessToken, savePeriodSettings, saveForm, unpublishForm, type FieldDraft } from "../actions";
 
 type EditorField = FieldDraft & { uid: string; open: boolean };
@@ -52,7 +53,7 @@ function fromLocalInput(value: string): string | null {
 }
 
 const inputClass =
-  "w-full rounded-xl border-2 border-stone-200 px-3 py-2 text-sm text-stone-900 focus:border-forest-400 focus:outline-none";
+  "w-full rounded-lg border border-stone-200 px-3 py-2 text-sm text-stone-900 focus:border-forest-600 focus:outline-none";
 const labelClass = "block text-[11px] font-bold uppercase tracking-wide text-stone-500 mb-1";
 
 export default function FormEditorClient({
@@ -178,22 +179,12 @@ export default function FormEditorClient({
 
   return (
     <div className="space-y-6">
-      {notice && (
-        <div
-          className={`rounded-2xl border-2 px-4 py-3 text-sm font-semibold ${
-            notice.ok
-              ? "border-emerald-200 bg-emerald-50 text-emerald-900"
-              : "border-red-200 bg-red-50 text-red-900"
-          }`}
-        >
-          {notice.message}
-        </div>
-      )}
+      {notice && <Notice tone={notice.ok ? "ok" : "error"}>{notice.message}</Notice>}
 
       {/* WINDOW + VISIBILITY */}
-      <section className="bg-white rounded-3xl border-2 border-stone-200 p-5 sm:p-6 space-y-4">
-        <h2 className="font-display font-black text-xl text-stone-900">When families can fill this out</h2>
-        <div className="grid sm:grid-cols-3 gap-4">
+      <Panel title="When families can fill this out">
+        <div className="space-y-4">
+        <div className="grid gap-4 sm:grid-cols-3">
           <div>
             <label className={labelClass}>Opens</label>
             <input type="datetime-local" value={opensAt} onChange={(e) => setOpensAt(e.target.value)} className={inputClass} />
@@ -219,40 +210,25 @@ export default function FormEditorClient({
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            onClick={handleSettings}
-            disabled={pending}
-            className="px-4 py-2 rounded-full bg-forest-800 text-white font-bold text-xs hover:bg-forest-900 disabled:opacity-50"
-          >
+          <Button type="button" variant="primary" onClick={handleSettings} disabled={pending}>
             Save window
-          </button>
-          <button
-            type="button"
-            onClick={() => handleToken(false)}
-            disabled={pending}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-stone-100 text-stone-800 font-bold text-xs hover:bg-stone-200 disabled:opacity-50"
-          >
-            <Link2 className="w-3.5 h-3.5" />
+          </Button>
+          <Button type="button" variant="secondary" onClick={() => handleToken(false)} disabled={pending}>
+            <Link2 className="h-3.5 w-3.5" />
             {period.access_token ? "Rotate private link" : "Generate private link"}
-          </button>
+          </Button>
           {period.access_token && (
-            <button
-              type="button"
-              onClick={() => handleToken(true)}
-              disabled={pending}
-              className="px-4 py-2 rounded-full bg-stone-100 text-stone-800 font-bold text-xs hover:bg-stone-200 disabled:opacity-50"
-            >
+            <Button type="button" variant="quiet" onClick={() => handleToken(true)} disabled={pending}>
               Retire link
-            </button>
+            </Button>
           )}
           <a
             href={publicPath}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-stone-100 text-stone-800 font-bold text-xs hover:bg-stone-200"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-stone-200 bg-white px-3.5 py-2 text-xs font-bold text-stone-700 hover:bg-stone-50"
           >
-            <Eye className="w-3.5 h-3.5" />
+            <Eye className="h-3.5 w-3.5" />
             Preview
           </a>
         </div>
@@ -271,30 +247,29 @@ export default function FormEditorClient({
           </div>
         )}
         {visibility === "link_only" && !period.access_token && (
-          <p className="text-xs text-amber-800">
+          <p className="text-xs font-semibold text-sun-600">
             Link-only forms need a token. Generate one, or nobody can reach this form.
           </p>
         )}
-      </section>
+        </div>
+      </Panel>
 
       {/* FORM META */}
-      <section className="bg-white rounded-3xl border-2 border-stone-200 p-5 sm:p-6 space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="font-display font-black text-xl text-stone-900">The form</h2>
-          <div className="flex items-center gap-2">
-            {liveVersion && (
-              <span className="font-mono text-[10px] font-bold uppercase text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">
-                Live v{liveVersion.version}
-              </span>
-            )}
+      <Panel
+        title="The form"
+        actions={
+          <>
+            {liveVersion && <Badge tone="complete">Live v{liveVersion.version}</Badge>}
             {workingVersion && (
-              <span className="font-mono text-[10px] font-bold uppercase text-stone-700 bg-stone-100 border border-stone-200 px-2.5 py-1 rounded-full">
+              <Badge>
                 Editing v{workingVersion.version}
                 {workingVersion.isDraft ? " draft" : " (published)"}
-              </span>
+              </Badge>
             )}
-          </div>
-        </div>
+          </>
+        }
+      >
+        <div className="space-y-4">
         {workingVersion && !workingVersion.isDraft && (
           <p className="text-xs text-stone-600">
             This version is live. Saving creates version {workingVersion.version + 1} as a draft, leaving answers
@@ -311,7 +286,8 @@ export default function FormEditorClient({
             <input value={intro} onChange={(e) => setIntro(e.target.value)} className={inputClass} />
           </div>
         </div>
-      </section>
+        </div>
+      </Panel>
 
       {/* FIELDS */}
       <section className="space-y-3">
@@ -328,37 +304,24 @@ export default function FormEditorClient({
           />
         ))}
 
-        <button
-          type="button"
-          onClick={addField}
-          className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-forest-800 text-white font-bold text-xs hover:bg-forest-900"
-        >
-          <Plus className="w-4 h-4" />
+        <Button type="button" variant="primary" onClick={addField}>
+          <Plus className="h-4 w-4" />
           Add question
-        </button>
+        </Button>
       </section>
 
-      <div className="sticky bottom-0 bg-white/90 backdrop-blur border-t border-stone-200 py-3 flex flex-wrap gap-2">
-        <button
-          type="button"
-          onClick={() => handleSave(false)}
-          disabled={pending}
-          className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-stone-100 text-stone-800 font-bold text-sm hover:bg-stone-200 disabled:opacity-50"
-        >
-          <Save className="w-4 h-4" />
+      <div className="sticky bottom-0 flex flex-wrap gap-2 border-t border-stone-200 bg-white/90 py-3 backdrop-blur">
+        <Button type="button" variant="secondary" onClick={() => handleSave(false)} disabled={pending}>
+          <Save className="h-4 w-4" />
           Save draft
-        </button>
-        <button
-          type="button"
-          onClick={() => handleSave(true)}
-          disabled={pending}
-          className="px-5 py-2.5 rounded-full bg-forest-800 text-white font-bold text-sm hover:bg-forest-900 disabled:opacity-50"
-        >
+        </Button>
+        <Button type="button" variant="primary" onClick={() => handleSave(true)} disabled={pending}>
           {liveVersion ? "Save & publish new version" : "Publish"}
-        </button>
+        </Button>
         {liveVersion && (
-          <button
+          <Button
             type="button"
+            variant="quiet"
             disabled={pending}
             onClick={() =>
               startTransition(async () => {
@@ -367,10 +330,9 @@ export default function FormEditorClient({
                 if (result.ok) router.refresh();
               })
             }
-            className="px-5 py-2.5 rounded-full bg-stone-100 text-stone-800 font-bold text-sm hover:bg-stone-200 disabled:opacity-50"
           >
             Unpublish live form
-          </button>
+          </Button>
         )}
       </div>
     </div>
@@ -397,7 +359,7 @@ function FieldCard({
   const showOptions = OPTION_TYPES.includes(field.field_type);
 
   return (
-    <div className="bg-white rounded-2xl border-2 border-stone-200 p-4">
+    <div className="rounded-2xl border border-stone-200 bg-white p-4">
       <div className="flex items-start gap-2">
         <button
           type="button"
@@ -410,19 +372,9 @@ function FieldCard({
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <span className="font-bold text-stone-900 truncate">{field.label || "Untitled question"}</span>
-            <span className="font-mono text-[10px] uppercase text-stone-600 bg-stone-100 border border-stone-200 px-2 py-0.5 rounded-full">
-              {field.field_type}
-            </span>
-            {field.required && (
-              <span className="font-mono text-[10px] uppercase text-red-700 bg-red-50 border border-red-200 px-2 py-0.5 rounded-full">
-                required
-              </span>
-            )}
-            {field.visible_when && (
-              <span className="font-mono text-[10px] uppercase text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
-                conditional
-              </span>
-            )}
+            <Badge>{field.field_type}</Badge>
+            {field.required && <Badge tone="overdue">required</Badge>}
+            {field.visible_when && <Badge tone="pending">conditional</Badge>}
           </div>
           <p className="text-[11px] font-mono text-stone-500 mt-0.5 truncate">
             {field.field_key || "no key yet"}
@@ -436,7 +388,7 @@ function FieldCard({
           <button type="button" onClick={() => onMove(1)} disabled={index === total - 1} className="p-1.5 rounded-lg hover:bg-stone-100 disabled:opacity-30" aria-label="Move down">
             <ArrowDown className="w-4 h-4" />
           </button>
-          <button type="button" onClick={onDelete} className="p-1.5 rounded-lg text-red-700 hover:bg-red-50" aria-label="Delete question">
+          <button type="button" onClick={onDelete} className="rounded-lg p-1.5 text-alert-red hover:bg-alert-red-bg" aria-label="Delete question">
             <Trash2 className="w-4 h-4" />
           </button>
         </div>
@@ -555,7 +507,7 @@ function ConditionEditor({
   const unary = value ? UNARY_OPS.includes(value.op) : false;
 
   return (
-    <div className="rounded-2xl bg-stone-50 border border-stone-200 p-3 space-y-3">
+    <div className="space-y-3 rounded-xl border border-stone-200 bg-stone-50 p-3">
       <label className="flex items-center gap-2 text-sm font-semibold text-stone-800">
         <input
           type="checkbox"

@@ -10,6 +10,15 @@ import {
   type RegistrationPeriod,
 } from "@/lib/forms";
 import NewPeriodButton from "./NewPeriodButton";
+import {
+  Badge,
+  PageHeader,
+  Panel,
+  PageShell,
+  StatCard,
+  StatStrip,
+  StatusDot,
+} from "@/components/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -24,10 +33,13 @@ function formatWindow(period: RegistrationPeriod): string {
   return `${from} – ${to}`;
 }
 
-const VISIBILITY_STYLES: Record<string, string> = {
-  public: "bg-emerald-100 text-emerald-800 border-emerald-200",
-  link_only: "bg-amber-100 text-amber-800 border-amber-200",
-  closed: "bg-stone-200 text-stone-700 border-stone-300",
+import type { StatusTone } from "@/components/ui";
+
+/** Visibility is a label, not a status — it borrows the shared tones so the page keeps one colour language. */
+const VISIBILITY_TONES: Record<string, StatusTone> = {
+  public: "complete",
+  link_only: "pending",
+  closed: "neutral",
 };
 
 export default async function AdminFormsIndexPage() {
@@ -66,32 +78,60 @@ export default async function AdminFormsIndexPage() {
 
   const missing = FORM_AUDIENCES.filter((a) => !periods.some((p) => p.audience === a));
 
+  const accepting = periods.filter((p) => isPeriodOpen(p)).length;
+  const publishedCount = periods.filter((p) =>
+    definitions.some((d) => d.period_id === p.id && d.published_at),
+  ).length;
+  const draftCount = definitions.filter((d) => !d.published_at).length;
+
   return (
     <>
       <StaffHeader />
-      <main className="max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-stone-200 pb-4">
-          <div>
-            <span className="font-mono text-xs font-bold text-forest-800 bg-forest-100 px-3 py-1 rounded-full uppercase">
-              Form Builder
-            </span>
-            <h1 className="font-display font-black text-2xl sm:text-3xl text-stone-900 mt-2">
-              Registration Forms
-            </h1>
-            <p className="text-sm text-stone-600 mt-1">
-              {season ? `${season.name} (${season.year})` : "No active season — set one before building forms."}
-            </p>
-          </div>
-          <Link
-            href="/admin"
-            className="px-4 py-2 rounded-full bg-stone-100 text-stone-800 font-bold text-xs hover:bg-stone-200 w-max"
-          >
-            ← Back to Director Hub
-          </Link>
-        </div>
+      <PageShell width="narrow">
+        <PageHeader
+          eyebrow="Form builder"
+          title="Registration Forms"
+          description={
+            season ? `${season.name} (${season.year})` : "No active season — set one before building forms."
+          }
+          actions={
+            <Link
+              href="/admin"
+              className="inline-flex items-center rounded-lg border border-stone-200 bg-white px-3.5 py-2 text-xs font-bold text-stone-700 hover:bg-stone-50"
+            >
+              ← Back to Director Hub
+            </Link>
+          }
+        />
+
+        {season && (
+          <StatStrip>
+            <StatCard label="Registration periods" value={periods.length} tone="neutral" hint="One per audience." />
+            <StatCard
+              label="Accepting now"
+              value={accepting}
+              tone={accepting > 0 ? "complete" : "neutral"}
+              hint="Open to families this minute."
+            />
+            <StatCard
+              label="Published forms"
+              value={publishedCount}
+              of={periods.length}
+              tone="complete"
+              progress={periods.length > 0 ? (publishedCount / periods.length) * 100 : 0}
+              progressLabel="of periods have a live form"
+            />
+            <StatCard
+              label="Unpublished drafts"
+              value={draftCount}
+              tone={draftCount > 0 ? "pending" : "neutral"}
+              hint="Edited but not yet live."
+            />
+          </StatStrip>
+        )}
 
         {!season ? (
-          <div className="bg-white rounded-3xl border-2 border-stone-200 p-8 text-center text-stone-600">
+          <div className="rounded-2xl border border-dashed border-stone-300 bg-white p-10 text-center text-sm text-stone-500">
             No season is marked active. Activate a season to manage its registration forms.
           </div>
         ) : (
@@ -106,37 +146,28 @@ export default async function AdminFormsIndexPage() {
                   <Link
                     key={period.id}
                     href={`/admin/forms/${period.id}`}
-                    className="block bg-white rounded-2xl border-2 border-stone-200 hover:border-forest-300 hover:shadow-md transition p-5"
+                    className="block rounded-2xl border border-stone-200 bg-white p-5 transition hover:border-forest-600 hover:shadow-sm"
                   >
                     <div className="flex flex-wrap items-center gap-2 justify-between">
                       <div className="min-w-0">
-                        <h2 className="font-display font-black text-lg text-stone-900 truncate">
+                        <h2 className="truncate font-display text-lg font-extrabold text-stone-900">
                           {period.name || AUDIENCE_LABELS[period.audience as FormAudience]}
                         </h2>
-                        <p className="text-xs font-mono uppercase text-stone-500 mt-0.5">
+                        <p className="mt-0.5 font-mono text-[11px] uppercase text-stone-500">
                           {AUDIENCE_LABELS[period.audience as FormAudience] ?? period.audience}
                         </p>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`font-mono text-[10px] font-bold uppercase px-2.5 py-1 rounded-full border ${
-                            VISIBILITY_STYLES[period.visibility] ?? VISIBILITY_STYLES.closed
-                          }`}
-                        >
+                      <div className="flex items-center gap-3">
+                        <Badge tone={VISIBILITY_TONES[period.visibility] ?? "neutral"}>
                           {period.visibility.replace("_", " ")}
-                        </span>
-                        <span
-                          className={`font-mono text-[10px] font-bold uppercase px-2.5 py-1 rounded-full border ${
-                            open
-                              ? "bg-forest-50 text-forest-800 border-forest-100"
-                              : "bg-stone-100 text-stone-600 border-stone-200"
-                          }`}
-                        >
-                          {open ? "Accepting" : "Not accepting"}
-                        </span>
+                        </Badge>
+                        <StatusDot
+                          tone={open ? "complete" : "neutral"}
+                          label={open ? "Accepting" : "Not accepting"}
+                        />
                       </div>
                     </div>
-                    <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm text-stone-600">
+                    <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-xs text-stone-600">
                       <span>{formatWindow(period)}</span>
                       <span>
                         {published
@@ -149,15 +180,14 @@ export default async function AdminFormsIndexPage() {
                 );
               })}
               {periods.length === 0 && (
-                <div className="bg-white rounded-2xl border-2 border-dashed border-stone-300 p-8 text-center text-stone-600">
+                <div className="rounded-2xl border border-dashed border-stone-300 bg-white p-10 text-center text-sm text-stone-500">
                   This season has no registration periods yet.
                 </div>
               )}
             </div>
 
             {missing.length > 0 && (
-              <div className="bg-white rounded-2xl border-2 border-stone-200 p-5 space-y-3">
-                <h3 className="font-display font-black text-stone-900">Add a missing audience</h3>
+              <Panel title="Add a missing audience" description="Every audience needs its own registration period.">
                 <div className="flex flex-wrap gap-2">
                   {missing.map((audience) => (
                     <NewPeriodButton
@@ -168,11 +198,11 @@ export default async function AdminFormsIndexPage() {
                     />
                   ))}
                 </div>
-              </div>
+              </Panel>
             )}
           </>
         )}
-      </main>
+      </PageShell>
     </>
   );
 }

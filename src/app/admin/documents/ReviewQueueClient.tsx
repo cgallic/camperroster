@@ -1,12 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import {
+  Badge,
+  Button,
+  DataTable,
+  FilterBar,
+  FilterChip,
+  Notice,
+  StatusDot,
+  inputClass,
+  type Column,
+} from "@/components/ui";
 import type { ReviewRow } from "./data";
 
-const KIND_BADGE: Record<string, string> = {
-  camper: "bg-forest-50 text-forest-800 border-forest-100",
-  teen_volunteer: "bg-sun-50 text-sun-600 border-sun-100",
-  adult_volunteer: "bg-stone-100 text-stone-700 border-stone-200",
+const KIND_LABEL: Record<string, string> = {
+  camper: "Camper",
+  teen_volunteer: "Teen",
+  adult_volunteer: "Adult",
 };
 
 /**
@@ -20,6 +31,11 @@ export default function ReviewQueueClient({ initialRows }: { initialRows: Review
   const [error, setError] = useState<string | null>(null);
   const [rejecting, setRejecting] = useState<string | null>(null);
   const [reason, setReason] = useState("");
+  const [kindFilter, setKindFilter] = useState<string | null>(null);
+
+  const kinds = useMemo(() => [...new Set(rows.map((r) => r.kind))], [rows]);
+  const visible = useMemo(() => (kindFilter ? rows.filter((r) => r.kind === kindFilter) : rows), [rows, kindFilter]);
+  const rejectingRow = rows.find((r) => r.recordId === rejecting) ?? null;
 
   async function view(recordId: string) {
     setError(null);
@@ -60,82 +76,135 @@ export default function ReviewQueueClient({ initialRows }: { initialRows: Review
     }
   }
 
-  if (rows.length === 0) {
-    return <p className="text-sm text-stone-500">Nothing waiting for review. The queue is clear.</p>;
-  }
+  const columns: Column<ReviewRow>[] = [
+    {
+      key: "person",
+      header: "Person",
+      primary: true,
+      cell: (row) => (
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="font-semibold text-stone-900">{row.personName}</span>
+          <Badge>{KIND_LABEL[row.kind] ?? row.kind}</Badge>
+        </div>
+      ),
+    },
+    {
+      key: "type",
+      header: "Document",
+      cell: (row) => (
+        <div>
+          <span className="text-stone-800">{row.typeName}</span>
+          {!row.hasFile && <div className="mt-0.5 text-[11px] text-stone-500">signed, no scan</div>}
+        </div>
+      ),
+    },
+    {
+      key: "status",
+      header: "Status",
+      cell: () => <StatusDot tone="pending" label="Awaiting review" />,
+    },
+    {
+      key: "submitted",
+      header: "Submitted",
+      align: "right",
+      cell: (row) => (
+        <span className="text-xs text-stone-500">
+          {row.submittedAt ? new Date(row.submittedAt).toLocaleDateString() : "—"}
+        </span>
+      ),
+    },
+    {
+      key: "actions",
+      header: "Actions",
+      action: true,
+      cell: (row) => (
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          {row.hasFile && (
+            <Button variant="quiet" size="sm" onClick={() => view(row.recordId)}>
+              View
+            </Button>
+          )}
+          <Button
+            variant="primary"
+            size="sm"
+            disabled={busyId === row.recordId}
+            onClick={() => review(row.recordId, "approve")}
+          >
+            Approve
+          </Button>
+          <Button
+            variant="destructive"
+            size="sm"
+            disabled={busyId === row.recordId}
+            onClick={() => setRejecting(rejecting === row.recordId ? null : row.recordId)}
+          >
+            Reject
+          </Button>
+        </div>
+      ),
+    },
+  ];
 
   return (
-    <div className="space-y-2">
-      {error && (
-        <p className="rounded-lg border border-alert-red-border bg-alert-red-bg px-3 py-2 text-sm text-alert-red">
-          {error}
-        </p>
-      )}
-      {rows.map((row) => (
-        <div key={row.recordId} className="rounded-xl border border-stone-200 bg-white p-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="font-semibold text-stone-900">{row.personName}</span>
-                <span
-                  className={`rounded-full border px-2 py-0.5 font-mono text-[10px] font-bold uppercase ${
-                    KIND_BADGE[row.kind] ?? KIND_BADGE.adult_volunteer
-                  }`}
-                >
-                  {row.kind.replace("_", " ")}
-                </span>
-              </div>
-              <p className="mt-0.5 text-sm text-stone-600">
-                {row.typeName}
-                {row.submittedAt && ` • submitted ${new Date(row.submittedAt).toLocaleDateString()}`}
-                {!row.hasFile && " • signed, no scan"}
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              {row.hasFile && (
-                <button
-                  onClick={() => view(row.recordId)}
-                  className="rounded-full border border-stone-300 px-3.5 py-1.5 text-xs font-semibold text-stone-700 hover:bg-stone-50"
-                >
-                  View
-                </button>
-              )}
-              <button
-                disabled={busyId === row.recordId}
-                onClick={() => review(row.recordId, "approve")}
-                className="rounded-full bg-forest-800 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-forest-700 disabled:bg-stone-300"
-              >
-                Approve
-              </button>
-              <button
-                disabled={busyId === row.recordId}
-                onClick={() => setRejecting(rejecting === row.recordId ? null : row.recordId)}
-                className="rounded-full border border-alert-red-border bg-alert-red-bg px-3.5 py-1.5 text-xs font-semibold text-alert-red"
-              >
-                Reject
-              </button>
-            </div>
-          </div>
+    <div className="space-y-3">
+      {error && <Notice tone="error">{error}</Notice>}
 
-          {rejecting === row.recordId && (
-            <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-stone-200 pt-3">
-              <input
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                placeholder="Why is this going back? e.g. back of the card is unreadable"
-                className="min-w-0 flex-1 rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-forest-600 focus:outline-none"
-              />
-              <button
-                disabled={reason.trim().length < 5 || busyId === row.recordId}
-                onClick={() => review(row.recordId, "reject", reason.trim())}
-                className="rounded-full bg-alert-red px-4 py-2 text-xs font-semibold text-white disabled:bg-stone-300"
-              >
-                Send back
-              </button>
-            </div>
-          )}
+      {kinds.length > 1 && (
+        <FilterBar
+          trailing={
+            <span className="text-xs text-stone-500">
+              {visible.length} of {rows.length} shown
+            </span>
+          }
+        >
+          <FilterChip active={kindFilter === null} onClick={() => setKindFilter(null)}>
+            Everyone
+          </FilterChip>
+          {kinds.map((kind) => (
+            <FilterChip key={kind} active={kindFilter === kind} onClick={() => setKindFilter(kind)}>
+              {KIND_LABEL[kind] ?? kind}
+            </FilterChip>
+          ))}
+        </FilterBar>
+      )}
+
+      <DataTable
+        columns={columns}
+        rows={visible}
+        rowKey={(row) => row.recordId}
+        empty="Nothing waiting for review. The queue is clear."
+      />
+
+      {rejectingRow && (
+        <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-alert-red-border bg-alert-red-bg p-3">
+          <span className="text-xs font-bold text-alert-red">
+            Sending back {rejectingRow.typeName} for {rejectingRow.personName}
+          </span>
+          <input
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            placeholder="Why is this going back? e.g. back of the card is unreadable"
+            className={inputClass + " min-w-0 flex-1"}
+          />
+          <Button
+            variant="secondary"
+            onClick={() => {
+              setRejecting(null);
+              setReason("");
+            }}
+          >
+            Keep it
+          </Button>
+          <Button
+            variant="primary"
+            className="bg-alert-red hover:bg-alert-red"
+            disabled={reason.trim().length < 5 || busyId === rejectingRow.recordId}
+            onClick={() => review(rejectingRow.recordId, "reject", reason.trim())}
+          >
+            Send back
+          </Button>
         </div>
-      ))}
+      )}
     </div>
   );
 }

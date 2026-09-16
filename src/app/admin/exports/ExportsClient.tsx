@@ -2,7 +2,23 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { Download, Lock } from "lucide-react";
 import { STATUS_LABELS, TIMING_LABELS, WHO_LABELS } from "@/lib/registration-status";
+import {
+  Button,
+  FilterChip,
+  FilterGroup,
+  Notice,
+  PageHeader,
+  Panel,
+  PageShell,
+  StatCard,
+  StatStrip,
+  TONE_STYLES,
+  selectClass,
+  inputClass,
+  toneFor,
+} from "@/components/ui";
 
 /**
  * Deliberately not imported from `@/lib/exports`: that module pulls in ExcelJS,
@@ -189,110 +205,131 @@ export default function ExportsClient({
     }
   };
 
+  const activeFilters =
+    (["who", "population", "status", "grade", "gender", "cabin", "serviceArea", "timing"] as const).reduce(
+      (n, key) => n + selection[key].length,
+      0,
+    ) +
+    (selection.missingDocument.trim() ? 1 : 0) +
+    (selection.unpaidOnly ? 1 : 0);
+
   return (
-    <main className="py-8 lg:py-12">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-8">
-        <div>
-          <span className="font-mono text-[10px] font-bold uppercase text-forest-800 bg-forest-50 px-2.5 py-1 rounded-full border border-forest-100">
-            Reports
-          </span>
-          <h1 className="font-display font-black text-3xl text-stone-900 mt-2">Spreadsheets &amp; Lists</h1>
-          <p className="text-xs text-stone-500 mt-1">
-            {seasonYear ? `Season ${seasonYear}.` : "No active season."}{" "}
-            {formsDueOn ? `Paperwork is due ${formsDueOn} — after that, outstanding registrations read as overdue.` : ""}
-          </p>
-        </div>
+    <PageShell width="narrow">
+      <PageHeader
+        eyebrow="Reports"
+        title="Spreadsheets & Lists"
+        description={`${seasonYear ? `Season ${seasonYear}.` : "No active season."} ${
+          formsDueOn
+            ? `Paperwork is due ${formsDueOn} — after that, outstanding registrations read as overdue.`
+            : ""
+        }`}
+      />
 
-        {error && (
-          <div className="rounded-xl border border-alert-red-border bg-alert-red-bg px-4 py-3 text-sm text-alert-red">{error}</div>
-        )}
-        {notice && (
-          <div className="rounded-xl border border-forest-100 bg-forest-50 px-4 py-3 text-sm text-forest-800">{notice}</div>
-        )}
+      <StatStrip>
+        <StatCard
+          label="Filters applied"
+          value={activeFilters}
+          tone={activeFilters > 0 ? "pending" : "neutral"}
+          hint={activeFilters === 0 ? "Every workbook covers everybody." : "Each workbook is cut to this selection."}
+        />
+        <StatCard label="Cabins" value={cabins.length} tone="complete" hint="Available as a filter and a sheet." />
+        <StatCard label="Grades in play" value={grades.length} tone="complete" hint="Distinct grades entering camp." />
+        <StatCard
+          label="Email templates"
+          value={templates.length}
+          tone={templates.length > 0 ? "complete" : "neutral"}
+          hint="Ready to turn this filter into a draft."
+        />
+      </StatStrip>
 
-        <section className="rounded-2xl border border-stone-200 bg-white p-5 space-y-5">
-          <div>
-            <h2 className="font-display font-bold text-lg text-stone-900">Narrow the export</h2>
-            <p className="text-xs text-stone-500 mt-0.5">
-              Every workbook below is built from whatever is selected here. Leave a group empty to include all of it.
-            </p>
-          </div>
+      {error && <Notice tone="error">{error}</Notice>}
+      {notice && <Notice tone="ok">{notice}</Notice>}
 
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            <FilterGroup label="Who" options={Object.entries(WHO_LABELS).map(([id, name]) => ({ id, name }))} selected={selection.who} onToggle={(v) => toggle("who", v)} />
-            <FilterGroup label="Population" options={POPULATIONS} selected={selection.population} onToggle={(v) => toggle("population", v)} />
-            <FilterGroup label="Registration status" options={Object.entries(STATUS_LABELS).map(([id, name]) => ({ id, name }))} selected={selection.status} onToggle={(v) => toggle("status", v)} />
-            <FilterGroup label="Grade" options={grades.map((g) => ({ id: String(g), name: `Grade ${g}` }))} selected={selection.grade} onToggle={(v) => toggle("grade", v)} />
-            <FilterGroup label="Gender" options={genders.map((g) => ({ id: g, name: g }))} selected={selection.gender} onToggle={(v) => toggle("gender", v)} />
-            <FilterGroup label="Cabin" options={cabins} selected={selection.cabin} onToggle={(v) => toggle("cabin", v)} />
-            <FilterGroup label="Area of service" options={serviceAreas} selected={selection.serviceArea} onToggle={(v) => toggle("serviceArea", v)} />
-            <FilterGroup label="Timing" options={Object.entries(TIMING_LABELS).map(([id, name]) => ({ id, name }))} selected={selection.timing} onToggle={(v) => toggle("timing", v)} />
+      <Panel
+        title="Narrow the export"
+        description="Every workbook below is built from whatever is selected here. Leave a group empty to include all of it."
+      >
+        <div className="space-y-5">
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <ChipGroup label="Who" options={Object.entries(WHO_LABELS).map(([id, name]) => ({ id, name }))} selected={selection.who} onToggle={(v) => toggle("who", v)} />
+            <ChipGroup label="Population" options={POPULATIONS} selected={selection.population} onToggle={(v) => toggle("population", v)} />
+            <ChipGroup
+              label="Registration status"
+              options={Object.entries(STATUS_LABELS).map(([id, name]) => ({ id, name }))}
+              selected={selection.status}
+              onToggle={(v) => toggle("status", v)}
+              colorCoded
+            />
+            <ChipGroup label="Grade" options={grades.map((g) => ({ id: String(g), name: `Grade ${g}` }))} selected={selection.grade} onToggle={(v) => toggle("grade", v)} />
+            <ChipGroup label="Gender" options={genders.map((g) => ({ id: g, name: g }))} selected={selection.gender} onToggle={(v) => toggle("gender", v)} />
+            <ChipGroup label="Cabin" options={cabins} selected={selection.cabin} onToggle={(v) => toggle("cabin", v)} />
+            <ChipGroup label="Area of service" options={serviceAreas} selected={selection.serviceArea} onToggle={(v) => toggle("serviceArea", v)} />
+            <ChipGroup label="Timing" options={Object.entries(TIMING_LABELS).map(([id, name]) => ({ id, name }))} selected={selection.timing} onToggle={(v) => toggle("timing", v)} />
 
-            <div className="space-y-2">
-              <p className="font-mono text-[10px] font-bold uppercase text-stone-500">Missing document</p>
+            <div className="space-y-1.5">
+              <p className="font-mono text-[10px] font-bold uppercase tracking-wide text-stone-500">Missing document</p>
               <input
                 value={selection.missingDocument}
                 onChange={(e) => setSelection((p) => ({ ...p, missingDocument: e.target.value }))}
                 placeholder="e.g. insurance"
-                className="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm"
+                className={inputClass + " w-full"}
               />
               <label className="flex items-center gap-2 text-xs text-stone-600">
                 <input
                   type="checkbox"
                   checked={selection.unpaidOnly}
                   onChange={(e) => setSelection((p) => ({ ...p, unpaidOnly: e.target.checked }))}
+                  className="h-4 w-4 accent-forest-800"
                 />
                 Only those carrying a balance
               </label>
             </div>
           </div>
 
-          <div className="flex items-center gap-3 pt-1">
-            <button
-              onClick={() => setSelection(EMPTY)}
-              className="text-xs font-semibold text-stone-600 hover:text-stone-900 underline underline-offset-2"
-            >
+          <div className="flex flex-wrap items-center gap-3 border-t border-stone-100 pt-3">
+            <Button variant="quiet" size="sm" onClick={() => setSelection(EMPTY)}>
               Clear all filters
-            </button>
-            <span className="font-mono text-[10px] text-stone-500 truncate">{query || "no filters — everything is included"}</span>
+            </Button>
+            <span className="truncate font-mono text-[10px] text-stone-500">
+              {query || "no filters — everything is included"}
+            </span>
           </div>
-        </section>
+        </div>
+      </Panel>
 
-        <section className="grid gap-4 md:grid-cols-2">
-          {REPORTS.map((report) => {
-            const locked = report === "financial" && !canSeeFinance;
-            return (
-              <div key={report} className="rounded-2xl border border-stone-200 bg-white p-5 flex flex-col gap-3">
-                <div>
-                  <h3 className="font-display font-bold text-base text-stone-900">{REPORT_META[report].title}</h3>
-                  <p className="text-xs text-stone-500 mt-1">{REPORT_META[report].description}</p>
-                </div>
-                <button
-                  disabled={busy || locked}
-                  onClick={() => download(report)}
-                  className="mt-auto rounded-lg bg-forest-800 px-4 py-2.5 text-sm font-bold text-white hover:bg-forest-900 disabled:opacity-40"
-                >
-                  {locked ? "Registrars and directors only" : "Download .xlsx"}
-                </button>
+      <section className="grid gap-4 sm:grid-cols-2">
+        {REPORTS.map((report) => {
+          const locked = report === "financial" && !canSeeFinance;
+          return (
+            <div key={report} className="flex flex-col gap-3 rounded-2xl border border-stone-200 bg-white p-5">
+              <div>
+                <h3 className="font-display text-base font-bold text-stone-900">{REPORT_META[report].title}</h3>
+                <p className="mt-1 text-xs text-stone-500">{REPORT_META[report].description}</p>
               </div>
-            );
-          })}
-        </section>
+              <Button
+                variant={locked ? "secondary" : "primary"}
+                disabled={busy || locked}
+                onClick={() => download(report)}
+                className="mt-auto w-full py-2.5 text-sm"
+              >
+                {locked ? <Lock className="h-4 w-4" /> : <Download className="h-4 w-4" />}
+                {locked ? "Registrars and directors only" : "Download .xlsx"}
+              </Button>
+            </div>
+          );
+        })}
+      </section>
 
-        <section className="rounded-2xl border border-stone-200 bg-white p-5 space-y-4">
-          <div>
-            <h2 className="font-display font-bold text-lg text-stone-900">Email this group</h2>
-            <p className="text-xs text-stone-500 mt-0.5">
-              Turn the filter above into a draft. Nothing sends from here — the draft lands on the review queue with its
-              recipients, its body and a link back to this filter.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-3">
+      <Panel
+        title="Email this group"
+        description="Turn the filter above into a draft. Nothing sends from here — the draft lands on the review queue with its recipients, its body and a link back to this filter."
+      >
+        <div className="space-y-4">
+          <div className="flex flex-wrap items-center gap-2">
             <select
               value={templateCode}
               onChange={(e) => setTemplateCode(e.target.value)}
-              className="rounded-lg border border-stone-200 px-3 py-2 text-sm"
+              className={selectClass}
             >
               {templates.length === 0 && <option value="">No templates yet</option>}
               {templates.map((t) => (
@@ -301,20 +338,12 @@ export default function ExportsClient({
                 </option>
               ))}
             </select>
-            <button
-              disabled={busy}
-              onClick={previewAudience}
-              className="rounded-lg border border-stone-200 px-4 py-2 text-sm font-semibold text-stone-700 hover:bg-stone-50 disabled:opacity-40"
-            >
+            <Button variant="secondary" disabled={busy} onClick={previewAudience}>
               Preview recipients
-            </button>
-            <button
-              disabled={busy || !templateCode}
-              onClick={createDraft}
-              className="rounded-lg bg-sun-600 px-4 py-2 text-sm font-bold text-white hover:bg-sun-500 disabled:opacity-40"
-            >
+            </Button>
+            <Button variant="primary" disabled={busy || !templateCode} onClick={createDraft}>
               Create draft for review
-            </button>
+            </Button>
             <Link href="/admin/mail" className="text-xs font-semibold text-forest-800 underline underline-offset-2">
               Go to the review queue
             </Link>
@@ -323,7 +352,7 @@ export default function ExportsClient({
           {preview && (
             <div className="rounded-xl border border-stone-200 bg-stone-50 p-4">
               <p className="text-sm font-semibold text-stone-800">{preview.audienceLabel}</p>
-              <ul className="mt-2 max-h-48 overflow-auto text-xs text-stone-600 space-y-0.5">
+              <ul className="mt-2 max-h-48 space-y-0.5 overflow-auto text-xs text-stone-600">
                 {preview.recipients.map((r) => (
                   <li key={r.email} className="font-mono">
                     {r.name ? `${r.name} — ` : ""}
@@ -334,45 +363,48 @@ export default function ExportsClient({
               </ul>
             </div>
           )}
-        </section>
-      </div>
-    </main>
+        </div>
+      </Panel>
+    </PageShell>
   );
 }
 
-function FilterGroup({
+/**
+ * A labelled row of chips. The registration-status group is colour-coded from
+ * the shared taxonomy, so "overdue" is the same red here as on every table.
+ */
+function ChipGroup({
   label,
   options,
   selected,
   onToggle,
+  colorCoded = false,
 }: {
   label: string;
   options: Option[];
   selected: string[];
   onToggle: (value: string) => void;
+  colorCoded?: boolean;
 }) {
   if (options.length === 0) return null;
   return (
-    <div className="space-y-2">
-      <p className="font-mono text-[10px] font-bold uppercase text-stone-500">{label}</p>
-      <div className="flex flex-wrap gap-1.5">
-        {options.map((o) => {
-          const on = selected.includes(o.id);
-          return (
-            <button
-              key={o.id}
-              onClick={() => onToggle(o.id)}
-              className={
-                on
-                  ? "rounded-full border border-forest-700 bg-forest-800 px-2.5 py-1 text-[11px] font-semibold text-white"
-                  : "rounded-full border border-stone-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-stone-600 hover:border-stone-300"
-              }
-            >
+    <FilterGroup label={label}>
+      {options.map((o) => {
+        const on = selected.includes(o.id);
+        return (
+          <FilterChip key={o.id} active={on} onClick={() => onToggle(o.id)}>
+            <span className="inline-flex items-center gap-1.5">
+              {colorCoded && (
+                <span
+                  className={`h-1.5 w-1.5 rounded-full ${on ? "bg-white" : TONE_STYLES[toneFor(o.id)].dot}`}
+                  aria-hidden
+                />
+              )}
               {o.name}
-            </button>
-          );
-        })}
-      </div>
-    </div>
+            </span>
+          </FilterChip>
+        );
+      })}
+    </FilterGroup>
   );
 }

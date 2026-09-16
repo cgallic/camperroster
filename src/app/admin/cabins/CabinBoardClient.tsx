@@ -3,7 +3,19 @@
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AlertTriangle, ArrowRightLeft, DoorClosed, DoorOpen, Plus, Users } from "lucide-react";
+import { ArrowRightLeft, DoorClosed, DoorOpen, Plus, Users } from "lucide-react";
+import {
+  Button,
+  Notice,
+  PageHeader,
+  Panel,
+  PageShell,
+  SectionHeader,
+  StatCard,
+  StatStrip,
+  StatusDot,
+  inputClass,
+} from "@/components/ui";
 import {
   ROLE_LABELS,
   bucketLabel,
@@ -52,6 +64,7 @@ export default function CabinBoardClient({
       capacity: cabins.reduce((n, c) => n + c.capacity, 0),
       assigned: cabins.reduce((n, c) => n + c.campersAssigned, 0),
       tight: cabins.filter((c) => c.isOpen && isRunningLow(c)).length,
+      closed: cabins.filter((c) => !c.isOpen).length,
     }),
     [cabins],
   );
@@ -114,176 +127,159 @@ export default function CabinBoardClient({
   const disabled = busy || pending;
 
   return (
-    <main className="py-8 lg:py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <span className="font-mono text-[10px] font-bold uppercase text-forest-800 bg-forest-50 px-2.5 py-1 rounded-full border border-forest-100">
-              Cabin Placement
-            </span>
-            <h1 className="font-display font-black text-3xl text-stone-900 mt-2">Cabin Board</h1>
-            <p className="text-xs text-stone-500 mt-1">
-              Campers are placed automatically into the cabin matching their grade and gender. Everything below is an
-              override on top of that.
-            </p>
-          </div>
-          <div className="flex gap-3">
+    <PageShell>
+      <PageHeader
+        eyebrow="Cabin placement"
+        title="Cabin Board"
+        description="Campers are placed automatically into the cabin matching their grade and gender. Everything below is an override on top of that."
+        actions={
+          <>
             <Link
               href="/admin/cabins/waitlist"
-              className="px-3.5 py-2 bg-white border border-stone-200 hover:bg-stone-50 text-stone-700 font-bold text-xs rounded-xl shadow-sm transition-all flex items-center gap-1.5"
+              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-stone-200 bg-white px-3.5 py-2 text-xs font-bold text-stone-700 transition-colors hover:bg-stone-50"
             >
-              <Users className="w-3.5 h-3.5" />
+              <Users className="h-3.5 w-3.5" />
               Waitlist ({waitlist.length})
             </Link>
-            <button
-              onClick={() => setShowNewCabin((v) => !v)}
-              className="px-4 py-2 bg-forest-800 hover:bg-forest-900 text-white font-bold text-xs rounded-xl shadow-sm transition-all flex items-center gap-1.5 cursor-pointer"
-            >
-              <Plus className="w-4 h-4" />
-              Add Cabin
-            </button>
+            <Button variant="primary" onClick={() => setShowNewCabin((v) => !v)}>
+              <Plus className="h-4 w-4" />
+              Add cabin
+            </Button>
+          </>
+        }
+      />
+
+      {banner && <Notice tone={banner.tone}>{banner.message}</Notice>}
+
+      {showNewCabin && (
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            void createCabin(e.currentTarget);
+          }}
+          className="grid grid-cols-2 items-end gap-3 rounded-2xl border border-stone-200 bg-white p-5 text-xs lg:grid-cols-6"
+        >
+          <label className="col-span-2 space-y-1">
+            <span className="font-bold text-stone-600">Cabin name</span>
+            <input name="name" required placeholder="Pine 3" className={inputClass + " w-full"} />
+          </label>
+          <label className="space-y-1">
+            <span className="font-bold text-stone-600">Gender</span>
+            <select name="gender" className={inputClass + " w-full"}>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+            </select>
+          </label>
+          <label className="space-y-1">
+            <span className="font-bold text-stone-600">Lowest grade</span>
+            <input name="minGrade" type="number" min={0} max={12} defaultValue={4} className={inputClass + " w-full"} />
+          </label>
+          <label className="space-y-1">
+            <span className="font-bold text-stone-600">Highest grade</span>
+            <input name="maxGrade" type="number" min={0} max={12} defaultValue={4} className={inputClass + " w-full"} />
+          </label>
+          <div className="flex gap-2">
+            <label className="flex-1 space-y-1">
+              <span className="font-bold text-stone-600">Cap</span>
+              <input name="capacity" type="number" min={1} max={40} defaultValue={12} className={inputClass + " w-full"} />
+            </label>
+            <Button type="submit" variant="primary" disabled={disabled} className="self-end">
+              Create
+            </Button>
           </div>
+        </form>
+      )}
+
+      <StatStrip>
+        <StatCard
+          label="Campers placed"
+          value={totals.assigned}
+          of={totals.capacity}
+          tone="complete"
+          progress={totals.capacity > 0 ? (totals.assigned / totals.capacity) * 100 : 0}
+          progressLabel={`of the beds across ${cabins.length} ${cabins.length === 1 ? "cabin" : "cabins"}`}
+        />
+        <StatCard
+          label="Two spots from cap"
+          value={totals.tight}
+          tone={totals.tight > 0 ? "overdue" : "neutral"}
+          hint="Open another cabin before these fill."
+        />
+        <StatCard
+          label="Waiting for a spot"
+          value={waitlist.length}
+          tone={waitlist.length > 0 ? "waitlisted" : "neutral"}
+          hint="Offered strictly in sign-up order."
+        />
+        <StatCard
+          label="Closed to placement"
+          value={totals.closed}
+          tone="neutral"
+          hint="Cabins staff have taken out of the rotation."
+        />
+      </StatStrip>
+
+      {groups.length === 0 && (
+        <div className="rounded-2xl border border-dashed border-stone-300 bg-white p-10 text-center text-sm text-stone-500">
+          No cabins yet. Add one to start placing campers.
         </div>
+      )}
 
-        {banner && (
-          <div
-            className={
-              "rounded-xl px-4 py-3 text-xs font-semibold border " +
-              (banner.tone === "ok"
-                ? "bg-forest-50 border-forest-100 text-forest-800"
-                : "bg-alert-red-bg border-alert-red-border text-alert-red")
-            }
-          >
-            {banner.message}
-          </div>
-        )}
-
-        {showNewCabin && (
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              void createCabin(e.currentTarget);
-            }}
-            className="double-bezel p-5 grid grid-cols-2 lg:grid-cols-6 gap-3 items-end text-xs"
-          >
-            <label className="col-span-2 space-y-1">
-              <span className="font-bold text-stone-600">Cabin name</span>
-              <input name="name" required placeholder="Pine 3" className="w-full rounded-xl border border-stone-200 px-3 py-2" />
-            </label>
-            <label className="space-y-1">
-              <span className="font-bold text-stone-600">Gender</span>
-              <select name="gender" className="w-full rounded-xl border border-stone-200 px-3 py-2">
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-              </select>
-            </label>
-            <label className="space-y-1">
-              <span className="font-bold text-stone-600">Lowest grade</span>
-              <input name="minGrade" type="number" min={0} max={12} defaultValue={4} className="w-full rounded-xl border border-stone-200 px-3 py-2" />
-            </label>
-            <label className="space-y-1">
-              <span className="font-bold text-stone-600">Highest grade</span>
-              <input name="maxGrade" type="number" min={0} max={12} defaultValue={4} className="w-full rounded-xl border border-stone-200 px-3 py-2" />
-            </label>
-            <div className="flex gap-2">
-              <label className="space-y-1 flex-1">
-                <span className="font-bold text-stone-600">Cap</span>
-                <input name="capacity" type="number" min={1} max={40} defaultValue={12} className="w-full rounded-xl border border-stone-200 px-3 py-2" />
-              </label>
-              <button
-                type="submit"
+      {groups.map((group) => (
+        <section key={group.key} className="space-y-3">
+          <SectionHeader
+            title={group.label}
+            description={`${group.cabins.length} ${group.cabins.length === 1 ? "cabin" : "cabins"} in this band`}
+          />
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            {group.cabins.map((cabin) => (
+              <CabinCard
+                key={cabin.cabinId}
+                cabin={cabin}
+                allCabins={cabins}
                 disabled={disabled}
-                className="self-end px-4 py-2 bg-forest-800 hover:bg-forest-900 disabled:opacity-50 text-white font-bold rounded-xl cursor-pointer"
-              >
-                Create
-              </button>
-            </div>
-          </form>
-        )}
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="double-bezel p-5 space-y-1">
-            <span className="text-xs text-stone-500 font-bold">Campers Placed</span>
-            <div className="font-display font-black text-3xl text-stone-900">
-              {totals.assigned} <span className="text-sm font-normal text-stone-400 font-body">/ {totals.capacity}</span>
-            </div>
-            <span className="text-xs text-forest-700 font-semibold">{cabins.length} cabins</span>
-          </div>
-          <div className={"p-5 space-y-1 rounded-2xl border " + (totals.tight > 0 ? "bg-alert-red-bg border-alert-red-border" : "double-bezel border-transparent")}>
-            <span className={"text-xs font-bold flex items-center gap-1 " + (totals.tight > 0 ? "text-alert-red" : "text-stone-500")}>
-              <AlertTriangle className="w-3.5 h-3.5" />
-              Two Spots From Cap
-            </span>
-            <div className="font-display font-black text-3xl text-stone-900">{totals.tight}</div>
-            <span className="text-xs text-stone-500 font-semibold">Open another cabin before these fill</span>
-          </div>
-          <div className="double-bezel p-5 space-y-1">
-            <span className="text-xs text-stone-500 font-bold">Waiting</span>
-            <div className="font-display font-black text-3xl text-stone-900">{waitlist.length}</div>
-            <span className="text-xs text-forest-700 font-semibold">Offered in sign-up order</span>
-          </div>
-        </div>
-
-        {groups.length === 0 && (
-          <div className="double-bezel p-8 text-center text-sm text-stone-500">
-            No cabins yet. Add one to start placing campers.
-          </div>
-        )}
-
-        {groups.map((group) => (
-          <section key={group.key} className="space-y-4">
-            <h2 className="font-display font-extrabold text-lg text-stone-900">{group.label}</h2>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              {group.cabins.map((cabin) => (
-                <CabinCard
-                  key={cabin.cabinId}
-                  cabin={cabin}
-                  allCabins={cabins}
-                  disabled={disabled}
-                  onMove={moveCamper}
-                  onCapacity={setCapacity}
-                  onToggleOpen={toggleOpen}
-                />
-              ))}
-            </div>
-          </section>
-        ))}
-
-        <section className="double-bezel overflow-hidden">
-          <div className="p-6 bg-white border-b border-stone-100 flex items-center justify-between">
-            <div>
-              <h2 className="font-display font-extrabold text-lg text-stone-900">Next Off The Waitlist</h2>
-              <p className="text-xs text-stone-500">Offered strictly in position order.</p>
-            </div>
-            <Link href="/admin/cabins/waitlist" className="text-xs font-bold text-forest-800 hover:underline">
-              See full queue →
-            </Link>
-          </div>
-          <div className="divide-y divide-stone-100 text-xs">
-            {waitlist.length === 0 && <div className="p-5 text-stone-500">Nobody is waiting.</div>}
-            {waitlist.slice(0, 5).map((entry) => (
-              <div key={entry.id} className="p-4 sm:p-5 flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <b className="text-sm font-extrabold text-stone-900 block">
-                    #{entry.position} · {entry.name}
-                  </b>
-                  <span className="text-stone-500 text-[11px]">
-                    {genderLabel(entry.gender)} · Grade {entry.grade ?? "?"} · waiting {waitingFor(entry.createdAt)}
-                  </span>
-                </div>
-                <button
-                  disabled={disabled}
-                  onClick={() => void promote(entry)}
-                  className="px-3 py-1.5 rounded-xl bg-forest-800 hover:bg-forest-900 disabled:opacity-50 text-white font-bold cursor-pointer"
-                >
-                  Promote
-                </button>
-              </div>
+                onMove={moveCamper}
+                onCapacity={setCapacity}
+                onToggleOpen={toggleOpen}
+              />
             ))}
           </div>
         </section>
-      </div>
-    </main>
+      ))}
+
+      <Panel
+        title="Next off the waitlist"
+        description="Offered strictly in position order."
+        actions={
+          <Link href="/admin/cabins/waitlist" className="text-xs font-bold text-forest-800 hover:underline">
+            See full queue →
+          </Link>
+        }
+        bodyClassName="p-0"
+      >
+        <ul className="divide-y divide-stone-100">
+          {waitlist.length === 0 && <li className="px-5 py-8 text-center text-sm text-stone-500">Nobody is waiting.</li>}
+          {waitlist.slice(0, 5).map((entry) => (
+            <li key={entry.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-5">
+              <div className="min-w-0">
+                <b className="block text-sm font-bold text-stone-900">
+                  #{entry.position} · {entry.name}
+                </b>
+                <span className="text-[11px] text-stone-500">
+                  {genderLabel(entry.gender)} · Grade {entry.grade ?? "?"} · waiting {waitingFor(entry.createdAt)}
+                </span>
+              </div>
+              <div className="flex items-center gap-3">
+                <StatusDot tone="waitlisted" label="Waitlisted" />
+                <Button variant="primary" size="sm" disabled={disabled} onClick={() => void promote(entry)}>
+                  Promote
+                </Button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </Panel>
+    </PageShell>
   );
 }
 
@@ -306,22 +302,27 @@ function CabinCard({
   const fillPct = cabin.capacity > 0 ? Math.min(100, Math.round((cabin.campersAssigned / cabin.capacity) * 100)) : 0;
 
   return (
-    <div className={"rounded-2xl border p-5 space-y-4 bg-white " + (low ? "border-alert-red-border ring-1 ring-alert-red-border" : "border-stone-200")}>
+    <div
+      className={
+        "space-y-4 rounded-2xl border bg-white p-5 " +
+        (low && cabin.isOpen ? "border-alert-red-border ring-1 ring-alert-red-border" : "border-stone-200")
+      }
+    >
       <div className="flex items-start justify-between gap-3">
         <div>
           <b className="font-display font-extrabold text-base text-stone-900">{cabin.name}</b>
           <div className="text-[11px] text-stone-500">
             {bucketLabel(cabin.gender, cabin.minGrade, cabin.maxGrade)}
-            {!cabin.isOpen && " · closed"}
           </div>
         </div>
         <div className="flex items-center gap-2">
           {low && cabin.isOpen && (
-            <span className="font-mono text-[10px] font-bold text-alert-red bg-alert-red-bg border border-alert-red-border px-2 py-1 rounded-full flex items-center gap-1">
-              <AlertTriangle className="w-3 h-3" />
-              {cabin.spotsRemaining <= 0 ? "Full" : `${cabin.spotsRemaining} left`}
-            </span>
+            <StatusDot
+              tone="overdue"
+              label={cabin.spotsRemaining <= 0 ? "Full" : `${cabin.spotsRemaining} left`}
+            />
           )}
+          {!cabin.isOpen && <StatusDot tone="neutral" label="Closed" />}
           <button
             disabled={disabled}
             onClick={() => onToggleOpen(cabin)}
@@ -340,9 +341,9 @@ function CabinCard({
           </span>
           <span className={low ? "text-alert-red" : "text-forest-700"}>{cabin.spotsRemaining} spots remaining</span>
         </div>
-        <div className="h-2.5 w-full rounded-full bg-stone-100 overflow-hidden">
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-stone-100">
           <div
-            className={"h-full rounded-full transition-all " + (low ? "bg-alert-red" : "bg-forest-800")}
+            className={"h-full rounded-full transition-all " + (low ? "bg-alert-red" : "bg-forest-600")}
             style={{ width: `${fillPct}%` }}
           />
         </div>
@@ -368,7 +369,7 @@ function CabinCard({
       </div>
 
       <ul className="divide-y divide-stone-100 text-xs">
-        {cabin.occupants.length === 0 && <li className="py-2 text-stone-400">Empty</li>}
+        {cabin.occupants.length === 0 && <li className="py-2 text-stone-500">Nobody placed here yet.</li>}
         {cabin.occupants.map((occupant) => (
           <OccupantRow
             key={occupant.assignmentId}
@@ -416,8 +417,10 @@ function OccupantRow({
       <div className="flex items-center justify-between gap-2">
         <div>
           <span className="font-semibold text-stone-900">{occupant.name}</span>
-          <span className="text-stone-400"> · {ROLE_LABELS[occupant.role]}</span>
-          {occupant.grade !== null && <span className="text-stone-400"> · {gradeBandLabel(occupant.grade, occupant.grade)}</span>}
+          <span className="text-stone-500"> · {ROLE_LABELS[occupant.role]}</span>
+          {occupant.grade !== null && (
+            <span className="text-stone-500"> · {gradeBandLabel(occupant.grade, occupant.grade)}</span>
+          )}
         </div>
         {occupant.registrationId && (
           <button
@@ -435,7 +438,7 @@ function OccupantRow({
           <select
             value={target}
             onChange={(e) => setTarget(e.target.value)}
-            className="rounded-lg border border-stone-200 px-2 py-1 text-[11px] flex-1 min-w-40"
+            className="min-w-40 flex-1 rounded-lg border border-stone-200 px-2 py-1 text-[11px]"
           >
             <option value="">Move to…</option>
             {eligible.map((c) => (
@@ -451,7 +454,7 @@ function OccupantRow({
           >
             {needsOverride ? "Move anyway" : "Move"}
           </button>
-          {eligible.length === 0 && <span className="text-[11px] text-stone-400">No other cabin fits this camper.</span>}
+          {eligible.length === 0 && <span className="text-[11px] text-stone-500">No other cabin fits this camper.</span>}
         </div>
       )}
     </li>

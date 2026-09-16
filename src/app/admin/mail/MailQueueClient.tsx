@@ -3,6 +3,18 @@
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import {
+  Button,
+  FilterBar,
+  FilterChip,
+  Notice,
+  PageHeader,
+  PageShell,
+  StatCard,
+  StatStrip,
+  StatusDot,
+  inputClass,
+} from "@/components/ui";
 
 export type Recipient = { email: string; name?: string | null; context?: string | null };
 
@@ -19,15 +31,6 @@ export type QueuedMessage = {
   sentAt: string | null;
   failureReason: string | null;
   createdAt: string | null;
-};
-
-const STATUS_STYLES: Record<QueuedMessage["status"], string> = {
-  draft: "bg-stone-100 text-stone-700 border-stone-200",
-  awaiting_review: "bg-sun-50 text-sun-600 border-sun-100",
-  approved: "bg-forest-50 text-forest-800 border-forest-100",
-  sent: "bg-forest-50 text-forest-700 border-forest-100",
-  cancelled: "bg-stone-100 text-stone-500 border-stone-200",
-  failed: "bg-alert-red-bg text-alert-red border-alert-red-border",
 };
 
 const TABS: { key: string; label: string; statuses: QueuedMessage["status"][] }[] = [
@@ -116,78 +119,93 @@ export default function MailQueueClient({ messages }: { messages: QueuedMessage[
 
   const disabled = busy || pending;
 
+  const counts = {
+    review: messages.filter((m) => m.status === "awaiting_review" || m.status === "draft").length,
+    approved: messages.filter((m) => m.status === "approved").length,
+    sent: messages.filter((m) => m.status === "sent").length,
+    failed: messages.filter((m) => m.status === "failed").length,
+  };
+  const waitingRecipients = messages
+    .filter((m) => m.status === "awaiting_review" || m.status === "draft")
+    .reduce((n, m) => n + m.recipients.length, 0);
+
   return (
-    <main className="py-8 lg:py-12">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 space-y-6">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <span className="font-mono text-[10px] font-bold uppercase text-forest-800 bg-forest-50 px-2.5 py-1 rounded-full border border-forest-100">
-              Outgoing Mail
-            </span>
-            <h1 className="font-display font-black text-3xl text-stone-900 mt-2">Review Queue</h1>
-            <p className="text-xs text-stone-500 mt-1 max-w-2xl">
-              Nothing goes out unread. Each draft below shows who it goes to, how it reads, and where the list came
-              from. It only sends once you approve it, and only at the time you set.
-            </p>
-          </div>
-          <div className="flex gap-3">
-            <Link href="/admin/mail/templates" className="text-xs font-semibold text-forest-800 underline underline-offset-2">
+    <PageShell width="narrow">
+      <PageHeader
+        eyebrow="Outgoing mail"
+        title="Review Queue"
+        description="Nothing goes out unread. Each draft shows who it goes to, how it reads, and where the list came from. It only sends once you approve it, and only at the time you set."
+        actions={
+          <>
+            <Link
+              href="/admin/mail/templates"
+              className="text-xs font-semibold text-forest-800 underline underline-offset-2"
+            >
               Edit templates
             </Link>
             <Link href="/admin/exports" className="text-xs font-semibold text-forest-800 underline underline-offset-2">
               Build a group email
             </Link>
-          </div>
-        </div>
+          </>
+        }
+      />
 
-        {error && (
-          <div className="rounded-xl border border-alert-red-border bg-alert-red-bg px-4 py-3 text-sm text-alert-red">{error}</div>
-        )}
-        {notice && (
-          <div className="rounded-xl border border-forest-100 bg-forest-50 px-4 py-3 text-sm text-forest-800">{notice}</div>
-        )}
+      <StatStrip>
+        <StatCard
+          label="Awaiting review"
+          value={counts.review}
+          tone={counts.review > 0 ? "pending" : "neutral"}
+          hint={`${waitingRecipients} recipients behind these drafts.`}
+        />
+        <StatCard
+          label="Approved & scheduled"
+          value={counts.approved}
+          tone="complete"
+          hint="Will send at the time on the draft."
+        />
+        <StatCard label="Sent this season" value={counts.sent} tone="complete" hint="Already in families' inboxes." />
+        <StatCard
+          label="Failed"
+          value={counts.failed}
+          tone={counts.failed > 0 ? "overdue" : "neutral"}
+          hint="Dispatch could not post these."
+        />
+      </StatStrip>
 
-        <div className="flex flex-wrap gap-1.5">
-          {TABS.map((t) => {
-            const count = messages.filter((m) => t.statuses.includes(m.status)).length;
-            return (
-              <button
-                key={t.key}
-                onClick={() => setTab(t.key)}
-                className={
-                  t.key === tab
-                    ? "rounded-full border border-forest-700 bg-forest-800 px-3 py-1.5 text-xs font-bold text-white"
-                    : "rounded-full border border-stone-200 bg-white px-3 py-1.5 text-xs font-semibold text-stone-600 hover:border-stone-300"
-                }
-              >
-                {t.label} ({count})
-              </button>
-            );
-          })}
-        </div>
+      {error && <Notice tone="error">{error}</Notice>}
+      {notice && <Notice tone="ok">{notice}</Notice>}
 
-        {visible.length === 0 && (
-          <p className="rounded-2xl border border-dashed border-stone-300 bg-white px-4 py-10 text-center text-sm text-stone-500">
-            Nothing here.
-          </p>
-        )}
+      <FilterBar>
+        {TABS.map((t) => {
+          const count = messages.filter((m) => t.statuses.includes(m.status)).length;
+          return (
+            <FilterChip key={t.key} active={t.key === tab} onClick={() => setTab(t.key)}>
+              {t.label} ({count})
+            </FilterChip>
+          );
+        })}
+      </FilterBar>
 
-        <div className="space-y-4">
-          {visible.map((m) => {
+      {visible.length === 0 && (
+        <p className="rounded-2xl border border-dashed border-stone-300 bg-white px-4 py-12 text-center text-sm text-stone-500">
+          Nothing here.
+        </p>
+      )}
+
+      <div className="space-y-3">
+        {visible.map((m) => {
             const draft = draftOf(m);
             const open = openId === m.id;
             const editable = m.status !== "sent" && m.status !== "cancelled";
 
             return (
-              <article key={m.id} className="rounded-2xl border border-stone-200 bg-white p-5 space-y-3">
+              <article key={m.id} className="space-y-3 rounded-2xl border border-stone-200 bg-white p-4 sm:p-5">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <h2 className="font-display font-bold text-base text-stone-900 truncate">{m.subject}</h2>
-                    <p className="text-xs text-stone-500 mt-0.5">{m.audienceLabel}</p>
+                    <h2 className="truncate font-display text-base font-bold text-stone-900">{m.subject}</h2>
+                    <p className="mt-0.5 text-xs text-stone-500">{m.audienceLabel}</p>
                   </div>
-                  <span className={`shrink-0 rounded-full border px-2.5 py-1 font-mono text-[10px] font-bold uppercase ${STATUS_STYLES[m.status]}`}>
-                    {m.status.replace(/_/g, " ")}
-                  </span>
+                  <StatusDot status={m.status} className="shrink-0" />
                 </div>
 
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-stone-600">
@@ -234,7 +252,7 @@ export default function MailQueueClient({ messages }: { messages: QueuedMessage[
                         value={draft.subject}
                         disabled={!editable}
                         onChange={(e) => setDraft(m.id, { subject: e.target.value })}
-                        className="mt-1 w-full rounded-lg border border-stone-200 px-3 py-2 text-sm disabled:bg-stone-50"
+                        className={inputClass + " mt-1 w-full disabled:bg-stone-50"}
                       />
                     </label>
                     <label className="block">
@@ -244,7 +262,7 @@ export default function MailQueueClient({ messages }: { messages: QueuedMessage[
                         disabled={!editable}
                         rows={14}
                         onChange={(e) => setDraft(m.id, { body: e.target.value })}
-                        className="mt-1 w-full rounded-lg border border-stone-200 px-3 py-2 text-sm font-body leading-relaxed disabled:bg-stone-50"
+                        className={inputClass + " mt-1 w-full font-body leading-relaxed disabled:bg-stone-50"}
                       />
                     </label>
                     <label className="block max-w-xs">
@@ -254,61 +272,67 @@ export default function MailQueueClient({ messages }: { messages: QueuedMessage[
                         value={draft.scheduledFor}
                         disabled={!editable}
                         onChange={(e) => setDraft(m.id, { scheduledFor: e.target.value })}
-                        className="mt-1 w-full rounded-lg border border-stone-200 px-3 py-2 text-sm disabled:bg-stone-50"
+                        className={inputClass + " mt-1 w-full disabled:bg-stone-50"}
                       />
                     </label>
                   </div>
                 )}
 
                 {editable && (
-                  <div className="flex flex-wrap gap-2 pt-1">
-                    <button
+                  <div className="flex flex-wrap gap-2 border-t border-stone-100 pt-3">
+                    <Button
+                      variant="secondary"
+                      size="sm"
                       disabled={disabled}
                       onClick={() => act(m, "save", "Draft saved. It still needs approving before it can send.")}
-                      className="rounded-lg border border-stone-200 px-3 py-1.5 text-xs font-semibold text-stone-700 hover:bg-stone-50 disabled:opacity-40"
                     >
                       Save edits
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      size="sm"
                       disabled={disabled}
                       onClick={() => act(m, "schedule", "Send time updated.")}
-                      className="rounded-lg border border-stone-200 px-3 py-1.5 text-xs font-semibold text-stone-700 hover:bg-stone-50 disabled:opacity-40"
                     >
                       Update send time
-                    </button>
+                    </Button>
                     {m.status === "approved" ? (
-                      <button
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        className="border-sun-100 bg-sun-50 text-sun-600"
                         disabled={disabled}
                         onClick={() => act(m, "unapprove", "Pulled back out of the send queue.")}
-                        className="rounded-lg border border-sun-100 bg-sun-50 px-3 py-1.5 text-xs font-bold text-sun-600 disabled:opacity-40"
                       >
                         Withdraw approval
-                      </button>
+                      </Button>
                     ) : (
-                      <button
+                      <Button
+                        variant="primary"
+                        size="sm"
                         disabled={disabled}
                         onClick={() =>
                           act(m, "approve_and_schedule", "Approved. It will send at the time on the draft.")
                         }
-                        className="rounded-lg bg-forest-800 px-3 py-1.5 text-xs font-bold text-white hover:bg-forest-900 disabled:opacity-40"
                       >
                         Approve &amp; schedule
-                      </button>
+                      </Button>
                     )}
-                    <button
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="ml-auto"
                       disabled={disabled}
                       onClick={() => act(m, "cancel", "Cancelled. It will not be sent.")}
-                      className="rounded-lg border border-alert-red-border bg-alert-red-bg px-3 py-1.5 text-xs font-bold text-alert-red disabled:opacity-40"
                     >
                       Cancel
-                    </button>
+                    </Button>
                   </div>
                 )}
               </article>
             );
-          })}
-        </div>
+        })}
       </div>
-    </main>
+    </PageShell>
   );
 }

@@ -2,6 +2,19 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import {
+  Button,
+  DataTable,
+  Notice,
+  PageHeader,
+  Panel,
+  PageShell,
+  StatCard,
+  StatStrip,
+  StatusDot,
+  selectClass,
+  type Column,
+} from "@/components/ui";
 import { bucketLabel, genderLabel, waitingFor, type CabinRow, type WaitlistRow } from "../types";
 
 export default function WaitlistClient({
@@ -30,6 +43,18 @@ export default function WaitlistClient({
     return [...map.values()].sort((a, b) => a.label.localeCompare(b.label));
   }, [entries]);
 
+  /** Beds free right now across every open cabin — the number that decides how far down this queue we can go today. */
+  const openSpots = useMemo(
+    () => cabins.filter((c) => c.isOpen).reduce((n, c) => n + Math.max(0, c.spotsRemaining), 0),
+    [cabins],
+  );
+
+  const longestWait = useMemo(() => {
+    if (entries.length === 0) return null;
+    const oldest = entries.reduce((a, b) => (new Date(a.createdAt) < new Date(b.createdAt) ? a : b));
+    return waitingFor(oldest.createdAt);
+  }, [entries]);
+
   const promote = async (entry: WaitlistRow) => {
     setBusy(true);
     setError(null);
@@ -54,90 +79,121 @@ export default function WaitlistClient({
 
   const disabled = busy || pending;
 
-  return (
-    <main className="py-8 lg:py-12">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 space-y-8">
-        <div>
-          <span className="font-mono text-[10px] font-bold uppercase text-forest-800 bg-forest-50 px-2.5 py-1 rounded-full border border-forest-100">
-            Waitlist Queue
+  const columnsFor = (group: { entries: WaitlistRow[] }): Column<WaitlistRow>[] => [
+    {
+      key: "name",
+      header: "Camper",
+      primary: true,
+      cell: (entry) => (
+        <div className="min-w-0">
+          <span className="font-semibold text-stone-900">
+            {group.entries.indexOf(entry) + 1}. {entry.name}
           </span>
-          <h1 className="font-display font-black text-3xl text-stone-900 mt-2">Waiting For A Spot</h1>
-          <p className="text-xs text-stone-500 mt-1">
-            Ordered by position, which is the order families signed up. Promote from the top of each bucket.
-          </p>
+          <div className="mt-0.5 text-[11px] text-stone-500">position #{entry.position}</div>
         </div>
-
-        {error && (
-          <div className="rounded-xl px-4 py-3 text-xs font-semibold bg-alert-red-bg border border-alert-red-border text-alert-red">
-            {error}
+      ),
+    },
+    {
+      key: "waiting",
+      header: "Waiting",
+      align: "right",
+      cell: (entry) => <span className="text-xs text-stone-600">{waitingFor(entry.createdAt)}</span>,
+    },
+    {
+      key: "status",
+      header: "Status",
+      cell: (entry) => <StatusDot status={entry.status} />,
+    },
+    {
+      key: "place",
+      header: "Place into",
+      action: true,
+      cell: (entry) => {
+        const eligible = cabins.filter(
+          (c) =>
+            c.gender === entry.gender &&
+            (entry.grade === null ||
+              c.minGrade === null ||
+              c.maxGrade === null ||
+              (entry.grade >= c.minGrade && entry.grade <= c.maxGrade)),
+        );
+        return (
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <select
+              value={targets[entry.id] ?? ""}
+              onChange={(e) => setTargets((prev) => ({ ...prev, [entry.id]: e.target.value }))}
+              className={selectClass}
+            >
+              <option value="">Auto-place</option>
+              {eligible.map((c) => (
+                <option key={c.cabinId} value={c.cabinId}>
+                  {c.name} ({c.campersAssigned}/{c.capacity}) — {bucketLabel(c.gender, c.minGrade, c.maxGrade)}
+                </option>
+              ))}
+            </select>
+            <Button variant="primary" size="sm" disabled={disabled} onClick={() => void promote(entry)}>
+              Promote
+            </Button>
           </div>
-        )}
-        {okMessage && (
-          <div className="rounded-xl px-4 py-3 text-xs font-semibold bg-forest-50 border border-forest-100 text-forest-800">
-            {okMessage}
-          </div>
-        )}
+        );
+      },
+    },
+  ];
 
-        {groups.length === 0 && (
-          <div className="double-bezel p-8 text-center text-sm text-stone-500">Nobody is on the waitlist.</div>
-        )}
+  return (
+    <PageShell width="narrow">
+      <PageHeader
+        eyebrow="Waitlist queue"
+        title="Waiting For A Spot"
+        description="Ordered by position, which is the order families signed up. Promote from the top of each bucket."
+      />
 
-        {groups.map((group) => (
-          <section key={group.key} className="double-bezel overflow-hidden">
-            <div className="p-5 bg-white border-b border-stone-100 flex items-center justify-between">
-              <h2 className="font-display font-extrabold text-base text-stone-900">{group.label}</h2>
-              <span className="font-mono text-[11px] font-bold text-stone-600 bg-stone-50 px-2.5 py-1 rounded-full border border-stone-100">
-                {group.entries.length} waiting
-              </span>
-            </div>
-            <div className="divide-y divide-stone-100 text-xs">
-              {group.entries.map((entry, idx) => {
-                const eligible = cabins.filter(
-                  (c) =>
-                    c.gender === entry.gender &&
-                    (entry.grade === null ||
-                      c.minGrade === null ||
-                      c.maxGrade === null ||
-                      (entry.grade >= c.minGrade && entry.grade <= c.maxGrade)),
-                );
-                return (
-                  <div key={entry.id} className="p-4 sm:p-5 flex flex-wrap items-center justify-between gap-3">
-                    <div className="min-w-48">
-                      <b className="text-sm font-extrabold text-stone-900 block">
-                        {idx + 1}. {entry.name}
-                      </b>
-                      <span className="text-stone-500 text-[11px]">
-                        position #{entry.position} · waiting {waitingFor(entry.createdAt)} · {entry.status}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <select
-                        value={targets[entry.id] ?? ""}
-                        onChange={(e) => setTargets((prev) => ({ ...prev, [entry.id]: e.target.value }))}
-                        className="rounded-lg border border-stone-200 px-2 py-1 text-[11px]"
-                      >
-                        <option value="">Auto-place</option>
-                        {eligible.map((c) => (
-                          <option key={c.cabinId} value={c.cabinId}>
-                            {c.name} ({c.campersAssigned}/{c.capacity}) — {bucketLabel(c.gender, c.minGrade, c.maxGrade)}
-                          </option>
-                        ))}
-                      </select>
-                      <button
-                        disabled={disabled}
-                        onClick={() => void promote(entry)}
-                        className="px-3 py-1.5 rounded-xl bg-forest-800 hover:bg-forest-900 disabled:opacity-50 text-white font-bold cursor-pointer"
-                      >
-                        Promote
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-        ))}
-      </div>
-    </main>
+      {error && <Notice tone="error">{error}</Notice>}
+      {okMessage && <Notice tone="ok">{okMessage}</Notice>}
+
+      <StatStrip className="lg:grid-cols-3">
+        <StatCard
+          label="On the waitlist"
+          value={entries.length}
+          tone={entries.length > 0 ? "waitlisted" : "neutral"}
+          hint={`${groups.length} ${groups.length === 1 ? "bucket" : "buckets"} by gender and grade`}
+        />
+        <StatCard
+          label="Beds free today"
+          value={openSpots}
+          tone={openSpots > 0 ? "complete" : "overdue"}
+          hint="Across cabins still open for placement."
+        />
+        <StatCard
+          label="Longest wait"
+          value={longestWait ?? "—"}
+          tone={entries.length > 0 ? "pending" : "neutral"}
+          hint="Since the first family in this queue signed up."
+        />
+      </StatStrip>
+
+      {groups.length === 0 && (
+        <div className="rounded-2xl border border-dashed border-stone-300 bg-white p-10 text-center text-sm text-stone-500">
+          Nobody is on the waitlist.
+        </div>
+      )}
+
+      {groups.map((group) => (
+        <Panel
+          key={group.key}
+          title={group.label}
+          description={`${group.entries.length} waiting`}
+          bodyClassName="p-0"
+        >
+          <DataTable
+            columns={columnsFor(group)}
+            rows={group.entries}
+            rowKey={(entry) => entry.id}
+            empty="Nobody in this bucket."
+            className="rounded-none border-0"
+          />
+        </Panel>
+      ))}
+    </PageShell>
   );
 }

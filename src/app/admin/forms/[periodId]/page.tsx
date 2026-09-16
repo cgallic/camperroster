@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import StaffHeader from "@/components/StaffHeader";
 import { AUDIENCE_LABELS, type FormAudience, type FormField, type RegistrationPeriod } from "@/lib/forms";
 import FormEditorClient from "./FormEditorClient";
+import { PageHeader, PageShell } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -52,23 +53,20 @@ export default async function AdminFormEditorPage({
   return (
     <>
       <StaffHeader />
-      <main className="max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-stone-200 pb-4">
-          <div>
-            <span className="font-mono text-xs font-bold text-forest-800 bg-forest-100 px-3 py-1 rounded-full uppercase">
-              {AUDIENCE_LABELS[typedPeriod.audience as FormAudience] ?? typedPeriod.audience}
-            </span>
-            <h1 className="font-display font-black text-2xl sm:text-3xl text-stone-900 mt-2">
-              {typedPeriod.name}
-            </h1>
-          </div>
-          <Link
-            href="/admin/forms"
-            className="px-4 py-2 rounded-full bg-stone-100 text-stone-800 font-bold text-xs hover:bg-stone-200 w-max"
-          >
-            ← All forms
-          </Link>
-        </div>
+      <PageShell width="narrow">
+        <PageHeader
+          eyebrow={AUDIENCE_LABELS[typedPeriod.audience as FormAudience] ?? typedPeriod.audience}
+          title={typedPeriod.name}
+          description="Questions, the window families can answer in, and who can reach the form."
+          actions={
+            <Link
+              href="/admin/forms"
+              className="inline-flex items-center rounded-lg border border-stone-200 bg-white px-3.5 py-2 text-xs font-bold text-stone-700 hover:bg-stone-50"
+            >
+              ← All forms
+            </Link>
+          }
+        />
 
         <FormEditorClient
           period={typedPeriod}
@@ -78,7 +76,7 @@ export default async function AdminFormEditorPage({
           initialIntro={working?.intro_text ?? ""}
           initialFields={fields}
         />
-      </main>
+      </PageShell>
     </>
   );
 }
