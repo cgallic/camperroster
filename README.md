@@ -142,6 +142,19 @@ Vercel validates `vercel.json` against a strict schema and rejects any key it
 does not recognise, so don't add a comment field to explain a setting — the
 deployment fails on the config before it ever builds. Explain it here instead.
 
+**There is no CI.** GitHub Actions are not available on this repo — the billing
+isn't there, so a workflow fails rather than runs. Don't add one, and don't read
+a green Vercel status on a `claude/*` branch as proof of anything: it reports
+"Canceled by Ignored Build Step", which means the build was skipped.
+
+Verification is local, and it is the only verification there is. Before pushing:
+
+```bash
+npx tsc --noEmit
+npm test
+npm run build
+```
+
 ## Known issues
 
 `npm audit` reports vulnerabilities reachable only through `next`'s bundled
