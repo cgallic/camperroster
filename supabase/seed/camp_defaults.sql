@@ -15,6 +15,11 @@ declare
 
   v_camp_id   uuid;
   v_season_id uuid;
+  v_session_id uuid;
+  v_min_grade  int;
+  v_max_grade  int;
+  v_grade      int;
+  v_gender     text;
 begin
   select id into v_camp_id from public.camps where slug = v_camp_slug;
   if v_camp_id is null then
@@ -80,6 +85,49 @@ begin
     (v_camp_id, 'adult_medication',      'Adult medication form',       'adult_volunteer', true, false, true,  null, 50),
     (v_camp_id, 'adult_lifeguard_cert',  'Lifeguard certification',     'adult_volunteer', false, true, false, 24,  60)
   on conflict (camp_id, code) do nothing;
+
+  -- The session and its cabins ---------------------------------------------------
+  -- Every tenant-scoped row needs camp_id set or row-level security hides it from
+  -- everyone, including the director. The session predates that column.
+  update public.camp_sessions
+     set camp_id = v_camp_id
+   where camp_id is null
+     and id = (select id from public.camp_sessions order by created_at limit 1);
+
+  select id, min_grade, max_grade
+    into v_session_id, v_min_grade, v_max_grade
+    from public.camp_sessions
+   where camp_id = v_camp_id and is_active
+   order by start_date
+   limit 1;
+
+  -- One cabin per grade and gender at the camp's standard cap of 12. Without
+  -- these there is nowhere to place a camper and every registration waitlists.
+  -- Names and caps are a starting point; a director edits them on the cabin board.
+  if v_session_id is not null then
+    for v_grade in v_min_grade .. v_max_grade loop
+      foreach v_gender in array array['male', 'female'] loop
+        -- No unique constraint on (session, grade, gender), so the guard is
+        -- explicit rather than an ON CONFLICT that would silently do nothing.
+        insert into public.cabins (camp_id, session_id, name, gender, min_grade, max_grade, capacity, sort_order)
+        select v_camp_id,
+               v_session_id,
+               format('Grade %s %s', v_grade, initcap(v_gender)),
+               v_gender,
+               v_grade,
+               v_grade,
+               12,
+               v_grade * 10 + case when v_gender = 'female' then 1 else 0 end
+        where not exists (
+          select 1 from public.cabins
+           where session_id = v_session_id
+             and gender = v_gender
+             and min_grade = v_grade
+             and max_grade = v_grade
+        );
+      end loop;
+    end loop;
+  end if;
 
   -- Where volunteers serve -------------------------------------------------------
   insert into public.service_areas (camp_id, code, name, display_order)

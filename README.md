@@ -30,9 +30,20 @@ Schema lives in `supabase/migrations/`, applied in filename order. `0001`-`0003`
 set up tenancy, auth and the camp subscription billing; everything from `0004`
 builds the camp operations on top of them.
 
-Reference data — a season, the five registration windows, the paperwork each
-population owes, the service areas — comes from `supabase/seed/camp_defaults.sql`.
-Edit the camp slug and year at the top and run it; it is idempotent.
+Reference data comes from `supabase/seed/camp_defaults.sql`: a season, the five
+registration windows, the paperwork each population owes, the service areas, and
+one cabin per grade and gender at the standard cap of 12. Edit the camp slug and
+year at the top and run it; it is idempotent, and re-running adds nothing.
+
+Without the cabins there is nowhere to place a camper and every registration
+waitlists, so the seed creates them rather than leaving a director to add
+fourteen by hand. Names and caps are a starting point, editable on the cabin
+board.
+
+The database holds no participant data. The campers, guardians and volunteers
+that were in it were demo rows carried over from the marketing site, all with a
+null `camp_id`, which meant row-level security hid them from everyone anyway.
+They have been removed.
 
 Pricing tiers are deliberately **not** seeded. Tuition is real money, so a
 director enters the camp's published rates in the admin rather than inheriting a
