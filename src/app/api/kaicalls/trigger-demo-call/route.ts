@@ -1,25 +1,28 @@
 import { NextResponse } from "next/server";
 
+/**
+ * Outbound KaiCalls reference calls are not wired up in this app: there is no
+ * telephony client here and nothing dials. This route fails closed rather than
+ * returning a fabricated call id and a "ringing" status for a call that will
+ * never happen.
+ */
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const phone_number = body.phone_number || body.phone || body.reference_phone || body.target_phone;
-    const director_name = body.director_name || body.applicant_name || "Camp Director";
-    const camp_name = body.camp_name || body.role || "Camp Hope";
 
     if (!phone_number) {
       return NextResponse.json({ success: false, error: "Missing phone_number" }, { status: 400 });
     }
 
-    const simulatedCallId = `call_${Date.now()}`;
-
-    return NextResponse.json({
-      success: true,
-      call_id: simulatedCallId,
-      message: `KaiCalls AI Voice Assistant is dialing ${phone_number} for ${director_name} (${camp_name}).`,
-      protocol: "2-Minute Structured Pastoral & Mentorship Reference Interview",
-      status: "ringing"
-    });
+    return NextResponse.json(
+      {
+        success: false,
+        call_placed: false,
+        error: "Outbound reference calling is not enabled yet. No call was placed.",
+      },
+      { status: 503 }
+    );
   } catch (err: any) {
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }

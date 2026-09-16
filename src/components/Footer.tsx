@@ -17,7 +17,7 @@ export default function Footer() {
               <span className="font-display font-black text-2xl text-white tracking-tight">CamperRoster</span>
             </div>
             <p className="text-xs sm:text-sm text-stone-400 max-w-sm leading-relaxed">
-              The modern camp registration and operations platform. Built to eliminate parent drop-off, automate staff reference checks with KaiCalls, and guarantee 100% data readiness before opening day.
+              The modern camp registration and operations platform. Built to eliminate parent drop-off, automate staff reference checks with KaiCalls, and get every record complete before opening day.
             </p>
             <div className="flex items-center gap-2 text-xs text-emerald-400 font-semibold pt-1">
               <ShieldCheck className="w-4 h-4 text-emerald-400" />
@@ -64,7 +64,7 @@ export default function Footer() {
             <ul className="space-y-2.5">
               <li><Link href="/llms.txt" className="hover:text-white transition-colors">/llms.txt (Agent Manifest)</Link></li>
               <li><span className="text-stone-500 font-mono text-[11px]">@camperroster/mcp-server</span></li>
-              <li><Link href="/volunteer" className="hover:text-white transition-colors">KaiCalls Voice Simulator</Link></li>
+              <li><Link href="/volunteer" className="hover:text-white transition-colors">Volunteer Application Form</Link></li>
               <li><Link href="/api/health" className="hover:text-white transition-colors">Live Edge Health Check</Link></li>
             </ul>
           </div>
@@ -73,7 +73,7 @@ export default function Footer() {
 
         {/* BOTTOM BAR */}
         <div className="pt-8 border-t border-forest-900/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-stone-500">
-          <div>© 2026 CamperRoster Inc. All rights reserved. Flagship client: Camp Hope 2027.</div>
+          <div>© 2026 CamperRoster. All rights reserved. Camp Hope is our demo camp, not a customer.</div>
           <div className="flex items-center gap-1 text-[11px]">
             <span>Engineered with</span>
             <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" />

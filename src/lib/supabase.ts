@@ -1,8 +1,37 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "./supabase/database.types";
+import { SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_URL } from "./supabase/env";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://vmxsxfawteycdvcxhxul.supabase.co";
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "sb_publishable_n-mC4RbeDag8Xp18HefllQ_dqYTw69H";
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+/**
+ * Credentials are resolved on first use rather than at import time, so a missing
+ * env var surfaces as a failing request instead of a build that won't start.
+ */
+function lazyClient(build: () => SupabaseClient<Database>): SupabaseClient<Database> {
+  let instance: SupabaseClient<Database> | null = null;
+  const resolve = () => (instance ??= build());
+  return new Proxy({} as SupabaseClient<Database>, {
+    get: (_target, prop, receiver) => Reflect.get(resolve(), prop, receiver),
+  });
+}
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
-export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey || supabaseAnonKey);
+export const supabase = lazyClient(() => createClient<Database>(SUPABASE_URL(), SUPABASE_ANON_KEY()));
+
+/**
+ * Bypasses RLS. Reserved for work with no user session by definition: public
+ * registration intake, verified webhooks, scheduled jobs. Prefer the
+ * request-scoped client in `lib/supabase/server` anywhere a user is signed in.
+ */
+export const supabaseAdmin = lazyClient(() =>
+  createClient<Database>(SUPABASE_URL(), SUPABASE_SERVICE_ROLE_KEY(), {
+    auth: { persistSession: false, autoRefreshToken: false },
+  })
+);
+
+/**
+ * Whether the service-role key is present.
+ *
+ * Public intake routes and webhooks have no user session, so they must use the
+ * admin client. Checking this first lets them answer 503 "not configured"
+ * instead of throwing an unhandled error on first use.
+ */
+export const hasServiceRoleKey = Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY?.trim());

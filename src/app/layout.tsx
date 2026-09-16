@@ -87,7 +87,8 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://camperroster.com",
+    // relative, so og:url matches the canonical on every route (see alternates below)
+    url: "./",
     siteName: "CamperRoster",
     title: "CamperRoster — Modern Camp Registration Software & Operations Platform",
     description: "Zero off-season retainers, 2-minute automated KaiCalls phone references, 1-tap SMS health links, and express QR gate check-in.",
@@ -106,8 +107,11 @@ export const metadata: Metadata = {
     description: "Zero off-season retainers, automated KaiCalls AI phone references, and mobile-first parent registration.",
     images: ["/images/camp_hero.jpg"]
   },
+  // "./" resolves against metadataBase + the current pathname, so every route
+  // emits a SELF-referencing canonical. A hard-coded homepage URL here made all
+  // nine programmatic landing pages canonicalise to "/".
   alternates: {
-    canonical: "https://camperroster.com"
+    canonical: "./"
   }
 };
 

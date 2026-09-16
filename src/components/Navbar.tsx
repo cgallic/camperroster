@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Trees, PhoneCall, ArrowUpRight, Menu, X } from "lucide-react";
 import KaiCallsSimulatorModal from "./KaiCallsSimulatorModal";
+import AuthNav from "./AuthNav";
 
 export default function Navbar() {
   const [modalOpen, setModalOpen] = useState(false);
@@ -50,14 +51,15 @@ export default function Navbar() {
               onClick={() => setModalOpen(true)}
               className="hidden lg:inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-100 text-emerald-950 border border-emerald-300 font-extrabold text-xs hover:bg-emerald-200 transition-all cursor-pointer shadow-xs"
             >
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 animate-pulse"></span>
               <PhoneCall className="w-4 h-4 text-emerald-900" />
-              <span>KaiCalls Voice AI</span>
+              <span>KaiCalls Voice AI Demo</span>
             </button>
 
+            <AuthNav />
+
             <Link
-              href="/register"
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-forest-900 hover:bg-forest-950 text-white font-black text-xs shadow-md transition-all hover:scale-102"
+              href="/start"
+              className="hidden sm:inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-forest-900 hover:bg-forest-950 text-white font-black text-xs shadow-md transition-all hover:scale-102"
             >
               <span>Get Started</span>
               <ArrowUpRight className="w-4 h-4 stroke-[3]" />
@@ -80,9 +82,12 @@ export default function Navbar() {
               <Link href="/" onClick={() => setMobileMenuOpen(false)} className="p-3.5 rounded-xl bg-stone-100 hover:bg-stone-200">Platform Overview</Link>
               <Link href="/pricing" onClick={() => setMobileMenuOpen(false)} className="p-3.5 rounded-xl bg-stone-100 hover:bg-stone-200">Pricing</Link>
               <Link href="/ultracamp-alternative" onClick={() => setMobileMenuOpen(false)} className="p-3.5 rounded-xl bg-amber-100 text-amber-950 font-black">vs UltraCamp</Link>
-              <Link href="/register" onClick={() => setMobileMenuOpen(false)} className="p-3.5 rounded-xl bg-forest-100 text-forest-950 font-black">Camp Hope Demo</Link>
+              <Link href="/start" onClick={() => setMobileMenuOpen(false)} className="p-3.5 rounded-xl bg-forest-100 text-forest-950 font-black">Create Your Camp</Link>
               <Link href="/portal" onClick={() => setMobileMenuOpen(false)} className="p-3.5 rounded-xl bg-stone-100 hover:bg-stone-200">Parent Portal</Link>
               <Link href="/admin" onClick={() => setMobileMenuOpen(false)} className="p-3.5 rounded-xl bg-stone-100 hover:bg-stone-200">Director Hub</Link>
+            </div>
+            <div className="pt-1">
+              <AuthNav onNavigate={() => setMobileMenuOpen(false)} />
             </div>
             <button
               onClick={() => { setMobileMenuOpen(false); setModalOpen(true); }}
