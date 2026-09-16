@@ -11,9 +11,13 @@ export default function BoardProposalPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-stone-900 text-white shadow-lg print:hidden">
         <div className="space-y-1">
           <span className="font-mono text-xs font-bold text-amber-400 uppercase tracking-widest">
-            CAMP HOPE 2027 • EXECUTIVE BOARD BRIEFING
+            SAMPLE ONE-PAGER • FILL IN YOUR OWN NUMBERS
           </span>
-          <h2 className="font-display font-black text-lg text-white">Board of Directors Proposal One-Pager</h2>
+          <h2 className="font-display font-black text-lg text-white">Board Proposal Template</h2>
+          <p className="text-[11px] text-stone-300 leading-relaxed max-w-xl">
+            A one-page briefing you can print and take to your board. It is filled in with our
+            sample camp and our own cost estimates &mdash; swap in your camp&apos;s real figures before you use it.
+          </p>
         </div>
         <div className="flex items-center gap-3">
           <button
@@ -36,13 +40,13 @@ export default function BoardProposalPage() {
         <div className="border-b-2 border-stone-200 pb-6 flex justify-between items-start">
           <div className="space-y-2">
             <span className="font-mono text-xs font-bold uppercase tracking-widest text-forest-800 bg-forest-100 px-3 py-1 rounded-full">
-              EXECUTIVE BRIEFING • PREPARED FOR PETE GALLIC & BOARD
+EXAMPLE BRIEFING • PREPARED FOR YOUR BOARD
             </span>
             <h1 className="font-display font-black text-3xl sm:text-4xl text-stone-950 tracking-tight">
               Camp Hope 2027: Platform Modernization & Cost Reduction
             </h1>
             <p className="text-xs sm:text-sm text-stone-600 font-medium max-w-xl">
-              Evaluation of transitioning Camp Hope from legacy fragmented tools (UltraCamp, spreadsheets, paper health forms) to CamperRoster OS.
+An example evaluation of moving a camp off fragmented legacy tools (UltraCamp, spreadsheets, paper health forms) onto CamperRoster. Camp Hope is our sample camp; the figures below are our estimates, not a customer&apos;s results.
             </p>
           </div>
           <div className="text-right hidden sm:block">
@@ -153,7 +157,7 @@ export default function BoardProposalPage() {
             <div className="p-4 rounded-xl border border-stone-200 space-y-1">
               <b className="text-stone-950 block">🎙️ Automated KaiCalls Voice References</b>
               <p className="text-stone-600 leading-relaxed">
-                AI Voice Assistant dials mentors and pastors, conducts a 2-minute safety interview, and logs verified audio and safety scores directly in the director dashboard.
+In development: the voice assistant dials mentors and pastors, runs a 2-minute structured interview, and files the recording and transcript against the applicant. Until it ships, references are reviewed by hand in the director dashboard.
               </p>
             </div>
             <div className="p-4 rounded-xl border border-stone-200 space-y-1">
@@ -165,7 +169,7 @@ export default function BoardProposalPage() {
             <div className="p-4 rounded-xl border border-stone-200 space-y-1">
               <b className="text-stone-950 block">📱 1-Tap SMS Magic Links</b>
               <p className="text-stone-600 leading-relaxed">
-                Eliminates forgotten parent passwords. One-click SMS links sent to parents&apos; phones to complete missing immunization cards and photo uploads.
+In development: no more forgotten parent passwords &mdash; a one-tap link to finish missing immunization cards and photo uploads.
               </p>
             </div>
           </div>
@@ -178,7 +182,7 @@ export default function BoardProposalPage() {
             <span className="font-mono text-xs font-bold bg-white/10 px-3 py-1 rounded-full text-stone-200">$0 Setup & Migration</span>
           </div>
           <p className="text-xs text-stone-300 leading-relaxed">
-            By switching to CamperRoster, Camp Hope will save an estimated <b>$6,150 annually</b>, reclaim <b>40+ hours of director time</b>, and deliver a frictionless mobile registration experience to our families.
+On these example figures, a camp this size would save roughly <b>$6,150 a year</b> and reclaim <b>40+ hours of director time</b>, while giving families a registration flow that works on a phone. Run the numbers for your own camp on the pricing page before you present this.
           </p>
         </div>
 

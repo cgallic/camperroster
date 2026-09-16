@@ -1,72 +1,31 @@
-"use client";
+import { Suspense } from "react";
+import { Trees } from "lucide-react";
+import LoginForm from "./LoginForm";
 
-import { Suspense, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
-
-function LoginForm() {
-  const params = useSearchParams();
-  const next = params.get("next") || "/admin";
-  const [email, setEmail] = useState("");
-  const [sent, setSent] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
-
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setBusy(true);
-    setError(null);
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}` },
-    });
-    setBusy(false);
-    if (error) setError(error.message);
-    else setSent(true);
-  }
-
-  if (sent) {
-    return (
-      <p className="text-slate-700">
-        Check <span className="font-medium">{email}</span> for a sign-in link.
-      </p>
-    );
-  }
-
-  return (
-    <form onSubmit={onSubmit} className="space-y-4">
-      <div>
-        <label htmlFor="email" className="block text-sm font-medium text-slate-700">
-          Email
-        </label>
-        <input
-          id="email"
-          type="email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2"
-        />
-      </div>
-      {error && <p className="text-sm text-red-600">{error}</p>}
-      <button
-        type="submit"
-        disabled={busy}
-        className="w-full rounded-md bg-emerald-800 px-4 py-2 font-medium text-white disabled:opacity-50"
-      >
-        {busy ? "Sending…" : "Email me a sign-in link"}
-      </button>
-    </form>
-  );
-}
+export const metadata = {
+  title: "Sign in",
+  description: "Sign in to your CamperRoster camp dashboard.",
+  robots: { index: false, follow: false },
+};
 
 export default function LoginPage() {
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-4">
-      <h1 className="mb-1 text-2xl font-semibold text-slate-900">Staff sign-in</h1>
-      <p className="mb-6 text-sm text-slate-600">Camp staff and volunteers only.</p>
-      <Suspense fallback={null}>
+    <main className="max-w-md mx-auto px-4 py-12 sm:py-20 space-y-8">
+      <div className="text-center space-y-3">
+        <div className="w-12 h-12 rounded-2xl bg-forest-950 text-emerald-300 flex items-center justify-center mx-auto shadow-md">
+          <Trees className="w-7 h-7" />
+        </div>
+        <h1 className="font-display font-black text-3xl text-stone-900 tracking-tight">
+          Sign in to your camp
+        </h1>
+        <p className="text-sm text-stone-600 font-medium">
+          Director, nurse and counselor screens are private to your camp.
+        </p>
+      </div>
+
+      {/* useSearchParams() must sit inside a Suspense boundary or this page
+          opts the whole route out of static rendering at build time. */}
+      <Suspense fallback={<div className="h-64 rounded-3xl bg-white border-2 border-stone-200 animate-pulse" />}>
         <LoginForm />
       </Suspense>
     </main>

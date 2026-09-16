@@ -1,46 +1,75 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
-import { PhoneCall, CheckCircle2, ArrowRight, Loader2, ArrowLeft, HeartHandshake, ShieldCheck } from "lucide-react";
+import { PhoneCall, CheckCircle2, ArrowRight, Loader2, ArrowLeft, HeartHandshake, ShieldCheck, AlertTriangle } from "lucide-react";
+import type { VolunteerPayload, VolunteerResponse } from "@/lib/formContracts";
+import { CampScopeBlocker, useCampScope } from "@/components/CampScope";
 
-export default function VolunteerPage() {
+/** Camp comes from ?camp=<slug>; see the note in src/components/CampScope.tsx. */
+function VolunteerPageInner() {
+  const campScope = useCampScope();
   const [role, setRole] = useState("Cabin Counselor");
   const [refName, setRefName] = useState("");
   const [refPhone, setRefPhone] = useState("");
+  const [refEmail, setRefEmail] = useState("");
+  const [refRelationship, setRefRelationship] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [birthDate, setBirthDate] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [appId, setAppId] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !email || !phone || !refName || !refPhone) {
-      alert("Please fill out all applicant and reference fields.");
-      return;
-    }
     setIsSubmitting(true);
+    setError(null);
     try {
+      if (campScope.status !== "found") {
+        setError("This application is not attached to a camp. Nothing was saved.");
+        return;
+      }
+
+      const payload: VolunteerPayload = {
+        campSlug: campScope.slug,
+        name,
+        email,
+        phone,
+        birthDate,
+        role,
+        refName,
+        refPhone,
+        refEmail,
+        refRelationship,
+      };
+
       const res = await fetch("/api/volunteer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ role, refName, refPhone, name, email, phone }),
+        body: JSON.stringify(payload),
       });
-      const data = await res.json();
-      if (data.success) {
+      const data: VolunteerResponse = await res.json().catch(() => ({ success: false }));
+
+      // Only a real row id counts as success. No id, no success screen.
+      if (res.ok && data.success && data.applicationId) {
         setAppId(data.applicationId);
         setSubmitted(true);
       } else {
-        alert("Error: " + data.error);
+        setError(data.error || "We could not save your application. Please try again.");
       }
     } catch (err: any) {
-      alert("Submission error: " + err.message);
+      setError(err?.message || "Network error — your application was not saved. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  if (campScope.status !== "found") {
+    return <CampScopeBlocker scope={campScope} what="volunteer application" />;
+  }
 
   return (
     <main className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8">
@@ -49,7 +78,7 @@ export default function VolunteerPage() {
         <div className="space-y-2">
           <Link href="/" className="inline-flex items-center gap-2 text-xs font-bold text-stone-500 hover:text-stone-900 transition-colors">
             <ArrowLeft className="w-4 h-4" />
-            <span>Back to Camp Hope Home</span>
+            <span>Back to CamperRoster</span>
           </Link>
           <span className="eyebrow-pill bg-sun-100 text-sun-900 border border-sun-200">
             STAFF & VOLUNTEER APPLICATION
@@ -70,12 +99,12 @@ export default function VolunteerPage() {
                 <div className="w-14 h-14 bg-emerald-100 text-emerald-800 rounded-full flex items-center justify-center mx-auto shadow-xs">
                   <CheckCircle2 className="w-8 h-8" />
                 </div>
-                <h2 className="font-display font-black text-2xl text-forest-950">Application Saved in Supabase!</h2>
+                <h2 className="font-display font-black text-2xl text-forest-950">Application Received</h2>
                 <p className="text-xs text-stone-700 max-w-md mx-auto leading-relaxed">
-                  Thank you, <b>{name}</b>! KaiCalls AI Voice Assistant has queued an automated 2-minute reference phone interview to <b>{refName}</b> ({refPhone}).
+                  Thank you, <b>{name}</b>! Your application is saved, and we have recorded <b>{refName}</b> ({refPhone}) as your reference. A camp director reviews references by hand before anyone is contacted. We will follow up at <b>{email}</b>.
                 </p>
                 <div className="font-mono text-xs text-forest-800 bg-white p-3 rounded-xl border border-forest-200 max-w-sm mx-auto">
-                  Application UUID: {appId || "66666666-6666-6666-6666-666666666666"}
+                  Application ID: {appId}
                 </div>
                 <Link href="/" className="btn-primary-agency text-xs justify-center py-3 mt-4">
                   Return to Home
@@ -120,6 +149,19 @@ export default function VolunteerPage() {
                         onChange={(e) => setPhone(e.target.value)}
                         required
                       />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                      <label className="text-xs font-bold text-stone-800 block mb-1">Date of Birth *</label>
+                      <input
+                        type="date"
+                        className="w-full p-3 rounded-xl border border-stone-200 text-xs focus:border-forest-800 focus:outline-none"
+                        value={birthDate}
+                        onChange={(e) => setBirthDate(e.target.value)}
+                        required
+                      />
+                      <span className="text-[10px] text-stone-500 block mt-1">Cabin counselors must be 18 or older.</span>
                     </div>
                   </div>
                 </div>
@@ -173,7 +215,7 @@ export default function VolunteerPage() {
                     <span>3. Pastor or Professional Reference</span>
                   </div>
                   <p className="text-xs text-stone-700 leading-relaxed">
-                    KaiCalls AI Voice Assistant calls your reference for a 2-minute safety interview and transcribes the recording directly for our camp director.
+                    Give us someone who can speak to your character. Reference checks are reviewed by the camp director; automated KaiCalls voice interviews are coming, but today a person makes the call.
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                     <input
@@ -192,8 +234,34 @@ export default function VolunteerPage() {
                       placeholder="Reference Mobile Phone: (908) 555-0199"
                       required
                     />
+                    <input
+                      type="email"
+                      className="p-3 rounded-xl border border-sun-200 bg-white text-xs focus:border-forest-800 focus:outline-none"
+                      value={refEmail}
+                      onChange={(e) => setRefEmail(e.target.value)}
+                      placeholder="Reference Email: pastor@church.org"
+                      required
+                    />
+                    <input
+                      type="text"
+                      className="p-3 rounded-xl border border-sun-200 bg-white text-xs focus:border-forest-800 focus:outline-none"
+                      value={refRelationship}
+                      onChange={(e) => setRefRelationship(e.target.value)}
+                      placeholder="How do they know you? e.g. Pastor, former supervisor"
+                      required
+                    />
                   </div>
                 </div>
+
+                {error && (
+                  <div className="p-4 rounded-2xl bg-red-50 border border-red-200 flex items-start gap-3">
+                    <AlertTriangle className="w-5 h-5 text-red-700 shrink-0 mt-0.5" />
+                    <div className="space-y-1">
+                      <b className="text-xs font-black text-red-900 block">Application not saved</b>
+                      <span className="text-xs text-red-800 block">{error}</span>
+                    </div>
+                  </div>
+                )}
 
                 <button
                   type="submit"
@@ -203,11 +271,11 @@ export default function VolunteerPage() {
                   {isSubmitting ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Saving Application to Supabase...</span>
+                      <span>Saving your application...</span>
                     </>
                   ) : (
                     <>
-                      <span>Submit Application & Trigger Reference Call</span>
+                      <span>Submit Application</span>
                       <ArrowRight className="w-4 h-4" />
                     </>
                   )}
@@ -220,5 +288,20 @@ export default function VolunteerPage() {
 
       </div>
     </main>
+  );
+}
+
+/** useSearchParams() needs a Suspense boundary; see RegisterPage for why. */
+export default function VolunteerPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="max-w-2xl mx-auto px-4 py-20 text-center text-sm font-bold text-stone-500">
+          Loading application…
+        </main>
+      }
+    >
+      <VolunteerPageInner />
+    </Suspense>
   );
 }

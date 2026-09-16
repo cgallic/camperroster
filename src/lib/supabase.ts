@@ -26,3 +26,12 @@ export const supabaseAdmin = lazyClient(() =>
     auth: { persistSession: false, autoRefreshToken: false },
   })
 );
+
+/**
+ * Whether the service-role key is present.
+ *
+ * Public intake routes and webhooks have no user session, so they must use the
+ * admin client. Checking this first lets them answer 503 "not configured"
+ * instead of throwing an unhandled error on first use.
+ */
+export const hasServiceRoleKey = Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY?.trim());

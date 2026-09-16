@@ -26,9 +26,9 @@ that needs it rather than silently connecting somewhere unexpected.
 
 ### Database
 
-Schema lives in `supabase/migrations/`, applied in filename order. `0001` is
-deliberately absent: the original tables were created outside version control,
-and that slot is reserved for a baseline dump of that starting state.
+Schema lives in `supabase/migrations/`, applied in filename order. `0001`-`0003`
+set up tenancy, auth and the camp subscription billing; everything from `0004`
+builds the camp operations on top of them.
 
 Reference data — a season, the five registration windows, the paperwork each
 population owes, the service areas — comes from `supabase/seed/camp_defaults.sql`.
@@ -47,7 +47,9 @@ including the admin pages. A fresh database has no way in, so:
 npx tsx scripts/grant-access.ts dave@camphope.org camphope director
 ```
 
-They then sign in at `/login`, which emails a link. There are no passwords.
+An unknown email is invited and gets a link to set a password; a known one is
+just given the membership. Camps can also sign themselves up at `/signup`, which
+creates the camp and its first director in one go.
 
 ### Document storage
 

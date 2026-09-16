@@ -7,7 +7,10 @@
  *
  *   npx tsx scripts/grant-access.ts dave@camphope.org camphope director
  *
- * Needs SUPABASE_SERVICE_ROLE_KEY, since creating users and writing membership
+ * An unknown email is invited, which emails them a link to set a password. A
+ * known one is just given the membership.
+ *
+ * Needs SUPABASE_SERVICE_ROLE_KEY, since inviting users and writing membership
  * both sit behind RLS by design.
  */
 
@@ -62,14 +65,16 @@ async function main() {
     if (data.users.length < 200) break;
   }
 
+  let invited = false;
   if (!userId) {
-    const { data, error } = await supabase.auth.admin.createUser({
-      email,
-      email_confirm: true,
-    });
+    // Invite rather than create: sign-in is by password, so an account made
+    // here with no password would have no way in. The invite emails them a link
+    // to set one.
+    const { data, error } = await supabase.auth.admin.inviteUserByEmail(email);
     if (error) throw error;
     userId = data.user.id;
-    console.log(`Created account for ${email}`);
+    invited = true;
+    console.log(`Invited ${email} — they have an email with a link to set a password.`);
   }
 
   const { error: memberError } = await supabase
@@ -79,7 +84,9 @@ async function main() {
   if (memberError) throw memberError;
 
   console.log(`${email} is now ${role} at ${camp.name}.`);
-  console.log("They sign in at /login, which emails them a link -- no password to set.");
+  if (!invited) {
+    console.log("They already had an account, so nothing was emailed — they sign in at /login as usual.");
+  }
 }
 
 main().catch((err) => {

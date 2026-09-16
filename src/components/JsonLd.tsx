@@ -6,20 +6,21 @@ export default function JsonLd() {
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Web, iOS, Android",
     "url": "https://camperroster.com",
-    "description": "Modern camp registration software and operations platform with zero off-season retainers, automated KaiCalls AI voice reference checking, health lodge eMAR, and cashless canteen POS.",
+    "description": "Modern camp registration software and operations platform with zero off-season retainers, health lodge eMAR, and cashless canteen POS.",
     "offers": {
       "@type": "Offer",
-      "price": "0.00",
+      "price": "4.00",
       "priceCurrency": "USD",
-      "description": "$0/month off-season retainer guarantee"
+      "unitText": "per registered camper",
+      "description": "Per-camper pricing from $4.00; $0/month during the off-season"
     },
     "featureList": [
       "5-Step Camper Registration Wizard",
-      "KaiCalls Automated 2-Minute AI Phone Reference Checking",
+
       "Health Lodge Electronic Medication Administration Records (eMAR)",
       "Cashless Canteen Point of Sale (POS)",
-      "1-Tap SMS Magic Links (Passwordless Parent Login)",
-      "45-Second Express QR Gate Check-In",
+
+      "Express QR Gate Check-In",
       "Daily Bunk Notes Parent Mail Call Batch Printing",
       "Counselor Mobile Cabin Roster"
     ]
@@ -59,7 +60,7 @@ export default function JsonLd() {
         "name": "How does the KaiCalls automated volunteer reference check work?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "When a staff applicant or volunteer applies, KaiCalls AI Voice Assistant calls their pastor or professional mentor directly. It conducts a structured 2-minute safety interview, records the audio, and saves the verified transcript and safety score directly into your director dashboard."
+          "text": "Applicants give a pastor or professional mentor as a reference when they apply, and that reference is filed against the application in your director dashboard for review. Automated KaiCalls voice interviews, which dial the reference and transcribe the call, are in development and are not placing calls yet."
         }
       },
       {
@@ -75,82 +76,16 @@ export default function JsonLd() {
         "name": "Can parents register multiple children and select installment plans?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Yes. Parents can register their entire household in one session, choose between $100 deposit plans, 3-month automated installment schedules, or pay-in-full, and upload medical records with zero password friction."
+          "text": "Yes. Parents can register their entire household in one session, choose between deposit or pay-in-full options, and upload medical records with zero password friction."
         }
       }
     ]
   };
 
-  const campSessionsSchema = {
-    "@context": "https://schema.org",
-    "@type": "ItemList",
-    "name": "Camp Hope Summer 2027 Sessions",
-    "itemListElement": [
-      {
-        "@type": "Event",
-        "position": 1,
-        "name": "Camp Hope - Junior Camp (Grades 2-4)",
-        "startDate": "2027-07-11",
-        "endDate": "2027-07-17",
-        "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
-        "eventStatus": "https://schema.org/EventScheduled",
-        "location": {
-          "@type": "Place",
-          "name": "Camp Hope Lakefront Facility",
-          "address": "Lancaster, PA"
-        },
-        "offers": {
-          "@type": "Offer",
-          "price": "650.00",
-          "priceCurrency": "USD",
-          "availability": "https://schema.org/InStock",
-          "url": "https://camperroster.com/register"
-        }
-      },
-      {
-        "@type": "Event",
-        "position": 2,
-        "name": "Camp Hope - Intermediate Camp (Grades 5-6)",
-        "startDate": "2027-07-18",
-        "endDate": "2027-07-24",
-        "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
-        "eventStatus": "https://schema.org/EventScheduled",
-        "location": {
-          "@type": "Place",
-          "name": "Camp Hope Lakefront Facility",
-          "address": "Lancaster, PA"
-        },
-        "offers": {
-          "@type": "Offer",
-          "price": "650.00",
-          "priceCurrency": "USD",
-          "availability": "https://schema.org/InStock",
-          "url": "https://camperroster.com/register"
-        }
-      },
-      {
-        "@type": "Event",
-        "position": 3,
-        "name": "Camp Hope - Senior Teen Camp (Grades 7-8)",
-        "startDate": "2027-07-25",
-        "endDate": "2027-07-31",
-        "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
-        "eventStatus": "https://schema.org/EventScheduled",
-        "location": {
-          "@type": "Place",
-          "name": "Camp Hope Lakefront Facility",
-          "address": "Lancaster, PA"
-        },
-        "offers": {
-          "@type": "Offer",
-          "price": "675.00",
-          "priceCurrency": "USD",
-          "availability": "https://schema.org/InStock",
-          "url": "https://camperroster.com/register"
-        }
-      }
-    ]
-  };
+  // NOTE: a campSessionsSchema ItemList used to publish "Camp Hope" July 2027 sessions
+  // here as bookable schema.org/Event records with InStock availability. Camp Hope is our
+  // demo camp, so those events do not exist and were removed rather than shipped to search
+  // engines as real, purchasable dates.
 
   return (
     <>
@@ -165,10 +100,6 @@ export default function JsonLd() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(campSessionsSchema) }}
       />
     </>
   );

@@ -8,6 +8,9 @@ import { recomputeInvoiceTotals } from "@/lib/invoicing";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+/** Distinguishes our claims in stripe_events from the subscription webhook's. */
+const HANDLER = "tuition";
+
 type Db = ReturnType<typeof createAdminClient>;
 
 /**
@@ -35,10 +38,15 @@ export async function POST(req: Request) {
 
   const db = createAdminClient();
 
-  // Claim the event first. A duplicate id trips the primary key and we stop.
+  // Claim the event first. A duplicate trips the (id, handler) key and we stop.
+  //
+  // The camp-subscription webhook at /api/billing/webhook receives these same
+  // events and claims them too. Claiming under our own handler is what stops one
+  // integration reading the other's claim as an already-processed replay and
+  // returning 200 to a payment it never settled.
   const { error: claimError } = await db
     .from("stripe_events")
-    .insert({ id: event.id, type: event.type });
+    .insert({ id: event.id, type: event.type, handler: HANDLER });
   if (claimError) {
     return NextResponse.json({ received: true, duplicate: true });
   }
@@ -62,7 +70,7 @@ export async function POST(req: Request) {
     }
   } catch (err) {
     // Release the claim so Stripe's retry can have another go at it.
-    await db.from("stripe_events").delete().eq("id", event.id);
+    await db.from("stripe_events").delete().eq("id", event.id).eq("handler", HANDLER);
     const message = err instanceof Error ? err.message : "Webhook handler failed";
     return NextResponse.json({ error: message }, { status: 500 });
   }

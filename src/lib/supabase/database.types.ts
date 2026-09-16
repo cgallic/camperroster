@@ -485,7 +485,7 @@ export type Database = {
           director_name: string
           director_phone: string | null
           id: string
-          location: string
+          location: string | null
           logo_url: string | null
           name: string
           primary_color: string | null
@@ -498,7 +498,7 @@ export type Database = {
           director_name: string
           director_phone?: string | null
           id?: string
-          location: string
+          location?: string | null
           logo_url?: string | null
           name: string
           primary_color?: string | null
@@ -511,7 +511,7 @@ export type Database = {
           director_name?: string
           director_phone?: string | null
           id?: string
-          location?: string
+          location?: string | null
           logo_url?: string | null
           name?: string
           primary_color?: string | null
@@ -2406,16 +2406,19 @@ export type Database = {
       }
       stripe_events: {
         Row: {
+          handler: string
           id: string
           received_at: string
           type: string
         }
         Insert: {
+          handler: string
           id: string
           received_at?: string
           type: string
         }
         Update: {
+          handler?: string
           id?: string
           received_at?: string
           type?: string
