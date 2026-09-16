@@ -2349,6 +2349,8 @@ export type Database = {
           reference_name: string
           relationship: string
           safety_approved: boolean | null
+          safety_reviewed_at: string | null
+          safety_reviewed_by: string | null
           sentiment_score: number | null
           status: string | null
           verified_at: string | null
@@ -2366,6 +2368,8 @@ export type Database = {
           reference_name: string
           relationship: string
           safety_approved?: boolean | null
+          safety_reviewed_at?: string | null
+          safety_reviewed_by?: string | null
           sentiment_score?: number | null
           status?: string | null
           verified_at?: string | null
@@ -2383,6 +2387,8 @@ export type Database = {
           reference_name?: string
           relationship?: string
           safety_approved?: boolean | null
+          safety_reviewed_at?: string | null
+          safety_reviewed_by?: string | null
           sentiment_score?: number | null
           status?: string | null
           verified_at?: string | null

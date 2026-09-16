@@ -12,14 +12,20 @@ import { isSetupIncompleteError, setupIncompleteResponse } from "@/lib/auth";
  * camp the applicant had applied to.
  *
  * SECURITY NOTE (unfinished): this endpoint is unauthenticated. Anyone who can
- * POST to it can mark a volunteer reference "safety_approved". It needs a shared
- * secret or signature check from KaiCalls before it is relied on for a real
- * safeguarding decision. Deliberately left as-is rather than inventing a scheme
- * the caller does not send; see the TODO below.
+ * POST to it, with a reference id, can write a call transcript, a sentiment
+ * score and a "completed" status onto that reference — so the record a director
+ * reads when deciding on a volunteer can be forged.
+ *
+ * It cannot set safety_approved: that column takes no default, and a check
+ * constraint requires a named reviewer alongside any decision, so the clearance
+ * itself can only come from a person. The exposure is the evidence, not the
+ * verdict. Still needs a shared secret from KaiCalls; left as-is rather than
+ * inventing a scheme the caller does not send. See the TODO below.
  */
 export async function POST(req: Request) {
   // TODO(security): verify a KAICALLS_WEBHOOK_SECRET header before trusting the
-  // body. Until then a director should treat safety_approved as advisory.
+  // body. Until then a director should treat the transcript and sentiment score
+  // as unverified evidence rather than proof the call happened.
   if (!hasServiceRoleKey) {
     return NextResponse.json(
       { received: false, error: "Webhook storage is not configured (SUPABASE_SERVICE_ROLE_KEY unset)." },
