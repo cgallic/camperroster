@@ -118,6 +118,17 @@ cabin row before counting, so two admins cannot be handed the same last bed.
 Each function checks the caller's role itself, which is why they stay callable
 by signed-in staff without being callable by anyone holding the publishable key.
 
+## Deploys
+
+`vercel.json` skips preview builds on `claude/*` branches. Agent branches push
+work-in-progress commits often, and each one queued a build — including
+checkpoints known not to compile. Production and every human-authored branch
+deploy normally.
+
+Vercel validates `vercel.json` against a strict schema and rejects any key it
+does not recognise, so don't add a comment field to explain a setting — the
+deployment fails on the config before it ever builds. Explain it here instead.
+
 ## Known issues
 
 `npm audit` reports vulnerabilities reachable only through `next`'s bundled
