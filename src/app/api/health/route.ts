@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
 
@@ -23,7 +23,7 @@ export async function GET() {
   try {
     // head:true -> no rows transferred. Under RLS the anon role sees nothing,
     // which is the point: we are testing reachability, not reading data.
-    const { error } = await supabase.from("registrations").select("id", { count: "exact", head: true });
+    const { error } = await supabaseAdmin.from("registrations").select("id", { count: "exact", head: true });
 
     if (error) {
       return NextResponse.json(
