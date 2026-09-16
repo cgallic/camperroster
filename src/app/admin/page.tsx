@@ -1,88 +1,116 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { AlertTriangle, ShieldAlert, X, Check, RefreshCw } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
+import { AlertTriangle, ShieldAlert, X, Check, RefreshCw, Database } from "lucide-react";
+
+/**
+ * Director dashboard.
+ *
+ * This page no longer talks to Supabase from the browser. It used to query
+ * registrations / staff_applications / health_profiles / staff_references with
+ * the publishable anon key, unfiltered, which returned every camp's rows to
+ * anyone who opened /admin. All reads and the sign-off write now go through
+ * /api/admin/*, which resolve the camp from the session and filter by camp_id.
+ */
+
+interface OverviewResponse {
+  success: boolean;
+  camp?: { campId: string; campName: string; slug: string; role: string };
+  counts?: { registrations: number; staffApplications: number; allergyFlags: number; references: number };
+  health?: any[];
+  references?: any[];
+  error?: string;
+  message?: string;
+}
+
+type Blocker = { kind: "setup" | "auth" | "error"; message: string };
 
 export default function AdminDashboardPage() {
   const [loading, setLoading] = useState(true);
-  const [campersCount, setCampersCount] = useState<number | null>(null);
-  const [volsCount, setVolsCount] = useState<number | null>(null);
-  const [medicalCount, setMedicalCount] = useState<number | null>(null);
-  const [referenceCount, setReferenceCount] = useState<number | null>(null);
+  const [blocker, setBlocker] = useState<Blocker | null>(null);
+  const [camp, setCamp] = useState<OverviewResponse["camp"] | null>(null);
+  const [counts, setCounts] = useState<OverviewResponse["counts"] | null>(null);
   const [triageItems, setTriageItems] = useState<any[]>([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<any>(null);
+  const [approving, setApproving] = useState(false);
 
-  const fetchLiveData = async () => {
+  const fetchLiveData = useCallback(async () => {
     setLoading(true);
+    setBlocker(null);
     try {
-      const { count: regCount } = await supabase.from("registrations").select("*", { count: "exact", head: true });
-      setCampersCount(regCount ?? 0);
+      const res = await fetch("/api/admin/overview", { cache: "no-store" });
+      const data: OverviewResponse = await res.json().catch(() => ({ success: false }));
 
-      const { count: volCount } = await supabase.from("staff_applications").select("*", { count: "exact", head: true });
-      setVolsCount(volCount ?? 0);
+      if (!res.ok || !data.success) {
+        if (res.status === 503) {
+          setBlocker({
+            kind: "setup",
+            message:
+              data.message ||
+              "This deployment's database has not been migrated yet. Apply supabase/migrations/0001_tenancy_and_auth.sql.",
+          });
+        } else if (res.status === 401 || res.status === 403) {
+          setBlocker({ kind: "auth", message: data.message || data.error || "You are not signed in." });
+        } else {
+          setBlocker({ kind: "error", message: data.error || "Could not load the dashboard." });
+        }
+        setCamp(null);
+        setCounts(null);
+        setTriageItems([]);
+        return;
+      }
 
-      const { data: healthData } = await supabase
-        .from("health_profiles")
-        .select("id, camper_id, has_allergies, allergy_details, has_epipen, epipen_location, campers(legal_first_name, legal_last_name, grade_entering)")
-        .eq("has_allergies", true);
-
-      const { data: refData } = await supabase
-        .from("staff_references")
-        .select("id, reference_name, relationship, phone, sentiment_score, call_transcript, staff_applications(first_name, last_name, role_applied)")
-        .limit(5);
+      setCamp(data.camp ?? null);
+      setCounts(data.counts ?? null);
 
       const items: any[] = [];
-      if (healthData) {
-        healthData.forEach((h: any) => {
-          const first = h.campers?.legal_first_name || "";
-          const last = h.campers?.legal_last_name || "";
-          const name = `${first} ${last}`.trim();
-          items.push({
-            type: "medical",
-            title: name || "Camper record " + String(h.id).slice(0, 8),
-            sub: h.campers?.grade_entering ? "Camper • Grade " + h.campers.grade_entering : "Camper",
-            badge: "⚠️ Medical Review Needed",
-            badgeClass: "bg-alert-red-bg text-alert-red border-alert-red-border",
-            detail: h.allergy_details || "Allergy flagged, no detail on record",
-            data: h,
-          });
+      (data.health ?? []).forEach((h: any) => {
+        const first = h.campers?.legal_first_name || "";
+        const last = h.campers?.legal_last_name || "";
+        const name = `${first} ${last}`.trim();
+        items.push({
+          type: "medical",
+          title: name || "Camper record " + String(h.id).slice(0, 8),
+          sub: h.campers?.grade_entering ? "Camper • Grade " + h.campers.grade_entering : "Camper",
+          badge: "⚠️ Medical Review Needed",
+          badgeClass: "bg-alert-red-bg text-alert-red border-alert-red-border",
+          detail: h.allergy_details || "Allergy flagged, no detail on record",
+          data: h,
         });
-      }
+      });
 
-      if (refData) {
-        refData.forEach((r: any) => {
-          const first = r.staff_applications?.first_name || "";
-          const last = r.staff_applications?.last_name || "";
-          const name = `${first} ${last}`.trim();
-          items.push({
-            type: "reference",
-            title: name || "Applicant record " + String(r.id).slice(0, 8),
-            sub: r.staff_applications?.role_applied ? "Volunteer • " + r.staff_applications.role_applied : "Volunteer",
-            badge: "🎙️ KaiCalls Reference Ready",
-            badgeClass: "bg-sun-50 text-sun-600 border-sun-100",
-            detail: (r.reference_name || "Reference") + (r.sentiment_score ? " (Score " + r.sentiment_score + "/5.0)" : " (no score yet)"),
-            data: r,
-          });
+      (data.references ?? []).forEach((r: any) => {
+        const first = r.staff_applications?.first_name || "";
+        const last = r.staff_applications?.last_name || "";
+        const name = `${first} ${last}`.trim();
+        items.push({
+          type: "reference",
+          title: name || "Applicant record " + String(r.id).slice(0, 8),
+          sub: r.staff_applications?.role_applied ? "Volunteer • " + r.staff_applications.role_applied : "Volunteer",
+          badge: "🎙️ KaiCalls Reference Ready",
+          badgeClass: "bg-sun-50 text-sun-600 border-sun-100",
+          detail:
+            (r.reference_name || "Reference") +
+            (r.sentiment_score ? " (Score " + r.sentiment_score + "/5.0)" : " (no score yet)"),
+          data: r,
         });
-      }
+      });
 
-      setMedicalCount(healthData?.length ?? 0);
-      setReferenceCount(refData?.length ?? 0);
       setTriageItems(items);
-    } catch (e) {
-      console.error("Fetch Error:", e);
+    } catch (e: any) {
+      setBlocker({ kind: "error", message: e?.message || "Network error." });
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const stat = (n: number | null) => (n === null ? "—" : String(n));
+  const stat = (n: number | null | undefined) => (n === null || n === undefined ? "—" : String(n));
 
   useEffect(() => {
     fetchLiveData();
-  }, []);
+  }, [fetchLiveData]);
 
   const openRecord = (rec: any) => {
     setSelectedRecord(rec);
@@ -91,31 +119,73 @@ export default function AdminDashboardPage() {
 
   const handleApprove = async () => {
     if (!selectedRecord) return;
+    setApproving(true);
+    try {
+      const res = await fetch("/api/admin/approve", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: selectedRecord.type, id: selectedRecord.data.id }),
+      });
+      const data = await res.json().catch(() => ({ success: false }));
 
-    const { error } =
-      selectedRecord.type === "medical"
-        ? await supabase
-            .from("health_profiles")
-            .update({ immunization_status: "approved", special_care_notes: "RN approved" })
-            .eq("id", selectedRecord.data.id)
-        : await supabase
-            .from("staff_references")
-            .update({ director_reviewed: true })
-            .eq("id", selectedRecord.data.id);
+      if (!res.ok || !data.success) {
+        alert("Could not save this approval. Nothing was written. Error: " + (data.error || res.status));
+        return;
+      }
 
-    if (error) {
-      alert("Could not save this approval. Nothing was written. Error: " + error.message);
-      return;
+      alert(
+        selectedRecord.type === "medical"
+          ? "✓ Medical clearance saved."
+          : "✓ Counselor reference approval saved."
+      );
+      setDrawerOpen(false);
+      fetchLiveData();
+    } finally {
+      setApproving(false);
     }
-
-    alert(
-      selectedRecord.type === "medical"
-        ? "✓ Medical clearance saved."
-        : "✓ Counselor reference approval saved."
-    );
-    setDrawerOpen(false);
-    fetchLiveData();
   };
+
+  if (blocker) {
+    return (
+      <main className="py-12">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6">
+          <div className="bg-white rounded-3xl p-8 border-2 border-amber-300 shadow-xl space-y-4">
+            <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center">
+              {blocker.kind === "setup" ? <Database className="w-6 h-6" /> : <AlertTriangle className="w-6 h-6" />}
+            </div>
+            <h1 className="font-display font-black text-2xl text-stone-900">
+              {blocker.kind === "setup"
+                ? "Database setup incomplete"
+                : blocker.kind === "auth"
+                  ? "Sign in to see your camp"
+                  : "Could not load the dashboard"}
+            </h1>
+            <p className="text-sm text-stone-600 leading-relaxed">{blocker.message}</p>
+            {blocker.kind === "setup" && (
+              <p className="text-xs text-stone-500 leading-relaxed">
+                No numbers are shown because none could be read for your camp. Nothing here is a
+                placeholder or another camp&apos;s data — see <code className="font-mono">supabase/README.md</code>{" "}
+                for how to apply the migration.
+              </p>
+            )}
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={fetchLiveData}
+                className="px-4 py-2.5 rounded-xl bg-forest-900 text-white font-bold text-xs cursor-pointer"
+              >
+                Retry
+              </button>
+              {blocker.kind === "auth" && (
+                <Link href="/login?next=/admin" className="px-4 py-2.5 rounded-xl bg-stone-100 text-stone-800 font-bold text-xs">
+                  Sign in
+                </Link>
+              )}
+            </div>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="py-8 lg:py-12">
@@ -123,7 +193,7 @@ export default function AdminDashboardPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <span className="font-mono text-[10px] font-bold uppercase text-forest-800 bg-forest-50 px-2.5 py-1 rounded-full border border-forest-100">
-              Live data from your Supabase project
+              {camp ? `Live data for ${camp.campName} — /c/${camp.slug}` : "Loading your camp…"}
             </span>
             <h1 className="font-display font-black text-3xl text-stone-900 mt-2">Camp Director Command Center</h1>
           </div>
@@ -152,14 +222,14 @@ export default function AdminDashboardPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="double-bezel p-5 space-y-1">
             <span className="text-xs text-stone-500 font-bold">Campers Registered</span>
-            <div className="font-display font-black text-3xl text-stone-900">{stat(campersCount)}</div>
-            <span className="text-xs text-forest-700 font-semibold">Rows in registrations</span>
+            <div className="font-display font-black text-3xl text-stone-900">{stat(counts?.registrations)}</div>
+            <span className="text-xs text-forest-700 font-semibold">Rows in registrations for this camp</span>
           </div>
 
           <div className="double-bezel p-5 space-y-1">
             <span className="text-xs text-stone-500 font-bold">Volunteers in Pipeline</span>
-            <div className="font-display font-black text-3xl text-stone-900">{stat(volsCount)}</div>
-            <span className="text-xs text-forest-700 font-semibold">Rows in staff_applications</span>
+            <div className="font-display font-black text-3xl text-stone-900">{stat(counts?.staffApplications)}</div>
+            <span className="text-xs text-forest-700 font-semibold">Rows in staff_applications for this camp</span>
           </div>
 
           <div className="bg-alert-red-bg border border-alert-red-border rounded-2xl p-5 space-y-1">
@@ -173,9 +243,9 @@ export default function AdminDashboardPage() {
 
           <div className="double-bezel p-5 space-y-1">
             <span className="text-xs text-stone-500 font-bold">Allergy Flags on File</span>
-            <div className="font-display font-black text-3xl text-stone-900">{stat(medicalCount)}</div>
+            <div className="font-display font-black text-3xl text-stone-900">{stat(counts?.allergyFlags)}</div>
             <span className="text-xs text-forest-700 font-semibold">
-              {referenceCount === null ? "Health profiles flagged" : `${referenceCount} reference calls to review`}
+              {counts ? `${counts.references} reference calls to review` : "Health profiles flagged"}
             </span>
           </div>
         </div>
@@ -184,10 +254,10 @@ export default function AdminDashboardPage() {
           <div className="p-6 bg-white border-b border-stone-100 flex items-center justify-between">
             <div>
               <h2 className="font-display font-extrabold text-lg text-stone-900">Priority Triage Queue</h2>
-              <p className="text-xs text-stone-500">Live records from PostgreSQL requiring director or medical clearance.</p>
+              <p className="text-xs text-stone-500">Live records from your camp requiring director or medical clearance.</p>
             </div>
             <span className="font-mono text-xs font-bold text-forest-800 bg-forest-50 px-3 py-1 rounded-full border border-forest-100">
-              Supabase Connected
+              {camp ? camp.role : "—"}
             </span>
           </div>
 
@@ -199,7 +269,7 @@ export default function AdminDashboardPage() {
                 </div>
                 <b className="block text-sm font-extrabold text-stone-900">Nothing in the queue</b>
                 <p className="text-stone-500 text-[11px] max-w-sm mx-auto leading-relaxed">
-                  No health profiles or staff references are currently waiting on a director sign-off. New records appear here as families and volunteers submit them.
+                  No health profiles or staff references in your camp are currently waiting on a director sign-off. New records appear here as families and volunteers submit them.
                 </p>
               </div>
             )}
@@ -279,10 +349,11 @@ export default function AdminDashboardPage() {
 
             <button
               onClick={handleApprove}
-              className="w-full py-3 px-4 rounded-xl bg-forest-800 hover:bg-forest-900 text-white font-bold text-xs shadow-md transition-all mt-6 flex items-center justify-center gap-2 cursor-pointer"
+              disabled={approving}
+              className="w-full py-3 px-4 rounded-xl bg-forest-800 hover:bg-forest-900 text-white font-bold text-xs shadow-md transition-all mt-6 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
             >
               <Check className="w-4 h-4" />
-              <span>Sign Off & Update Supabase Record</span>
+              <span>{approving ? "Saving…" : "Sign Off & Update Supabase Record"}</span>
             </button>
           </div>
         </div>

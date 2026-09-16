@@ -1,9 +1,23 @@
-"use client";
-
-import { use } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Calendar, ArrowRight, CheckCircle2 } from "lucide-react";
+import { AlertTriangle, ArrowRight, Calendar, CheckCircle2, HeartHandshake } from "lucide-react";
+import { lookupCampBySlug } from "@/lib/campLookup";
+
+/**
+ * A camp's public page.
+ *
+ * Three outcomes, and they are kept apart on purpose:
+ *   1. one of the three SAMPLE slugs  -> the existing demo page, still labelled
+ *      a sample, still taking no payment. Unchanged behaviour.
+ *   2. a real camps row               -> that camp's own page, with its real
+ *      name and links that carry ?camp=<slug> so registrations land in ITS
+ *      tenant.
+ *   3. neither                        -> an honest "no camp here" page.
+ *
+ * Before this change every unknown slug silently fell through to Camp Hope
+ * (`TENANTS[slug] || TENANTS.camphope`), so a director who typed their link
+ * wrong saw someone else's camp branding and a working registration button.
+ */
 
 interface TenantData {
   name: string;
@@ -14,7 +28,8 @@ interface TenantData {
   sessions: { name: string; grades: string; dates: string; price: string; spots: number }[];
 }
 
-const TENANTS: Record<string, TenantData> = {
+/** Sample camps. Not customers. Not rows in the database. */
+const SAMPLE_TENANTS: Record<string, TenantData> = {
   camphope: {
     name: "Camp Hope",
     location: "Lancaster, PA",
@@ -51,10 +66,136 @@ const TENANTS: Record<string, TenantData> = {
   }
 };
 
-export default function DynamicTenantPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = use(params);
-  const tenant = TENANTS[slug.toLowerCase()] || TENANTS.camphope;
+export default async function CampSlugPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug: rawSlug } = await params;
+  const slug = rawSlug.toLowerCase();
 
+  // 1. Sample slugs keep their existing demo page.
+  const sample = SAMPLE_TENANTS[slug];
+  if (sample) {
+    return <SampleCampPortal slug={slug} tenant={sample} />;
+  }
+
+  // 2. A real camp row.
+  const lookup = await lookupCampBySlug(slug);
+  if (lookup.status === "found") {
+    return <RealCampPortal slug={lookup.camp.slug} name={lookup.camp.name} directorName={lookup.camp.directorName} />;
+  }
+
+  // 3. Anything else — including "the database is not migrated yet" — is stated
+  //    plainly rather than being papered over with another camp's branding.
+  return <NoCampHere slug={slug} setupIncomplete={lookup.status === "setup_incomplete"} />;
+}
+
+// ---------------------------------------------------------------- real camp --
+
+function RealCampPortal({
+  slug,
+  name,
+  directorName,
+}: {
+  slug: string;
+  name: string;
+  directorName: string | null;
+}) {
+  return (
+    <main className="space-y-10 sm:space-y-14 pb-20">
+      <section className="px-3 sm:px-6 lg:px-8 pt-6 sm:pt-10">
+        <div className="max-w-4xl mx-auto rounded-3xl overflow-hidden relative min-h-[380px] flex flex-col justify-between p-6 sm:p-12 border-2 border-stone-800 shadow-2xl bg-stone-950">
+          <Image
+            src="/images/camp_hero.jpg"
+            alt=""
+            aria-hidden
+            fill
+            priority
+            className="object-cover opacity-30 filter brightness-90"
+          />
+          <div className="relative z-10 flex flex-wrap items-center gap-2">
+            <span className="text-xs font-mono font-bold text-stone-300 bg-black/60 px-3 py-1.5 rounded-full backdrop-blur-xs">
+              camperroster.com/c/{slug}
+            </span>
+          </div>
+
+          <div className="relative z-10 max-w-2xl space-y-4 pt-12">
+            <h1 className="font-display font-black text-3xl sm:text-5xl text-white tracking-tight leading-tight drop-shadow-md">
+              {name}
+            </h1>
+            {directorName && (
+              <p className="text-sm sm:text-base text-stone-300 font-medium">Camp director: {directorName}</p>
+            )}
+
+            <div className="pt-4 flex flex-col sm:flex-row gap-3">
+              <Link
+                href={`/register?camp=${encodeURIComponent(slug)}`}
+                className="px-8 py-4 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-stone-950 font-black text-sm flex items-center justify-center gap-2 shadow-xl active:scale-98 transition-transform"
+              >
+                <span>Register a camper</span>
+                <ArrowRight className="w-4 h-4 stroke-[3]" />
+              </Link>
+              <Link
+                href={`/volunteer?camp=${encodeURIComponent(slug)}`}
+                className="px-6 py-4 rounded-xl bg-stone-900/90 hover:bg-stone-900 text-white font-bold text-xs sm:text-sm border border-stone-700 flex items-center justify-center gap-2 backdrop-blur-xs"
+              >
+                <HeartHandshake className="w-4 h-4" />
+                <span>Apply to volunteer</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="px-4 max-w-2xl mx-auto">
+        {/* No sessions, prices or spot counts are shown, because no session data
+            has been configured for this camp. Inventing them would be the same
+            mistake the sample pages are explicitly labelled for. */}
+        <div className="bg-white rounded-2xl p-6 border-2 border-stone-200 shadow-sm space-y-2">
+          <b className="font-display font-extrabold text-base text-stone-900 block">
+            Sessions are not published yet
+          </b>
+          <p className="text-sm text-stone-600 leading-relaxed">
+            {name} has not published session dates or pricing through CamperRoster. Registrations
+            submitted from this page still reach {name}&apos;s office — the camp will confirm the
+            session and the amount with you directly.
+          </p>
+        </div>
+      </section>
+    </main>
+  );
+}
+
+// -------------------------------------------------------------- no such camp --
+
+function NoCampHere({ slug, setupIncomplete }: { slug: string; setupIncomplete: boolean }) {
+  return (
+    <main className="max-w-xl mx-auto px-4 py-16 sm:py-24">
+      <div className="bg-white rounded-3xl p-8 border-2 border-amber-300 shadow-xl space-y-4">
+        <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center">
+          <AlertTriangle className="w-6 h-6" />
+        </div>
+        <h1 className="font-display font-black text-2xl text-stone-900">
+          {setupIncomplete ? "Camp lookup is unavailable" : `No camp at "${slug}"`}
+        </h1>
+        <p className="text-sm text-stone-600 leading-relaxed">
+          {setupIncomplete
+            ? "This deployment's database has not been migrated yet, so camp pages cannot be resolved. Nothing is wrong with your link."
+            : `No camp is registered at camperroster.com/c/${slug}. Check the link your camp gave you — it is case-insensitive but the spelling has to match.`}
+        </p>
+        <div className="flex flex-wrap gap-3 pt-2">
+          <Link href="/" className="px-5 py-2.5 rounded-xl bg-stone-100 text-stone-800 font-bold text-xs">
+            Return home
+          </Link>
+          <Link href="/start" className="px-5 py-2.5 rounded-xl bg-forest-900 text-white font-bold text-xs">
+            Run a camp? Create yours
+          </Link>
+        </div>
+      </div>
+    </main>
+  );
+}
+
+// ------------------------------------------------------------- sample camps --
+
+function SampleCampPortal({ slug, tenant }: { slug: string; tenant: TenantData }) {
   return (
     <main className="space-y-12 sm:space-y-20 pb-20">
 
@@ -66,7 +207,7 @@ export default function DynamicTenantPage({ params }: { params: Promise<{ slug: 
           prices and openings below are made up, and nothing here takes a payment.
         </p>
       </div>
-      
+
       {/* TENANT BRANDED HERO */}
       <section className="px-3 sm:px-6 lg:px-8 pt-4 sm:pt-8">
         <div className="max-w-6xl mx-auto rounded-3xl overflow-hidden relative min-h-[500px] flex flex-col justify-between p-6 sm:p-12 border-2 border-stone-800 shadow-2xl bg-stone-950">
@@ -105,11 +246,16 @@ export default function DynamicTenantPage({ params }: { params: Promise<{ slug: 
             </p>
 
             <div className="pt-4 flex flex-col sm:flex-row gap-3">
+              {/* Points at /start, not /register. The registration form now
+                  writes into a real camp resolved from ?camp=<slug>, and these
+                  sample slugs are not rows in the database — so a "try it"
+                  button aimed at /register would land on "no camp at
+                  camphope". */}
               <Link
-                href={`/register?camp=${slug}`}
+                href="/start"
                 className="px-8 py-4 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-stone-950 font-black text-sm flex items-center justify-center gap-2 shadow-xl cursor-pointer active:scale-98 transition-transform"
               >
-                <span>Try the registration flow</span>
+                <span>Create your camp to use this flow</span>
                 <ArrowRight className="w-4 h-4 stroke-[3]" />
               </Link>
               <Link
@@ -152,10 +298,10 @@ EXAMPLE SESSIONS
               <div className="pt-4 border-t border-stone-100 space-y-3">
                 <b className="font-display font-black text-2xl text-stone-950 block">{s.price}</b>
                 <Link
-                  href={`/register?camp=${slug}&session=${encodeURIComponent(s.name)}`}
+                  href="/start"
                   className="w-full py-3.5 rounded-xl bg-forest-900 hover:bg-forest-950 text-white font-black text-xs text-center block"
                 >
-                  Walk through this booking →
+                  Create your camp to take bookings →
                 </Link>
               </div>
             </div>

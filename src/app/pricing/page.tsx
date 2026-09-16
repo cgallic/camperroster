@@ -9,7 +9,48 @@ import {
   Gift
 } from "lucide-react";
 
+type CheckoutPlan = "starter" | "pro";
+
 export default function PricingAndRoiPage() {
+  // Checkout wiring for the Starter and Pro cards. The button copy below is
+  // unchanged; only the handler is new.
+  //
+  // The camp is resolved server-side from the session — this never sends a
+  // camp id — and nothing here marks anything as paid. A signed-out director
+  // gets sent to signup first and lands back on /billing with their plan.
+  const [checkoutPending, setCheckoutPending] = useState<CheckoutPlan | null>(null);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
+
+  async function startCheckout(plan: CheckoutPlan) {
+    setCheckoutError(null);
+    setCheckoutPending(plan);
+    try {
+      const res = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan }),
+      });
+      const data = await res.json().catch(() => ({}));
+
+      if (res.status === 401) {
+        // Not signed in yet: create the camp account, then continue to billing.
+        window.location.href = `/signup?next=${encodeURIComponent(`/billing?plan=${plan}`)}`;
+        return;
+      }
+      if (!res.ok || !data?.checkout_url) {
+        setCheckoutError(
+          data?.message || data?.error || "Could not start checkout. Nothing was charged."
+        );
+        setCheckoutPending(null);
+        return;
+      }
+      window.location.href = data.checkout_url as string;
+    } catch {
+      setCheckoutError("Could not reach the server. Nothing was charged.");
+      setCheckoutPending(null);
+    }
+  }
+
   const [camperCount, setCamperCount] = useState(350);
   const [staffCount, setStaffCount] = useState(30);
   const [currentSoftware, setCurrentSoftware] = useState<"ultracamp" | "campbrain" | "google_forms">("ultracamp");
@@ -274,9 +315,14 @@ Estimate, not a quote
                 </ul>
               </div>
 
-              <Link href="/start" className="w-full py-3.5 rounded-xl bg-stone-900 hover:bg-stone-950 text-white font-extrabold text-xs text-center">
+              <button
+                type="button"
+                onClick={() => startCheckout("starter")}
+                disabled={checkoutPending !== null}
+                className="w-full py-3.5 rounded-xl bg-stone-900 hover:bg-stone-950 disabled:opacity-60 text-white font-extrabold text-xs text-center"
+              >
                 Get Started Free →
-              </Link>
+              </button>
             </div>
 
             {/* TIER 2: PRO */}
@@ -315,9 +361,14 @@ BUILT TO REPLACE ULTRACAMP
                 </ul>
               </div>
 
-              <Link href="/start" className="w-full py-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-stone-950 font-black text-sm text-center shadow-lg active:scale-98">
+              <button
+                type="button"
+                onClick={() => startCheckout("pro")}
+                disabled={checkoutPending !== null}
+                className="w-full py-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-60 text-stone-950 font-black text-sm text-center shadow-lg active:scale-98"
+              >
                 Switch to Pro ($0 Setup) →
-              </Link>
+              </button>
             </div>
 
             {/* TIER 3: ENTERPRISE / MULTI-CAMP */}
@@ -355,6 +406,12 @@ BUILT TO REPLACE ULTRACAMP
             </div>
 
           </div>
+
+          {checkoutError && (
+            <p className="max-w-2xl mx-auto text-center text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 rounded-xl px-4 py-3">
+              {checkoutError}
+            </p>
+          )}
         </div>
       </section>
 

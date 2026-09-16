@@ -3,6 +3,15 @@ import { supabase } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
 
+/**
+ * Liveness + database reachability.
+ *
+ * It no longer reports a registration count. With RLS enabled (migration 0001)
+ * the anonymous client legitimately sees zero rows in every camp, so a count
+ * here would always print 0 and read like "nobody has registered" rather than
+ * "this client is not allowed to see registrations". The round-trip is kept
+ * because it still proves PostgREST is answering.
+ */
 export async function GET() {
   const base = {
     app: "CamperRoster.com",
@@ -12,10 +21,9 @@ export async function GET() {
   };
 
   try {
-    // Cheap real round-trip to Postgres: count only, no rows returned.
-    const { count, error } = await supabase
-      .from("registrations")
-      .select("*", { count: "exact", head: true });
+    // head:true -> no rows transferred. Under RLS the anon role sees nothing,
+    // which is the point: we are testing reachability, not reading data.
+    const { error } = await supabase.from("registrations").select("id", { count: "exact", head: true });
 
     if (error) {
       return NextResponse.json(
@@ -28,7 +36,7 @@ export async function GET() {
       ...base,
       status: "healthy",
       db: "connected",
-      registrations: count ?? 0,
+      note: "Row counts are not reported here: RLS correctly hides every camp's rows from the anonymous client.",
     });
   } catch (err: any) {
     return NextResponse.json(

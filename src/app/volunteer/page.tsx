@@ -1,11 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
 import { PhoneCall, CheckCircle2, ArrowRight, Loader2, ArrowLeft, HeartHandshake, ShieldCheck, AlertTriangle } from "lucide-react";
 import type { VolunteerPayload, VolunteerResponse } from "@/lib/formContracts";
+import { CampScopeBlocker, useCampScope } from "@/components/CampScope";
 
-export default function VolunteerPage() {
+/** Camp comes from ?camp=<slug>; see the note in src/components/CampScope.tsx. */
+function VolunteerPageInner() {
+  const campScope = useCampScope();
   const [role, setRole] = useState("Cabin Counselor");
   const [refName, setRefName] = useState("");
   const [refPhone, setRefPhone] = useState("");
@@ -25,7 +28,13 @@ export default function VolunteerPage() {
     setIsSubmitting(true);
     setError(null);
     try {
+      if (campScope.status !== "found") {
+        setError("This application is not attached to a camp. Nothing was saved.");
+        return;
+      }
+
       const payload: VolunteerPayload = {
+        campSlug: campScope.slug,
         name,
         email,
         phone,
@@ -57,6 +66,10 @@ export default function VolunteerPage() {
       setIsSubmitting(false);
     }
   };
+
+  if (campScope.status !== "found") {
+    return <CampScopeBlocker scope={campScope} what="volunteer application" />;
+  }
 
   return (
     <main className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8">
@@ -275,5 +288,20 @@ export default function VolunteerPage() {
 
       </div>
     </main>
+  );
+}
+
+/** useSearchParams() needs a Suspense boundary; see RegisterPage for why. */
+export default function VolunteerPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="max-w-2xl mx-auto px-4 py-20 text-center text-sm font-bold text-stone-500">
+          Loading application…
+        </main>
+      }
+    >
+      <VolunteerPageInner />
+    </Suspense>
   );
 }

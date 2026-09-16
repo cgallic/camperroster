@@ -1,8 +1,18 @@
 import { NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase";
+import { hasServiceRoleKey, supabaseAdmin } from "@/lib/supabase";
+import { lookupCampBySlug } from "@/lib/campLookup";
+import { isSetupIncompleteError, setupIncompleteResponse } from "@/lib/auth";
 import { notifyInbound } from "@/lib/notify";
 import type { VolunteerPayload } from "@/lib/formContracts";
-import { isValidEmail } from "@/lib/formContracts";
+import { isValidEmail, normalizeSlug } from "@/lib/formContracts";
+
+/**
+ * Public, unauthenticated write: a volunteer applying to a camp.
+ *
+ * SERVICE ROLE is used deliberately - the applicant has no account. The tenant
+ * comes from the campSlug in the payload and is set explicitly on the
+ * staff_applications and staff_references rows. There is NO default tenant.
+ */
 
 function str(v: unknown): string {
   return typeof v === "string" ? v.trim() : "";
@@ -16,6 +26,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: false, error: "Invalid JSON body." }, { status: 400 });
   }
 
+  const campSlug = normalizeSlug(str(body.campSlug));
   const name = str(body.name);
   const email = str(body.email);
   const phone = str(body.phone);
@@ -64,14 +75,56 @@ export async function POST(req: Request) {
     );
   }
 
-  // Tenant routing is configuration, not user data.
-  const orgId = process.env.CAMP_ORGANIZATION_ID || "11111111-1111-1111-1111-111111111111";
+  // ---- Resolve the tenant -------------------------------------------------
+  // Was CAMP_ORGANIZATION_ID with a hardcoded UUID fallback, so every camp's
+  // volunteers landed in one tenant. An application that cannot be attached to
+  // a real camp is refused.
+  if (!campSlug) {
+    return NextResponse.json(
+      {
+        success: false,
+        error:
+          "This volunteer link is not attached to a camp. Open your camp's own link (camperroster.com/c/your-camp) and apply from there. Nothing was saved.",
+      },
+      { status: 400 }
+    );
+  }
+
+  if (!hasServiceRoleKey) {
+    return NextResponse.json(
+      {
+        success: false,
+        error:
+          "Volunteer applications are not configured on this deployment (SUPABASE_SERVICE_ROLE_KEY is unset). Nothing was saved.",
+      },
+      { status: 503 }
+    );
+  }
+
+  const lookup = await lookupCampBySlug(campSlug);
+  if (lookup.status === "setup_incomplete") {
+    return setupIncompleteResponse(new Error(lookup.message));
+  }
+  if (lookup.status === "error") {
+    return NextResponse.json(
+      { success: false, error: "Could not look up that camp. Nothing was saved." },
+      { status: 500 }
+    );
+  }
+  if (lookup.status === "not_found") {
+    return NextResponse.json(
+      { success: false, error: 'No camp is registered at "' + campSlug + '". Nothing was saved.' },
+      { status: 404 }
+    );
+  }
+
+  const campId = lookup.camp.id;
 
   try {
     const { data: applicant, error: appErr } = await supabaseAdmin
       .from("staff_applications")
       .insert({
-        organization_id: orgId,
+        camp_id: campId,
         first_name: firstName,
         last_name: lastName,
         email,
@@ -88,6 +141,7 @@ export async function POST(req: Request) {
     const { data: reference, error: refErr } = await supabaseAdmin
       .from("staff_references")
       .insert({
+        camp_id: campId,
         application_id: applicant.id,
         reference_name: refName,
         relationship: refRelationship,
@@ -105,6 +159,8 @@ export async function POST(req: Request) {
       summary: `New volunteer application: ${name} (${email}) for ${role}`,
       details: {
         application_id: applicant.id,
+        camp_id: campId,
+        camp_slug: lookup.camp.slug,
         reference_id: reference.id,
         applicant_email: email,
         applicant_phone: phone,
@@ -121,6 +177,10 @@ export async function POST(req: Request) {
       referenceId: reference.id,
     });
   } catch (err: any) {
+    if (isSetupIncompleteError(err) || err?.code === "23502") {
+      console.error("Volunteer Error (migrations not applied):", err);
+      return setupIncompleteResponse(err);
+    }
     console.error("Volunteer Error:", err);
     return NextResponse.json(
       { success: false, error: err?.message || "Could not save this application." },

@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, ShoppingBag, CreditCard, Plus, Trash2 } from "lucide-react";
-import { supabase } from "@/lib/supabase";
 
 type LoadedCamper = { id: string; name: string };
 
@@ -15,27 +14,34 @@ export default function CanteenPosPage() {
   const [posting, setPosting] = useState(false);
   const [receipt, setReceipt] = useState<{ amount: number; live: boolean; error?: string } | null>(null);
 
-  // Try to attach this register to a real registration row. If we can't reach one,
-  // the page stays an honest offline demo instead of pretending to debit a ledger.
+  // Attach this register to a real registration IN THE SIGNED-IN USER'S CAMP.
+  // This used to query Supabase straight from the browser with the publishable
+  // key and no camp filter, so whichever camp owned the first row in the table
+  // became "the camper at the register". It now goes through
+  // /api/canteen/roster, which resolves the camp from the session.
+  // If no camper can be reached the page stays an honest offline demo rather
+  // than pretending to debit a ledger.
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const { data, error } = await supabase
-        .from("registrations")
-        .select("id, canteen_balance_cents")
-        .limit(1);
+      try {
+        const res = await fetch("/api/canteen/roster?limit=1", { cache: "no-store" });
+        const json = await res.json().catch(() => ({ success: false }));
 
-      if (cancelled) return;
+        if (cancelled) return;
 
-      if (error || !data || data.length === 0) {
-        setStatus("demo");
-        return;
+        if (!res.ok || !json.success || !json.registrations?.length) {
+          setStatus("demo");
+          return;
+        }
+
+        const row = json.registrations[0];
+        setCamper({ id: row.id, name: row.name });
+        setBalance((row.balanceCents || 0) / 100);
+        setStatus("live");
+      } catch {
+        if (!cancelled) setStatus("demo");
       }
-
-      const row: any = data[0];
-      setCamper({ id: row.id, name: "Registration " + String(row.id).slice(0, 8) });
-      setBalance((row.canteen_balance_cents || 0) / 100);
-      setStatus("live");
     })();
     return () => {
       cancelled = true;

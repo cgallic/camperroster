@@ -12,6 +12,13 @@ export type SessionSlug = "session-1" | "session-2" | "session-3";
 
 /** POST /api/register */
 export interface RegisterPayload {
+  /**
+   * Which camp this registration belongs to — the slug from /c/<slug>.
+   * REQUIRED. There is no default tenant: a registration that cannot be
+   * attached to a camp is rejected, never filed under someone else's camp.
+   */
+  campSlug: string;
+
   // Step 1 — guardian / household
   parentFirstName: string;
   parentLastName: string;
@@ -63,6 +70,8 @@ export interface RegisterResponse {
 
 /** POST /api/volunteer */
 export interface VolunteerPayload {
+  /** Which camp is being applied to — the slug from /c/<slug>. REQUIRED. */
+  campSlug: string;
   name: string;
   email: string;
   phone: string;
@@ -82,12 +91,19 @@ export interface VolunteerResponse {
   referenceId?: string;
 }
 
-/** POST /api/camps — inbound camp-director signup from /start */
+/**
+ * POST /api/camps — camp-director signup.
+ *
+ * This is no longer a "record a request" form. One call creates the auth user,
+ * the camp, and the owning camp_members row with role 'director', and signs the
+ * director in. Either all three exist afterwards or none of them do.
+ */
 export interface CampSignupPayload {
   campName: string;
   directorName: string;
   directorEmail: string;
   slug: string;
+  password: string;
 }
 
 export interface CampSignupResponse {
@@ -96,7 +112,12 @@ export interface CampSignupResponse {
   error?: string;
   campId?: string;
   slug?: string;
+  /** True when the response also set session cookies — the caller can go straight to /admin. */
+  signedIn?: boolean;
 }
+
+/** Minimum password length accepted at signup. Supabase's own default floor is 6. */
+export const MIN_PASSWORD_LENGTH = 10;
 
 /** Normalise a free-typed slug to lowercase alphanumerics and single hyphens. */
 export function normalizeSlug(raw: string): string {

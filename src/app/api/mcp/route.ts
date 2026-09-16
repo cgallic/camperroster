@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase";
+
+// NOTE: every tool below returns a canned example payload — this endpoint reads
+// and writes nothing. The service-role client it used to import was never
+// called; the import is removed so nobody reads this file as a live, tenant-
+// unaware write path. Wiring these tools to real data will need the same camp
+// resolution + auth the other routes now have.
 
 const MCP_TOOLS = [
   {

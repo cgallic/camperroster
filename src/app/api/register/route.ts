@@ -1,8 +1,21 @@
 import { NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase";
+import { hasServiceRoleKey, supabaseAdmin } from "@/lib/supabase";
+import { lookupCampBySlug } from "@/lib/campLookup";
+import { isSetupIncompleteError, setupIncompleteResponse } from "@/lib/auth";
 import { notifyInbound } from "@/lib/notify";
 import type { RegisterPayload } from "@/lib/formContracts";
-import { isValidEmail } from "@/lib/formContracts";
+import { isValidEmail, normalizeSlug } from "@/lib/formContracts";
+
+/**
+ * Public, unauthenticated write: a parent registering a camper.
+ *
+ * SERVICE ROLE is used deliberately - the parent has no account, so RLS has no
+ * identity to authorise the insert with, and migration 0001 grants the `anon`
+ * role nothing on campers/guardians/health_profiles/insurance_policies (they
+ * hold children's medical data). The tenant is resolved from the campSlug in
+ * the payload and set explicitly on every row. There is NO default tenant and
+ * no fallback organisation id.
+ */
 
 /**
  * Tuition per session, in cents. Mirrors the prices printed on the session
@@ -45,6 +58,7 @@ export async function POST(req: Request) {
   }
 
   // ---- Read exactly the names the form sends -------------------------------
+  const campSlug = normalizeSlug(str(body.campSlug));
   const parentFirstName = str(body.parentFirstName);
   const parentLastName = str(body.parentLastName);
   const parentEmail = str(body.parentEmail);
@@ -136,18 +150,61 @@ export async function POST(req: Request) {
     );
   }
 
-  // Tenant/session routing is configuration, not user data. These two literals
-  // are the pre-existing seeded Camp Hope org + session and are kept as the
-  // fallback so the live form keeps working when the env vars are unset.
-  const orgId = process.env.CAMP_ORGANIZATION_ID || "11111111-1111-1111-1111-111111111111";
-  const sessionId = resolveSessionId(sessionSlug) || "22222222-2222-2222-2222-222222222222";
+  // ---- Resolve the tenant -------------------------------------------------
+  // This used to be CAMP_ORGANIZATION_ID with a hardcoded UUID fallback, so
+  // every camp on the platform wrote into one tenant. The camp now comes from
+  // the registration link the family followed, and a registration that cannot
+  // be attached to a real camp is REFUSED rather than filed under a default.
+  if (!campSlug) {
+    return NextResponse.json(
+      {
+        success: false,
+        error:
+          "This registration link is not attached to a camp. Open your camp's own link (camperroster.com/c/your-camp) and register from there. Nothing was saved.",
+      },
+      { status: 400 }
+    );
+  }
+
+  if (!hasServiceRoleKey) {
+    return NextResponse.json(
+      {
+        success: false,
+        error:
+          "Registrations are not configured on this deployment (SUPABASE_SERVICE_ROLE_KEY is unset). Nothing was saved.",
+      },
+      { status: 503 }
+    );
+  }
+
+  const lookup = await lookupCampBySlug(campSlug);
+  if (lookup.status === "setup_incomplete") {
+    return setupIncompleteResponse(new Error(lookup.message));
+  }
+  if (lookup.status === "error") {
+    return NextResponse.json(
+      { success: false, error: "Could not look up that camp. Nothing was saved." },
+      { status: 500 }
+    );
+  }
+  if (lookup.status === "not_found") {
+    return NextResponse.json(
+      { success: false, error: 'No camp is registered at "' + campSlug + '". Nothing was saved.' },
+      { status: 404 }
+    );
+  }
+
+  const campId = lookup.camp.id;
+  // May legitimately be undefined: a camp with no configured session stores a
+  // null session_id rather than borrowing another camp's session UUID.
+  const sessionId = resolveSessionId(sessionSlug);
 
   try {
     // ---- guardians --------------------------------------------------------
     const { data: guardian, error: guardianErr } = await supabaseAdmin
       .from("guardians")
       .insert({
-        organization_id: orgId,
+        camp_id: campId,
         first_name: parentFirstName,
         last_name: parentLastName,
         email: parentEmail,
@@ -167,6 +224,7 @@ export async function POST(req: Request) {
     const { data: camper, error: camperErr } = await supabaseAdmin
       .from("campers")
       .insert({
+        camp_id: campId,
         guardian_id: guardian.id,
         legal_first_name: camperFirstName,
         legal_last_name: camperLastName,
@@ -186,6 +244,7 @@ export async function POST(req: Request) {
     const { error: healthErr } = await supabaseAdmin
       .from("health_profiles")
       .insert({
+        camp_id: campId,
         camper_id: camper.id,
         has_allergies: peanutAllergy,
         allergy_details: peanutAllergy ? "Peanut / nut allergy reported by guardian at registration." : null,
@@ -207,6 +266,7 @@ export async function POST(req: Request) {
     // there is no upload to Supabase Storage yet, and a filename is not a URL.
     if (insuranceCarrier && policyNumber) {
       const { error: insuranceErr } = await supabaseAdmin.from("insurance_policies").insert({
+        camp_id: campId,
         camper_id: camper.id,
         insurance_company: insuranceCarrier,
         policyholder_name: `${parentFirstName} ${parentLastName}`,
@@ -223,8 +283,8 @@ export async function POST(req: Request) {
     const { data: registration, error: regErr } = await supabaseAdmin
       .from("registrations")
       .insert({
-        organization_id: orgId,
-        session_id: sessionId,
+        camp_id: campId,
+        ...(sessionId ? { session_id: sessionId } : {}),
         camper_id: camper.id,
         guardian_id: guardian.id,
         status: "submitted",
@@ -253,6 +313,8 @@ export async function POST(req: Request) {
       summary: `New camper registration: ${camperFirstName} ${camperLastName} (guardian ${parentFirstName} ${parentLastName}, ${parentEmail})`,
       details: {
         registration_id: registration.id,
+        camp_id: campId,
+        camp_slug: lookup.camp.slug,
         camper_id: camper.id,
         session: sessionSlug,
         guardian_email: parentEmail,
@@ -268,6 +330,18 @@ export async function POST(req: Request) {
       camperId: camper.id,
     });
   } catch (err: any) {
+    // The tenancy migration has not been applied: camp_id does not exist yet.
+    if (isSetupIncompleteError(err)) {
+      console.error("Registration Error (migrations not applied):", err);
+      return setupIncompleteResponse(err);
+    }
+    // 23502 = not_null_violation. The likeliest cause is a column this route
+    // deliberately no longer writes (organization_id, session_id) still being
+    // NOT NULL because migration 0001 has not been applied.
+    if (err?.code === "23502") {
+      console.error("Registration Error (NOT NULL on a retired column):", err);
+      return setupIncompleteResponse(err);
+    }
     console.error("Registration Error:", err);
     return NextResponse.json(
       { success: false, error: err?.message || "Could not save this registration." },

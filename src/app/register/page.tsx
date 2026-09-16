@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
 import {
   CheckCircle2,
@@ -16,8 +16,16 @@ import {
   Check
 } from "lucide-react";
 import type { RegisterPayload, RegisterResponse } from "@/lib/formContracts";
+import { CampScopeBlocker, useCampScope } from "@/components/CampScope";
 
-export default function RegisterPage() {
+/**
+ * Which camp this registration belongs to now comes from ?camp=<slug> (the
+ * parameter /c/<slug> already puts on its links). The route refuses a
+ * registration it cannot attach to a real camp, so the form refuses to render
+ * one too — rather than collecting a child's medical history and then losing it.
+ */
+function RegisterPageInner() {
+  const campScope = useCampScope();
   const [step, setStep] = useState(1);
   const [session, setSession] = useState("session-1");
   const [paymentPlan, setPaymentPlan] = useState("installment");
@@ -88,7 +96,13 @@ export default function RegisterPage() {
     setSubmitting(true);
     setError(null);
     try {
+      if (campScope.status !== "found") {
+        setError("This registration is not attached to a camp. Nothing was saved.");
+        return;
+      }
+
       const payload: RegisterPayload = {
+        campSlug: campScope.slug,
         parentFirstName: formData.parentFirstName,
         parentLastName: formData.parentLastName,
         parentEmail: formData.parentEmail,
@@ -148,6 +162,10 @@ export default function RegisterPage() {
     { num: 5, title: "Review" }
   ];
 
+  if (campScope.status !== "found") {
+    return <CampScopeBlocker scope={campScope} what="registration" />;
+  }
+
   if (submitted) {
     return (
       <main className="max-w-2xl mx-auto px-4 py-12 sm:py-20 text-center space-y-6">
@@ -158,7 +176,7 @@ export default function RegisterPage() {
           Camper Registration Confirmed!
         </h1>
         <p className="text-sm sm:text-base text-stone-600 leading-relaxed max-w-md mx-auto">
-          We saved {formData.camperFirstName || "your camper"}&apos;s registration for Camp Hope Summer 2027. The camp office will follow up at {formData.parentEmail || "the email you provided"} to confirm your spot and payment schedule.
+          We saved {formData.camperFirstName || "your camper"}&apos;s registration with {campScope.name}. The camp office will follow up at {formData.parentEmail || "the email you provided"} to confirm your spot and payment schedule.
         </p>
         <div className="pt-4 flex flex-col sm:flex-row justify-center gap-3">
           <Link href="/portal" className="btn-primary-agency text-xs py-3 px-6">
@@ -179,7 +197,7 @@ export default function RegisterPage() {
       <div className="space-y-4 text-center sm:text-left sm:flex sm:items-end sm:justify-between sm:space-y-0">
         <div>
           <span className="font-mono text-xs font-bold uppercase text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full">
-            CAMP HOPE • SUMMER 2027
+            {campScope.name} • /c/{campScope.slug}
           </span>
           <h1 className="font-display font-black text-2xl sm:text-4xl text-stone-900 mt-2">
             Camper Registration
@@ -866,5 +884,23 @@ export default function RegisterPage() {
 
       </form>
     </main>
+  );
+}
+
+/**
+ * useSearchParams() lives inside RegisterPageInner, so it needs a Suspense
+ * boundary or the whole route opts out of static rendering at build time.
+ */
+export default function RegisterPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="max-w-2xl mx-auto px-4 py-20 text-center text-sm font-bold text-stone-500">
+          Loading registration…
+        </main>
+      }
+    >
+      <RegisterPageInner />
+    </Suspense>
   );
 }
