@@ -1,8 +1,7 @@
 -- Roles the camp actually staffs, plus a tamper-evident record of who changed what.
 --
--- The pre-existing schema (camps, camp_members, campers, registrations, ...) was
--- created outside version control. This is the first tracked migration; 0001 is
--- reserved for a baseline dump of that starting state.
+-- Builds on the tenancy and billing schema in 0001-0003: camps, camp_members,
+-- and the RLS helpers is_camp_member/is_camp_director all come from there.
 
 -- 1. Widen the role vocabulary -------------------------------------------------
 -- 'registrar' processes registrations; 'red_shirt' is the safety/compliance team
