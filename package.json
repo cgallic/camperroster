@@ -9,13 +9,16 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.112.4",
     "clsx": "^2.1.1",
     "lucide-react": "^0.468.0",
     "next": "^15.1.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "tailwind-merge": "^2.5.5"
+    "stripe": "^22.6.2",
+    "tailwind-merge": "^2.5.5",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@types/node": "^22.10.1",
