@@ -24,9 +24,12 @@ export async function POST(req: Request) {
   if (occError) return NextResponse.json({ error: occError.message }, { status: 400 });
   if (!occupancy) return badRequest("That cabin no longer exists");
 
-  if (capacity < occupancy.campers_assigned) {
+  // The view aggregates, so this column is nullable even though a real cabin
+  // always has a count.
+  const assigned = occupancy.campers_assigned ?? 0;
+  if (capacity < assigned) {
     return badRequest(
-      `${occupancy.name} already has ${occupancy.campers_assigned} campers. Move campers out before lowering the cap to ${capacity}.`,
+      `${occupancy.name} already has ${assigned} campers. Move campers out before lowering the cap to ${capacity}.`,
     );
   }
 

@@ -49,6 +49,25 @@ npx tsx scripts/grant-access.ts dave@camphope.org camphope director
 
 They then sign in at `/login`, which emails a link. There are no passwords.
 
+### Document storage
+
+Scanned paperwork lives in a **private** Supabase Storage bucket,
+`camp-documents`. Create it once per project:
+
+```bash
+npx tsx scripts/setup-storage.ts
+```
+
+The script is idempotent, and it re-asserts `public: false` every run — if
+someone flips the bucket public in the dashboard, running it again puts it back.
+
+Nothing in the app ever builds a public URL for a document. `document_records`
+stores the object *path*; a reader posts a record id to
+`/api/documents/signed-url`, the route checks their role, reads the path back
+through RLS, and mints a signed URL that expires in five minutes. The bulk zip
+at `/api/documents/bulk-download` pulls the bytes server-side and never exposes
+a path at all.
+
 ## How access works
 
 Every table is scoped by `camp_id` and readable only through membership in
@@ -83,6 +102,12 @@ src/lib/supabase/            browser, request-scoped, and service-role clients
 src/lib/forms.ts             conditional-question evaluation and validation
 src/app/admin/forms/         form builder — questions are data, not JSX
 src/app/admin/cabins/        cabin board, capacity, waitlist
+src/lib/documents.ts         uploads, signed URLs, review, what someone still owes
+src/lib/insurance.ts         two-sided insurance card validation
+src/lib/pdf.ts               minimal PDF writer (images -> one multi-page PDF)
+src/lib/zip.ts               minimal ZIP writer for the nurse's binder download
+src/app/admin/documents/     paperwork status, review queue, expiring credentials
+src/app/api/documents/       upload, sign, review, signed-url, bulk-download
 src/app/register/[audience]/ the public form each audience actually fills in
 supabase/migrations/         schema
 supabase/seed/               reference data

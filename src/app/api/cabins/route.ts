@@ -24,6 +24,23 @@ export async function POST(req: Request) {
 
   if (body.minGrade > body.maxGrade) return badRequest("Lowest grade must not be above the highest grade");
 
+  // Every cabin belongs to a session. When the caller doesn't name one, use the
+  // camp's active session rather than writing a null the column rejects.
+  let sessionId = body.sessionId;
+  if (!sessionId) {
+    const { data: session } = await guard.supabase
+      .from("camp_sessions")
+      .select("id")
+      .eq("camp_id", guard.membership.campId)
+      .eq("is_active", true)
+      .limit(1)
+      .maybeSingle();
+    if (!session) {
+      return badRequest("This camp has no active session, so there is nothing to add a cabin to.");
+    }
+    sessionId = session.id;
+  }
+
   const { data, error } = await guard.supabase
     .from("cabins")
     .insert({
@@ -33,7 +50,7 @@ export async function POST(req: Request) {
       min_grade: body.minGrade,
       max_grade: body.maxGrade,
       capacity: body.capacity ?? 12,
-      session_id: body.sessionId ?? null,
+      session_id: sessionId,
       lead_counselor_id: body.leadCounselorId ?? null,
       sort_order: body.sortOrder ?? 0,
       is_open: true,

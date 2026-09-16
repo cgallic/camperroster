@@ -1,4 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
+import type { Database } from "./database.types";
 import { cookies } from "next/headers";
 import { SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_URL } from "./env";
 
@@ -9,7 +10,7 @@ import { SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_URL } from "./en
 export async function createClient() {
   const cookieStore = await cookies();
 
-  return createServerClient(SUPABASE_URL(), SUPABASE_ANON_KEY(), {
+  return createServerClient<Database>(SUPABASE_URL(), SUPABASE_ANON_KEY(), {
     cookies: {
       getAll: () => cookieStore.getAll(),
       setAll: (toSet) => {
@@ -30,7 +31,7 @@ export async function createClient() {
  * route that a signed-in user's input can steer.
  */
 export function createAdminClient() {
-  return createServerClient(SUPABASE_URL(), SUPABASE_SERVICE_ROLE_KEY(), {
+  return createServerClient<Database>(SUPABASE_URL(), SUPABASE_SERVICE_ROLE_KEY(), {
     cookies: { getAll: () => [], setAll: () => {} },
   });
 }

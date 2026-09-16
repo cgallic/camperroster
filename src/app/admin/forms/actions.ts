@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireArea } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { serializeVisibleWhen } from "@/lib/forms";
 import type { FieldType, PeriodVisibility, VisibleWhen } from "@/lib/forms";
 
 export type FieldDraft = {
@@ -172,7 +173,7 @@ export async function saveForm(input: {
       field_type: f.field_type,
       required: f.field_type === "section_heading" ? false : f.required,
       options: f.options ?? [],
-      visible_when: f.visible_when ?? null,
+      visible_when: serializeVisibleWhen(f.visible_when ?? null),
       section: f.section?.trim() || null,
       display_order: index,
     }));

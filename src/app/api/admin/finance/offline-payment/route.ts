@@ -62,7 +62,8 @@ export async function POST(req: Request) {
     amount_cents: amountCents,
     status: "succeeded",
     paid_at: new Date().toISOString(),
-    failure_reason: note ? `${method}: ${note}` : method,
+    method,
+    note: note || null,
   });
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 

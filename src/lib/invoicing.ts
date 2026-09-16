@@ -36,10 +36,10 @@ export type InvoiceRow = {
   total_due_cents: number;
 };
 
+// One literal, not a concatenation: the Supabase client parses this string at
+// the type level, and a `+` leaves it typed as `string` and the rows as errors.
 export const INVOICE_COLUMNS =
-  "id, camp_id, season_id, family_id, camper_count, tier_cents, custom_total_cents, " +
-  "financial_aid_cents, processing_fee_cents, amount_paid_cents, amount_refunded_cents, " +
-  "payment_plan, priced_at, total_due_cents";
+  "id, camp_id, season_id, family_id, camper_count, tier_cents, custom_total_cents, financial_aid_cents, processing_fee_cents, amount_paid_cents, amount_refunded_cents, payment_plan, priced_at, total_due_cents" as const;
 
 /**
  * Whether this camp adds card fees to what families pay. There is no per-camp

@@ -100,10 +100,49 @@ async function paymentByIntent(db: Db, intentId: string): Promise<PaymentRow | n
   return (data as PaymentRow | null) ?? null;
 }
 
+/**
+ * Finds the row when `payment_intent.succeeded` arrives before
+ * `checkout.session.completed` has had a chance to write the intent id.
+ *
+ * The session's own id is not on the intent, so the match is made through the
+ * metadata the checkout route attaches to `payment_intent_data`: the invoice,
+ * and the instalment when there is one.
+ */
+async function paymentByIntentMetadata(db: Db, intent: Stripe.PaymentIntent): Promise<PaymentRow | null> {
+  const invoiceId = intent.metadata?.invoice_id;
+  if (!invoiceId) return null;
+
+  const scheduleItemId = intent.metadata?.schedule_item_id;
+
+  let query = db
+    .from("payments")
+    .select(PAYMENT_COLUMNS)
+    .eq("invoice_id", invoiceId)
+    .eq("status", "pending")
+    .is("stripe_payment_intent_id", null);
+
+  query = scheduleItemId
+    ? query.eq("schedule_item_id", scheduleItemId)
+    : query.is("schedule_item_id", null);
+
+  // Newest first: a family who abandoned one checkout and started another
+  // should settle against the attempt Stripe is telling us about.
+  const { data } = await query.order("created_at", { ascending: false }).limit(1).maybeSingle();
+  return (data as PaymentRow | null) ?? null;
+}
+
+type PaymentPatch = {
+  stripe_payment_intent_id?: string | null;
+  amount_cents?: number;
+  status?: "pending" | "succeeded" | "failed" | "refunded" | "partially_refunded";
+  failure_reason?: string | null;
+  paid_at?: string | null;
+};
+
 async function settle(
   db: Db,
   payment: PaymentRow,
-  patch: Record<string, unknown>,
+  patch: PaymentPatch,
   scheduleStatus: "paid" | "failed" | null,
 ) {
   await db.from("payments").update(patch).eq("id", payment.id);
@@ -140,12 +179,7 @@ async function onCheckoutCompleted(db: Db, session: Stripe.Checkout.Session) {
 }
 
 async function onIntentSucceeded(db: Db, intent: Stripe.PaymentIntent) {
-  let payment = await paymentByIntent(db, intent.id);
-  if (!payment) {
-    // The intent event can beat the checkout one; fall back to metadata.
-    const sessionId = intent.metadata?.checkout_session_id;
-    if (sessionId) payment = await paymentBySession(db, sessionId);
-  }
+  const payment = (await paymentByIntent(db, intent.id)) ?? (await paymentByIntentMetadata(db, intent));
   if (!payment) return;
 
   await settle(

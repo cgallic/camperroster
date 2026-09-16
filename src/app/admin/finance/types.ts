@@ -6,6 +6,7 @@ export type PaymentLine = {
   refundedCents: number;
   status: string;
   paidAt: string | null;
+  method: string;
   note: string | null;
   isOffline: boolean;
 };

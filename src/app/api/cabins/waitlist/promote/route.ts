@@ -19,7 +19,7 @@ export async function POST(req: Request) {
 
   const { data: entry, error: entryError } = await guard.supabase
     .from("waitlist_entries")
-    .select("id, camp_id, registration_id, status, gender, grade")
+    .select("id, registration_id, status")
     .eq("id", waitlistEntryId)
     .maybeSingle();
 
@@ -31,50 +31,24 @@ export async function POST(req: Request) {
     return badRequest(`That family already ${entry.status} their spot`);
   }
 
-  let placedCabinId: string | null = null;
+  // Seating and marking the entry accepted happen in one locked transaction, so
+  // a failed placement cannot leave someone marked accepted with no bed, and two
+  // admins promoting at once cannot both be handed the same last spot.
+  const { data: placedCabinId, error } = await guard.supabase.rpc("promote_from_waitlist", {
+    p_waitlist_entry_id: waitlistEntryId,
+    p_cabin_id: cabinId ?? undefined,
+    p_override: Boolean(override),
+  });
 
-  if (cabinId) {
-    const { data: destination, error: destError } = await guard.supabase
-      .from("cabin_occupancy")
-      .select("cabin_id, name, capacity, campers_assigned, spots_remaining")
-      .eq("cabin_id", cabinId)
-      .maybeSingle();
-    if (destError) return NextResponse.json({ error: destError.message }, { status: 400 });
-    if (!destination) return badRequest("That cabin no longer exists");
-
-    if (destination.spots_remaining <= 0 && !override) {
-      return badRequest(
-        `${destination.name} is full (${destination.campers_assigned}/${destination.capacity}). Raise the cap or resend with override.`,
-        { full: true },
-      );
-    }
-
-    const { error } = await guard.supabase.from("cabin_assignments").insert({
-      camp_id: entry.camp_id,
-      cabin_id: cabinId,
-      registration_id: entry.registration_id,
-      occupant_role: "camper",
-      assigned_by: guard.userId,
-    });
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
-    placedCabinId = cabinId;
-  } else {
-    const { data: rpcCabinId, error } = await guard.supabase.rpc("assign_camper_to_cabin", {
-      p_registration_id: entry.registration_id,
-    });
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
-    if (!rpcCabinId) {
-      // Still nothing open for this bucket: leave the entry queued in place.
-      return badRequest("No cabin for that grade and gender has room yet. Raise a cap or add a cabin first.");
-    }
-    placedCabinId = rpcCabinId as string;
+  if (error) {
+    const status = error.code === "42501" ? 403 : 400;
+    return NextResponse.json({ error: error.message, full: error.code === "23514" }, { status });
   }
 
-  const { error: updateError } = await guard.supabase
-    .from("waitlist_entries")
-    .update({ status: "accepted", offered_at: new Date().toISOString() })
-    .eq("id", waitlistEntryId);
-  if (updateError) return NextResponse.json({ error: updateError.message }, { status: 400 });
+  if (!placedCabinId) {
+    // Nothing open for this bucket. The entry keeps its place in the queue.
+    return badRequest("No cabin for that grade and gender has room yet. Raise a cap or add a cabin first.");
+  }
 
   return NextResponse.json({ promoted: true, cabinId: placedCabinId, waitlistEntryId });
 }

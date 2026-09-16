@@ -1,3 +1,5 @@
+import type { Json } from "./supabase/database.types";
+
 /**
  * Shared, framework-free logic for admin-editable registration forms.
  *
@@ -73,12 +75,23 @@ export const OP_LABELS: Record<ConditionOp, string> = {
   is_false: "is not checked",
 };
 
+/** What a condition can be compared against. Narrower than `unknown` because
+ *  the rule is stored as JSON, so it has to survive a round trip. */
+export type ConditionValue = string | number | boolean | null | Array<string | number | boolean | null>;
+
 export type VisibleWhen = {
   field: string;
   op: ConditionOp;
   /** Absent for is_true / is_false. A list (or comma string) for `in`. */
-  value?: unknown;
+  value?: ConditionValue;
 };
+
+/** A named object type is not assignable to Postgrest's index-signature `Json`,
+ *  even when every field already satisfies it. This is the one place that gap is
+ *  bridged, rather than casting at each call site. */
+export function serializeVisibleWhen(rule: VisibleWhen | null): Json | null {
+  return rule ? ({ ...rule } as Json) : null;
+}
 
 export type RegistrationPeriod = {
   id: string;
