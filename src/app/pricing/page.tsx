@@ -76,7 +76,7 @@ export default function PricingAndRoiPage() {
               </h2>
             </div>
             <span className="text-xs sm:text-sm font-bold text-stone-500 mt-2 sm:mt-0 block">
-              Based on real CCCA camp benchmarks
+Our own estimates — adjust the sliders with your real numbers
             </span>
           </div>
 
@@ -175,7 +175,7 @@ export default function PricingAndRoiPage() {
                   YOUR ESTIMATED SAVINGS
                 </span>
                 <span className="text-xs text-stone-300 font-bold bg-white/10 px-2.5 py-1 rounded-full">
-                  100% Guaranteed
+Estimate, not a quote
                 </span>
               </div>
 
@@ -183,7 +183,7 @@ export default function PricingAndRoiPage() {
                 <div className="space-y-1">
                   <span className="text-xs text-stone-300 font-bold block">Annual Cash Saved</span>
                   <b className="font-display font-black text-3xl sm:text-4xl text-emerald-400 block">
-                    ${Math.max(dollarSavings, 500).toLocaleString()}
+                    ${dollarSavings >= 0 ? dollarSavings.toLocaleString() : "0"}
                   </b>
                   <span className="text-[11px] text-stone-400 block">vs {competitorName}</span>
                 </div>
@@ -193,13 +193,13 @@ export default function PricingAndRoiPage() {
                   <b className="font-display font-black text-3xl sm:text-4xl text-amber-400 block">
                     {hoursSaved} hrs
                   </b>
-                  <span className="text-[11px] text-stone-400 block">From automated voice AI</span>
+                  <span className="text-[11px] text-stone-400 block">Modeled from reference-call time</span>
                 </div>
               </div>
 
               <div className="space-y-2 pt-4 border-t border-white/10 text-xs text-stone-300 font-medium">
                 <div className="flex justify-between">
-                  <span>{competitorName} Annual Estimate:</span>
+                  <span>{competitorName} (our estimate, list pricing varies):</span>
                   <span className="font-bold line-through text-rose-400">${competitorAnnualCost.toLocaleString()}/yr</span>
                 </div>
                 <div className="flex justify-between">
@@ -279,10 +279,10 @@ export default function PricingAndRoiPage() {
               </Link>
             </div>
 
-            {/* TIER 2: PRO (MOST POPULAR) */}
+            {/* TIER 2: PRO */}
             <div className="bg-stone-950 text-white rounded-3xl p-8 border-2 border-emerald-400 shadow-2xl space-y-6 flex flex-col justify-between relative">
               <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-amber-400 text-stone-950 font-black text-[11px] uppercase tracking-widest px-4 py-1 rounded-full shadow-md">
-                MOST POPULAR • ULTRACAMP KILLER
+BUILT TO REPLACE ULTRACAMP
               </div>
 
               <div className="space-y-4 pt-2">
@@ -377,19 +377,19 @@ export default function PricingAndRoiPage() {
             <div className="p-4 rounded-xl bg-white border border-amber-200 flex items-start gap-3">
               <Check className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
               <div>
-                <b>$0 Data Migration Guarantee</b>: We import all your past UltraCamp family records, medical histories, and rosters for free in 60 seconds.
+                <b>$0 Data Migration</b>: Send us your UltraCamp or spreadsheet export and we do the import with you at no charge. Check your column mapping first with the roster mapper.
               </div>
             </div>
             <div className="p-4 rounded-xl bg-white border border-amber-200 flex items-start gap-3">
               <Check className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
               <div>
-                <b>50 Free KaiCalls Voice References</b>: 50 automated phone reference interviews placed and transcribed on us.
+                <b>Reference Checks Handled</b>: We help you work through your volunteer reference list. Automated KaiCalls voice interviews are in development and included when they ship.
               </div>
             </div>
             <div className="p-4 rounded-xl bg-white border border-amber-200 flex items-start gap-3">
               <Check className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
               <div>
-                <b>100% Opening Day Readiness Guarantee</b>: If your staff isn&apos;t 100% trained and ready by opening day, your first session is on us.
+                <b>Opening Day Support</b>: We stay on with you through setup and your first check-in day, not just through the sale.
               </div>
             </div>
             <div className="p-4 rounded-xl bg-white border border-amber-200 flex items-start gap-3">

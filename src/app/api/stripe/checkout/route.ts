@@ -1,21 +1,27 @@
 import { NextResponse } from "next/server";
 
-export async function POST(req: Request) {
-  try {
-    const { registration_id, camper_name, amount_cents, payment_type } = await req.json();
-
-    const sessionId = `cs_test_${Date.now()}`;
-    const checkoutUrl = `https://camperroster.com/portal?session_id=${sessionId}&paid=true`;
-
-    return NextResponse.json({
-      success: true,
-      session_id: sessionId,
-      checkout_url: checkoutUrl,
-      amount_cents: amount_cents || 10000,
-      payment_type: payment_type || "deposit",
-      message: `Stripe checkout session initialized for ${camper_name} ($${((amount_cents || 10000)/100).toFixed(2)})`
-    });
-  } catch (err: any) {
-    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+/**
+ * Stripe checkout.
+ *
+ * There is no live Stripe integration behind this route yet. It must never
+ * fabricate a session id or hand back a URL that implies a payment succeeded.
+ * Until STRIPE_SECRET_KEY is configured AND the TODO block below is
+ * implemented against the real Stripe API, this endpoint fails closed.
+ */
+export async function POST() {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    return NextResponse.json(
+      { success: false, error: "Payments are not configured yet." },
+      { status: 503 }
+    );
   }
+
+  // TODO(payments): implement the real Stripe Checkout Session creation here.
+  //   import Stripe from "stripe";
+  //   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+  //   const session = await stripe.checkout.sessions.create({ ... });
+  //   return NextResponse.json({ success: true, session_id: session.id, checkout_url: session.url });
+  // Until that exists, throwing is correct: a fabricated session id would tell a
+  // camp director money moved when it did not.
+  throw new Error("Stripe checkout is not implemented.");
 }

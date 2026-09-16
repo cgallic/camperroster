@@ -41,6 +41,10 @@ export default function AdminBunkNotesPage() {
           <h1 className="font-display font-black text-2xl sm:text-3xl text-stone-900 mt-2">
             Print Daily Bunk Notes ({notes.length} Letters)
           </h1>
+          <p className="text-[11px] font-bold text-amber-900 bg-amber-100 border border-amber-300 rounded-xl px-3 py-2 mt-2 max-w-xl leading-relaxed print:hidden">
+            Demo batch. These are three example letters, not today&apos;s real mail queue &mdash;
+            this page does not yet read notes parents submit.
+          </p>
         </div>
         <div className="flex items-center gap-3">
           <button
@@ -76,7 +80,7 @@ export default function AdminBunkNotesPage() {
 
             <div className="flex items-center justify-between text-xs text-stone-500 font-bold">
               <span>Camp Hope Summer 2027 Daily Bunk Mail</span>
-              <span>Delivered by {n.counselor}</span>
+              <span>For delivery by {n.counselor}</span>
             </div>
           </div>
         ))}

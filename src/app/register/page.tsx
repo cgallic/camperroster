@@ -15,6 +15,7 @@ import {
   Info,
   Check
 } from "lucide-react";
+import type { RegisterPayload, RegisterResponse } from "@/lib/formContracts";
 
 export default function RegisterPage() {
   const [step, setStep] = useState(1);
@@ -22,8 +23,11 @@ export default function RegisterPage() {
   const [paymentPlan, setPaymentPlan] = useState("installment");
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Form State
+  // Form State. Every key here is either sent to /api/register under this exact
+  // name (see src/lib/formContracts.ts) or is a local-only UI value — nothing
+  // is collected and then dropped.
   const [formData, setFormData] = useState({
     parentFirstName: "",
     parentLastName: "",
@@ -34,15 +38,11 @@ export default function RegisterPage() {
     parentState: "PA",
     parentZip: "",
     relationship: "Mother",
-    emergencyName: "",
-    emergencyPhone: "",
-    emergencyRelation: "",
     camperFirstName: "",
     camperLastName: "",
     camperDob: "",
-    camperGender: "Female",
-    camperGrade: "5th Grade",
-    tshirtSize: "Youth M",
+    camperGender: "female",
+    camperGrade: "5",
     cabinBuddy: "",
     peanutAllergy: false,
     dietaryRestrictions: "",
@@ -54,6 +54,8 @@ export default function RegisterPage() {
     insuranceCarrier: "",
     policyNumber: "",
     groupNumber: "",
+    // Local-only: the wizard shows the chosen filename. File upload to storage
+    // is not implemented, so these are deliberately NOT sent or persisted.
     immunizationFile: "",
     cardFrontFile: "",
     cardBackFile: "",
@@ -72,6 +74,9 @@ export default function RegisterPage() {
     }
   };
 
+  // TODO: file upload. This only records the chosen filename for display.
+  // Nothing is uploaded to storage yet, so /api/register deliberately does not
+  // write a card_front_url / card_back_url — a filename is not a URL.
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, field: string) => {
     if (e.target.files && e.target.files[0]) {
       setFormData(prev => ({ ...prev, [field]: e.target.files![0].name }));
@@ -81,22 +86,55 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
+    setError(null);
     try {
+      const payload: RegisterPayload = {
+        parentFirstName: formData.parentFirstName,
+        parentLastName: formData.parentLastName,
+        parentEmail: formData.parentEmail,
+        parentPhone: formData.parentPhone,
+        parentStreet: formData.parentStreet,
+        parentCity: formData.parentCity,
+        parentState: formData.parentState,
+        parentZip: formData.parentZip,
+        relationship: formData.relationship,
+        sessionSlug: session,
+        camperFirstName: formData.camperFirstName,
+        camperLastName: formData.camperLastName,
+        camperDob: formData.camperDob,
+        camperGender: formData.camperGender,
+        camperGrade: formData.camperGrade,
+        cabinBuddy: formData.cabinBuddy,
+        peanutAllergy: formData.peanutAllergy,
+        epipen: formData.epipen,
+        inhaler: formData.inhaler,
+        dietaryRestrictions: formData.dietaryRestrictions,
+        medicalConditions: formData.medicalConditions,
+        primaryPhysician: formData.primaryPhysician,
+        physicianPhone: formData.physicianPhone,
+        insuranceCarrier: formData.insuranceCarrier,
+        policyNumber: formData.policyNumber,
+        groupNumber: formData.groupNumber,
+        paymentPlan,
+        emergencyAuth: formData.emergencyAuth,
+        waterfrontConsent: formData.waterfrontConsent,
+        signature: formData.signature
+      };
+
       const res = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          camp_id: "camphope",
-          session_id: session,
-          payment_plan: paymentPlan,
-          ...formData
-        })
+        body: JSON.stringify(payload)
       });
-      if (res.ok) {
+      const data: RegisterResponse = await res.json().catch(() => ({ success: false }));
+
+      if (res.ok && data.success) {
         setSubmitted(true);
+      } else {
+        setError(data.error || "We could not save this registration. Please try again or call the camp office.");
       }
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      setError(err?.message || "Network error — your registration was not saved. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -120,7 +158,7 @@ export default function RegisterPage() {
           Camper Registration Confirmed!
         </h1>
         <p className="text-sm sm:text-base text-stone-600 leading-relaxed max-w-md mx-auto">
-          We received {formData.camperFirstName || "your camper"}&apos;s registration for Camp Hope Summer 2027. A confirmation email and SMS magic link have been dispatched.
+          We saved {formData.camperFirstName || "your camper"}&apos;s registration for Camp Hope Summer 2027. The camp office will follow up at {formData.parentEmail || "the email you provided"} to confirm your spot and payment schedule.
         </p>
         <div className="pt-4 flex flex-col sm:flex-row justify-center gap-3">
           <Link href="/portal" className="btn-primary-agency text-xs py-3 px-6">
@@ -240,6 +278,22 @@ export default function RegisterPage() {
                   onChange={handleInputChange}
                   className="w-full p-3.5 rounded-xl border-2 border-stone-200 text-stone-900 text-base focus:border-forest-800 focus:outline-none"
                 />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs sm:text-sm font-bold text-stone-800">Relationship to Camper *</label>
+                <select
+                  name="relationship"
+                  required
+                  value={formData.relationship}
+                  onChange={handleInputChange}
+                  className="w-full p-3.5 rounded-xl border-2 border-stone-200 text-stone-900 text-base bg-white focus:border-forest-800 focus:outline-none"
+                >
+                  <option value="Mother">Mother</option>
+                  <option value="Father">Father</option>
+                  <option value="Legal Guardian">Legal Guardian</option>
+                  <option value="Grandparent">Grandparent</option>
+                  <option value="Other">Other</option>
+                </select>
               </div>
             </div>
 
@@ -392,6 +446,34 @@ export default function RegisterPage() {
                 />
               </div>
               <div className="space-y-1.5">
+                <label className="text-xs sm:text-sm font-bold text-stone-800">Camper Gender *</label>
+                <select
+                  name="camperGender"
+                  required
+                  value={formData.camperGender}
+                  onChange={handleInputChange}
+                  className="w-full p-3.5 rounded-xl border-2 border-stone-200 text-stone-900 text-base bg-white focus:border-forest-800 focus:outline-none"
+                >
+                  <option value="female">Female</option>
+                  <option value="male">Male</option>
+                </select>
+                <p className="text-[11px] text-stone-500">Used for cabin assignment only.</p>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs sm:text-sm font-bold text-stone-800">Grade Entering (Fall 2027) *</label>
+                <select
+                  name="camperGrade"
+                  required
+                  value={formData.camperGrade}
+                  onChange={handleInputChange}
+                  className="w-full p-3.5 rounded-xl border-2 border-stone-200 text-stone-900 text-base bg-white focus:border-forest-800 focus:outline-none"
+                >
+                  {[2, 3, 4, 5, 6, 7, 8].map(g => (
+                    <option key={g} value={String(g)}>{g}th Grade</option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-1.5">
                 <label className="text-xs sm:text-sm font-bold text-stone-800">Cabin Buddy Request (Optional)</label>
                 <input
                   type="text"
@@ -481,6 +563,43 @@ export default function RegisterPage() {
                 onChange={handleInputChange}
                 className="w-full p-3.5 rounded-xl border-2 border-stone-200 text-stone-900 text-base focus:border-forest-800 focus:outline-none"
               />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs sm:text-sm font-bold text-stone-800">Other Medical Conditions or Daily Medications</label>
+              <textarea
+                name="medicalConditions"
+                rows={2}
+                placeholder="e.g. Asthma, ADHD medication at breakfast, bee sting sensitivity..."
+                value={formData.medicalConditions}
+                onChange={handleInputChange}
+                className="w-full p-3.5 rounded-xl border-2 border-stone-200 text-stone-900 text-base focus:border-forest-800 focus:outline-none"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-xs sm:text-sm font-bold text-stone-800">Primary Physician</label>
+                <input
+                  type="text"
+                  name="primaryPhysician"
+                  placeholder="e.g. Dr. Anita Rao"
+                  value={formData.primaryPhysician}
+                  onChange={handleInputChange}
+                  className="w-full p-3.5 rounded-xl border-2 border-stone-200 text-stone-900 text-base focus:border-forest-800 focus:outline-none"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs sm:text-sm font-bold text-stone-800">Physician Phone</label>
+                <input
+                  type="tel"
+                  name="physicianPhone"
+                  placeholder="(555) 234-5678"
+                  value={formData.physicianPhone}
+                  onChange={handleInputChange}
+                  className="w-full p-3.5 rounded-xl border-2 border-stone-200 text-stone-900 text-base focus:border-forest-800 focus:outline-none"
+                />
+              </div>
             </div>
 
             <div className="space-y-1.5">
@@ -707,6 +826,16 @@ export default function RegisterPage() {
                 className="w-full p-3.5 rounded-xl border-2 border-stone-200 text-stone-900 text-base focus:border-forest-800 focus:outline-none"
               />
             </div>
+
+            {error && (
+              <div className="p-4 rounded-xl bg-red-50 border-2 border-red-200 flex items-start gap-3">
+                <AlertTriangle className="w-5 h-5 text-red-700 shrink-0 mt-0.5" />
+                <div className="space-y-1">
+                  <b className="text-xs sm:text-sm font-black text-red-900 block">Registration not saved</b>
+                  <span className="text-xs text-red-800 block">{error}</span>
+                </div>
+              </div>
+            )}
 
             <div className="pt-4 border-t border-stone-100 flex flex-col sm:flex-row justify-between gap-3">
               <button

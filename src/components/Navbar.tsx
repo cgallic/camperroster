@@ -50,9 +50,8 @@ export default function Navbar() {
               onClick={() => setModalOpen(true)}
               className="hidden lg:inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-100 text-emerald-950 border border-emerald-300 font-extrabold text-xs hover:bg-emerald-200 transition-all cursor-pointer shadow-xs"
             >
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 animate-pulse"></span>
               <PhoneCall className="w-4 h-4 text-emerald-900" />
-              <span>KaiCalls Voice AI</span>
+              <span>KaiCalls Voice AI Demo</span>
             </button>
 
             <Link

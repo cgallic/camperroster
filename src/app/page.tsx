@@ -35,7 +35,7 @@ export default function B2BSaasHomePage() {
     },
     {
       q: "How do we migrate our existing roster data from UltraCamp or spreadsheets?",
-      a: "Our built-in 1-Click Importer (/admin/import) auto-maps your past UltraCamp CSV or Google Sheets export in 60 seconds. All family contacts, camper records, and allergy histories transfer instantly with zero manual re-typing."
+      a: "Start with the roster column mapper (/admin/import). Drop in your UltraCamp, CampBrain, or Google Sheets CSV and it parses the file in your browser and shows you exactly how your columns map to family contacts, camper records, and allergy fields — no account and no upload required. When you create your camp, we run the migration for you from that same file so nobody re-types a roster by hand."
     },
     {
       q: "Is CamperRoster HIPAA and ACA safety compliant?",
@@ -72,7 +72,7 @@ export default function B2BSaasHomePage() {
               href="/ultracamp-alternative"
               className="text-xs font-mono font-bold text-stone-300 bg-white/10 hover:bg-white/20 px-3.5 py-1.5 rounded-full transition-colors backdrop-blur-xs flex items-center gap-1"
             >
-              <span>vs UltraCamp ($6k Saved) →</span>
+              <span>vs UltraCamp — compare the math →</span>
             </Link>
           </div>
 
@@ -99,7 +99,7 @@ export default function B2BSaasHomePage() {
                 href="/c/camphope"
                 className="px-6 py-4 rounded-xl bg-stone-900/90 hover:bg-stone-900 text-white font-bold text-xs sm:text-sm border border-stone-700 flex items-center justify-center gap-2 backdrop-blur-xs"
               >
-                <span>View Live Camp Hope Demo →</span>
+                <span>Explore the Camp Hope demo camp →</span>
               </Link>
             </div>
 
@@ -187,7 +187,7 @@ export default function B2BSaasHomePage() {
                   <span className="text-[10px] font-bold bg-amber-400 text-stone-950 px-2.5 py-0.5 rounded-full">AUTOMATED CALLING</span>
                 </div>
                 <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-                  Cuts 40+ hours of spring phone tag. Voice Assistant dials pastoral and mentor references, conducts 2-minute interviews, and saves verified transcripts with character scores.
+                  Built to take spring reference calls off the director&apos;s desk. The voice assistant dials pastoral and mentor references, conducts a 2-minute structured interview, and files the recording and transcript against the applicant.
                 </p>
               </div>
               <Link href="/volunteer" className="text-xs font-black text-amber-900 flex items-center gap-1 hover:underline pt-3">
@@ -300,50 +300,53 @@ export default function B2BSaasHomePage() {
         </div>
       </section>
 
-      {/* 3. FLAGSHIP TENANT SHOWCASE (CASE STUDY: CAMP HOPE 2027) */}
+      {/* 3. INTERACTIVE DEMO SHOWCASE (DEMO TENANT: CAMP HOPE) */}
       <section className="px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="bg-stone-950 text-white rounded-3xl p-6 sm:p-12 border-2 border-stone-800 shadow-2xl space-y-8">
-          
+
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-stone-800 pb-6">
             <div className="space-y-1">
               <span className="font-mono text-xs font-bold text-amber-400 uppercase tracking-widest">
-                FLAGSHIP CUSTOMER CASE STUDY
+                INTERACTIVE PRODUCT DEMO
               </span>
               <h3 className="font-display font-black text-2xl sm:text-4xl text-white">
-                How Camp Hope Cut $6,150 in Software Costs & 40 Hours of Phone Tag
+                Walk through a whole camp season inside our demo camp.
               </h3>
+              <p className="text-xs sm:text-sm text-stone-400 leading-relaxed pt-2 max-w-2xl">
+                &ldquo;Camp Hope&rdquo; is our sample camp, loaded with example campers, volunteers, and health records so you can click every screen before you sign up. No account, no sales call, nothing to install.
+              </p>
             </div>
             <Link
               href="/c/camphope"
               className="px-5 py-3 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-stone-950 font-black text-xs sm:text-sm shrink-0 flex items-center gap-1.5"
             >
-              <span>Explore Camp Hope Portal</span>
+              <span>Explore the Camp Hope Demo Portal</span>
               <ArrowRight className="w-4 h-4 stroke-[3]" />
             </Link>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="p-6 rounded-2xl bg-stone-900 border border-stone-800 space-y-2">
-              <b className="font-display font-black text-3xl sm:text-4xl text-emerald-400 block">$6,150 / yr</b>
-              <span className="text-xs font-bold text-stone-300 block">Annual Software Savings</span>
+              <b className="font-display font-black text-3xl sm:text-4xl text-emerald-400 block">$0 / mo</b>
+              <span className="text-xs font-bold text-stone-300 block">What You Pay Off-Season</span>
               <p className="text-xs text-stone-400 leading-relaxed pt-1">
-                Eliminated UltraCamp&apos;s winter monthly retainer and bundled CampDoc and Bunk1 into one subscription.
+                Our published price, not a projection. Put your own camper count into the pricing calculator and compare it against the retainer you pay UltraCamp today.
               </p>
             </div>
 
             <div className="p-6 rounded-2xl bg-stone-900 border border-stone-800 space-y-2">
-              <b className="font-display font-black text-3xl sm:text-4xl text-amber-400 block">40 Hours</b>
-              <span className="text-xs font-bold text-stone-300 block">Director Phone Tag Eliminated</span>
+              <b className="font-display font-black text-3xl sm:text-4xl text-amber-400 block">2-Min Call</b>
+              <span className="text-xs font-bold text-stone-300 block">Try a KaiCalls Reference Check</span>
               <p className="text-xs text-stone-400 leading-relaxed pt-1">
-                KaiCalls automated 90+ volunteer pastoral reference check interviews with audio and transcripts.
+                Submit a demo volunteer application and hear how the voice assistant structures a pastoral reference interview instead of you playing spring phone tag.
               </p>
             </div>
 
             <div className="p-6 rounded-2xl bg-stone-900 border border-stone-800 space-y-2">
-              <b className="font-display font-black text-3xl sm:text-4xl text-sky-400 block">45 Seconds</b>
-              <span className="text-xs font-bold text-stone-300 block">Opening Day Gate Drop-Off</span>
+              <b className="font-display font-black text-3xl sm:text-4xl text-sky-400 block">6 Tools</b>
+              <span className="text-xs font-bold text-stone-300 block">Open in the Demo Right Now</span>
               <p className="text-xs text-stone-400 leading-relaxed pt-1">
-                Zero vehicle lines on Sunday check-in with 100% digital medical clearance on parents&apos; phones.
+                Registration wizard, gate QR check-in, nurse eMAR, canteen POS, bunk notes, and the director hub &mdash; all clickable with sample data.
               </p>
             </div>
           </div>
@@ -360,17 +363,17 @@ export default function B2BSaasHomePage() {
               MIGRATION MADE SIMPLE
             </span>
             <h3 className="font-display font-black text-2xl sm:text-4xl text-stone-950">
-              Switching from UltraCamp or Spreadsheets takes 60 seconds.
+              See exactly how your roster maps before you switch.
             </h3>
             <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-              Export your existing roster CSV and drop it into our 1-Click Importer. All parent contacts, camper medical profiles, and history map automatically into your new camp database.
+              Export your existing roster CSV and drop it into the column mapper. It reads the file in your browser and shows you, row by row, which parent contacts, camper records, and allergy fields line up with CamperRoster &mdash; so you know what a migration looks like before you commit to one.
             </p>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4">
             <Link href="/admin/import" className="btn-primary-agency text-xs sm:text-sm py-4 px-8">
               <FileSpreadsheet className="w-4 h-4" />
-              <span>Test 1-Click Roster Importer</span>
+              <span>Try the Roster Column Mapper</span>
             </Link>
             <Link href="/pricing" className="px-6 py-4 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-800 font-bold text-xs sm:text-sm text-center">
               Calculate Your Camp&apos;s Savings →

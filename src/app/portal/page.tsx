@@ -73,7 +73,7 @@ export default function ParentPortalPage() {
         sender: "Mom & Dad",
         message: noteText,
         delivery_date: "July 13, 2027",
-        status: "Scheduled for 11:00 AM Cabin Mail Call"
+        status: "Demo note — not sent"
       },
       ...prev
     ]);
@@ -87,7 +87,7 @@ export default function ParentPortalPage() {
     setTimeout(() => {
       setCanteenBalance(prev => prev + amount);
       setReloadingWallet(false);
-      setCanteenSuccess(`Added $${amount}.00 to Jamie's store wallet!`);
+      setCanteenSuccess(`Demo only: showed a $${amount}.00 reload. No payment was taken and no balance was saved.`);
       setTimeout(() => setCanteenSuccess(""), 4000);
     }, 600);
   };
@@ -96,6 +96,16 @@ export default function ParentPortalPage() {
 
   return (
     <main className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-6 sm:space-y-8">
+
+      {/* DEMO NOTICE - this page runs on sample data and saves nothing */}
+      <div className="bg-amber-100 border-2 border-amber-300 rounded-2xl p-4 sm:p-5 text-amber-950">
+        <b className="block text-sm font-black">Sample parent portal</b>
+        <p className="text-xs leading-relaxed mt-1">
+          Everything below is example data for a made-up family at our demo camp. Nothing on this
+          page is saved: notes are not delivered, wallet reloads take no payment, and checklist
+          progress disappears when you reload.
+        </p>
+      </div>
       
       {/* CAMPER HEADER & EXPRESS QR PASS */}
       <div className="bg-stone-900 text-white rounded-2xl sm:rounded-3xl p-6 sm:p-10 border border-stone-800 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -286,7 +296,7 @@ export default function ParentPortalPage() {
             {noteSubmitted && (
               <div className="p-4 rounded-xl bg-emerald-100 text-emerald-950 border border-emerald-300 font-bold text-xs sm:text-sm flex items-center gap-2">
                 <Check className="w-5 h-5 text-emerald-700 shrink-0" />
-                <span>Bunk Note scheduled for 11:00 AM daily cabin delivery!</span>
+                <span>Demo only &mdash; your note is shown below but was not sent to the camp.</span>
               </div>
             )}
 
@@ -409,7 +419,7 @@ export default function ParentPortalPage() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-stone-100 pb-4">
             <div>
               <h2 className="font-display font-black text-2xl text-stone-900">Camp Hope Packing Checklist</h2>
-              <p className="text-xs sm:text-sm text-stone-600">Check off items as you pack Jamie&apos;s duffel bag. Progress saves automatically.</p>
+              <p className="text-xs sm:text-sm text-stone-600">Check off items as you pack Jamie&apos;s duffel bag. This demo does not save your progress.</p>
             </div>
             <span className="font-mono text-sm font-black text-forest-900 bg-forest-100 px-4 py-1.5 rounded-full border border-forest-200">
               {packingPercent}% Packed

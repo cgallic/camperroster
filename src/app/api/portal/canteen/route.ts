@@ -32,7 +32,10 @@ export async function POST(req: Request) {
     return NextResponse.json({
       success: true,
       new_balance_cents: newBalance,
-      message: `Successfully added $${(amount_cents / 100).toFixed(2)} to canteen wallet!`
+      message:
+        amount_cents < 0
+          ? `Debited $${Math.abs(amount_cents / 100).toFixed(2)} from the canteen wallet.`
+          : `Added $${(amount_cents / 100).toFixed(2)} to the canteen wallet.`
     });
   } catch (err: any) {
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });

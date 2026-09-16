@@ -2,17 +2,51 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Sparkles, CheckCircle2, ArrowRight } from "lucide-react";
+import { Sparkles, CheckCircle2, ArrowRight, AlertTriangle, Loader2 } from "lucide-react";
+import type { CampSignupPayload, CampSignupResponse } from "@/lib/formContracts";
+import { normalizeSlug } from "@/lib/formContracts";
 
 export default function CampOnboardingPage() {
   const [campName, setCampName] = useState("");
+  const [directorName, setDirectorName] = useState("");
   const [directorEmail, setDirectorEmail] = useState("");
   const [campSlug, setCampSlug] = useState("");
+  const [slugTouched, setSlugTouched] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [created, setCreated] = useState(false);
+  const [savedSlug, setSavedSlug] = useState("");
 
-  const handleCreate = (e: React.FormEvent) => {
+  const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    setCreated(true);
+    setSubmitting(true);
+    setError(null);
+    try {
+      const payload: CampSignupPayload = {
+        campName,
+        directorName,
+        directorEmail,
+        slug: normalizeSlug(campSlug || campName),
+      };
+
+      const res = await fetch("/api/camps", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data: CampSignupResponse = await res.json().catch(() => ({ success: false }));
+
+      if (res.ok && data.success) {
+        setSavedSlug(data.slug || payload.slug);
+        setCreated(true);
+      } else {
+        setError(data.error || "We could not save your request. Please try again.");
+      }
+    } catch (err: any) {
+      setError(err?.message || "Network error — your request was not saved. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -20,7 +54,7 @@ export default function CampOnboardingPage() {
       <div className="text-center space-y-3">
         <span className="eyebrow-pill bg-forest-100 text-forest-900 border border-forest-200">
           <Sparkles className="w-3.5 h-3.5 text-sun-600" />
-          <span>LAUNCH YOUR CAMP IN 3 MINUTES</span>
+          <span>GET YOUR CAMP SET UP</span>
         </span>
         <h1 className="font-display font-black text-3xl sm:text-5xl text-stone-900 tracking-tight">
           Create Your Camp Portal
@@ -36,17 +70,19 @@ export default function CampOnboardingPage() {
             <CheckCircle2 className="w-8 h-8" />
           </div>
           <h2 className="font-display font-black text-2xl text-stone-900">
-            {campName || "Your Camp"} is Ready!
+            Request received for {campName || "your camp"}
           </h2>
-          <p className="text-sm text-stone-600">
-            Your branded registration link is live at:
+          <p className="text-sm text-stone-600 leading-relaxed max-w-md mx-auto">
+            We have your details and reserved the link name below while we set you up. A member of the
+            CamperRoster team will email <b>{directorEmail}</b> to finish configuring your camp — your
+            portal is not live yet.
           </p>
           <div className="p-3 bg-stone-100 rounded-xl font-mono text-sm font-bold text-forest-900 border border-stone-200">
-            https://camperroster.com/register?camp={campSlug || "mycamp"}
+            reserved: {savedSlug}
           </div>
           <div className="pt-4 flex justify-center gap-3">
-            <Link href="/admin" className="btn-primary-agency text-xs py-3 px-6">
-              Go to Director Hub
+            <Link href="/" className="px-6 py-3 rounded-full bg-stone-100 text-stone-800 font-bold text-xs">
+              Return Home
             </Link>
           </div>
         </div>
@@ -61,8 +97,20 @@ export default function CampOnboardingPage() {
               value={campName}
               onChange={(e) => {
                 setCampName(e.target.value);
-                setCampSlug(e.target.value.toLowerCase().replace(/[^a-z0-9]/g, ""));
+                if (!slugTouched) setCampSlug(normalizeSlug(e.target.value));
               }}
+              className="w-full p-3.5 rounded-xl border-2 border-stone-200 text-stone-900 text-base focus:border-forest-800 focus:outline-none"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-xs sm:text-sm font-bold text-stone-800">Your Name *</label>
+            <input
+              type="text"
+              required
+              placeholder="e.g. Dana Whitfield"
+              value={directorName}
+              onChange={(e) => setDirectorName(e.target.value)}
               className="w-full p-3.5 rounded-xl border-2 border-stone-200 text-stone-900 text-base focus:border-forest-800 focus:outline-none"
             />
           </div>
@@ -80,19 +128,49 @@ export default function CampOnboardingPage() {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs sm:text-sm font-bold text-stone-800">Registration Subdomain Slug</label>
-            <div className="flex items-center gap-2 p-3.5 rounded-xl border-2 border-stone-200 bg-stone-50 font-mono text-sm">
-              <span className="text-stone-400">camperroster.com/</span>
-              <b className="text-forest-900">{campSlug || "mycamp"}</b>
+            <label className="text-xs sm:text-sm font-bold text-stone-800">Registration Link Name</label>
+            <div className="flex items-center gap-1 p-1.5 pl-3.5 rounded-xl border-2 border-stone-200 bg-stone-50 font-mono text-sm">
+              <span className="text-stone-400 shrink-0">camperroster.com/c/</span>
+              <input
+                type="text"
+                value={campSlug}
+                onChange={(e) => {
+                  setSlugTouched(true);
+                  setCampSlug(normalizeSlug(e.target.value));
+                }}
+                placeholder="mycamp"
+                className="flex-1 min-w-0 p-2 rounded-lg border border-stone-200 bg-white text-forest-900 font-bold focus:border-forest-800 focus:outline-none"
+              />
             </div>
+            <p className="text-[11px] text-stone-500">Lowercase letters, numbers and hyphens. We check availability when you submit.</p>
           </div>
+
+          {error && (
+            <div className="p-4 rounded-xl bg-red-50 border-2 border-red-200 flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 text-red-700 shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <b className="text-xs sm:text-sm font-black text-red-900 block">Request not saved</b>
+                <span className="text-xs text-red-800 block">{error}</span>
+              </div>
+            </div>
+          )}
 
           <button
             type="submit"
-            className="w-full py-4 rounded-xl bg-forest-900 hover:bg-forest-950 text-white font-black text-sm flex items-center justify-center gap-2 shadow-lg cursor-pointer active:scale-98"
+            disabled={submitting}
+            className="w-full py-4 rounded-xl bg-forest-900 hover:bg-forest-950 text-white font-black text-sm flex items-center justify-center gap-2 shadow-lg cursor-pointer active:scale-98 disabled:opacity-50"
           >
-            <span>Launch Camp Portal ($0 Setup)</span>
-            <ArrowRight className="w-4 h-4" />
+            {submitting ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Sending your request...</span>
+              </>
+            ) : (
+              <>
+                <span>Request My Camp Portal ($0 Setup)</span>
+                <ArrowRight className="w-4 h-4" />
+              </>
+            )}
           </button>
         </form>
       )}

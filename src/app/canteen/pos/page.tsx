@@ -1,13 +1,46 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, ShoppingBag, CreditCard, Check, Sparkles, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, ShoppingBag, CreditCard, Plus, Trash2 } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+
+type LoadedCamper = { id: string; name: string };
 
 export default function CanteenPosPage() {
   const [balance, setBalance] = useState(34.50);
   const [cart, setCart] = useState<{ id: string; name: string; price: number }[]>([]);
-  const [lastCheckout, setLastCheckout] = useState<number | null>(null);
+  const [camper, setCamper] = useState<LoadedCamper | null>(null);
+  const [status, setStatus] = useState<"loading" | "live" | "demo">("loading");
+  const [posting, setPosting] = useState(false);
+  const [receipt, setReceipt] = useState<{ amount: number; live: boolean; error?: string } | null>(null);
+
+  // Try to attach this register to a real registration row. If we can't reach one,
+  // the page stays an honest offline demo instead of pretending to debit a ledger.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data, error } = await supabase
+        .from("registrations")
+        .select("id, canteen_balance_cents")
+        .limit(1);
+
+      if (cancelled) return;
+
+      if (error || !data || data.length === 0) {
+        setStatus("demo");
+        return;
+      }
+
+      const row: any = data[0];
+      setCamper({ id: row.id, name: "Registration " + String(row.id).slice(0, 8) });
+      setBalance((row.canteen_balance_cents || 0) / 100);
+      setStatus("live");
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const items = [
     { id: "item_1", name: "Choco Taco Ice Cream", price: 2.75, category: "Snacks" },
@@ -28,14 +61,45 @@ export default function CanteenPosPage() {
 
   const total = cart.reduce((acc, curr) => acc + curr.price, 0);
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (balance < total) {
       alert("Insufficient camper balance! Please reload wallet in parent portal.");
       return;
     }
-    setBalance(balance - total);
-    setLastCheckout(total);
-    setCart([]);
+
+    // Offline demo: no registration attached, so nothing is charged anywhere.
+    if (status !== "live" || !camper) {
+      setBalance(balance - total);
+      setReceipt({ amount: total, live: false });
+      setCart([]);
+      return;
+    }
+
+    setPosting(true);
+    try {
+      const res = await fetch("/api/portal/canteen", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          registration_id: camper.id,
+          amount_cents: -Math.round(total * 100),
+        }),
+      });
+      const json = await res.json();
+
+      if (!res.ok || !json.success) {
+        setReceipt({ amount: total, live: false, error: json.error || "Request failed" });
+        return;
+      }
+
+      setBalance((json.new_balance_cents || 0) / 100);
+      setReceipt({ amount: total, live: true });
+      setCart([]);
+    } catch (err: any) {
+      setReceipt({ amount: total, live: false, error: err?.message || "Network error" });
+    } finally {
+      setPosting(false);
+    }
   };
 
   return (
@@ -55,12 +119,22 @@ export default function CanteenPosPage() {
             <p className="text-xs text-stone-600">
               Debit camper store balances with zero cash handling at camp.
             </p>
+            {status === "demo" && (
+              <p className="text-[11px] font-bold text-amber-900 bg-amber-100 border border-amber-300 rounded-xl px-3 py-2 max-w-xl leading-relaxed">
+                Demo register. No camper wallet is attached, so checking out here changes a number
+                on this screen and nothing else &mdash; no balance is charged or saved anywhere.
+              </p>
+            )}
           </div>
 
           <div className="double-bezel-outer p-1.5 w-max">
             <div className="double-bezel-inner px-5 py-2 flex items-center gap-3">
-              <span className="font-mono text-[10px] font-bold uppercase text-stone-400">Camper:</span>
-              <b className="text-sm font-extrabold text-stone-900">Jamie Gallic (Pine 2)</b>
+              <span className="font-mono text-[10px] font-bold uppercase text-stone-400">
+                {status === "live" ? "Wallet:" : "Demo wallet:"}
+              </span>
+              <b className="text-sm font-extrabold text-stone-900">
+                {status === "loading" ? "Loading…" : camper ? camper.name : "Sample camper"}
+              </b>
               <span className="font-mono font-black text-sm text-forest-800 bg-forest-50 px-2.5 py-0.5 rounded-full border border-forest-100">
                 ${balance.toFixed(2)} Left
               </span>
@@ -112,7 +186,7 @@ export default function CanteenPosPage() {
               {cart.length === 0 ? (
                 <div className="py-12 text-center text-xs text-stone-400 space-y-2">
                   <ShoppingBag className="w-8 h-8 text-stone-300 mx-auto" />
-                  <p>Tap items to add to Jamie&apos;s canteen tab</p>
+                  <p>Tap items to add to this camper&apos;s tab</p>
                 </div>
               ) : (
                 <div className="divide-y divide-stone-100 text-xs max-h-60 overflow-y-auto">
@@ -138,16 +212,32 @@ export default function CanteenPosPage() {
 
               <button
                 onClick={handleCheckout}
-                disabled={cart.length === 0}
+                disabled={cart.length === 0 || posting}
                 className="w-full py-3.5 px-6 rounded-2xl bg-forest-800 hover:bg-forest-900 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <CreditCard className="w-4 h-4" />
-                <span>Debit Camper Wallet (${total.toFixed(2)})</span>
+                <span>
+                  {posting
+                    ? "Charging wallet…"
+                    : `Debit Camper Wallet ($${total.toFixed(2)})${status === "live" ? "" : " — demo"}`}
+                </span>
               </button>
 
-              {lastCheckout && (
+              {receipt && receipt.live && (
                 <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 text-center font-bold">
-                  ✓ Debited ${lastCheckout.toFixed(2)} to live Supabase ledger!
+                  ✓ Charged ${receipt.amount.toFixed(2)}. New wallet balance ${balance.toFixed(2)}, saved to the camper&apos;s record.
+                </div>
+              )}
+
+              {receipt && !receipt.live && !receipt.error && (
+                <div className="p-3 rounded-xl bg-amber-50 border border-amber-300 text-xs text-amber-900 text-center font-bold">
+                  Demo sale of ${receipt.amount.toFixed(2)}. Nothing was charged and no balance was saved.
+                </div>
+              )}
+
+              {receipt && receipt.error && (
+                <div className="p-3 rounded-xl bg-rose-50 border border-rose-300 text-xs text-rose-800 text-center font-bold">
+                  Charge failed — nothing was debited. {receipt.error}
                 </div>
               )}
             </div>

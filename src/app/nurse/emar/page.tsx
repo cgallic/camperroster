@@ -69,6 +69,11 @@ export default function NurseEmarPage() {
             <p className="text-xs text-stone-600">
               Electronic Medication Administration Record for Registered Nurses (RN/MD).
             </p>
+            <p className="text-[11px] font-bold text-amber-900 bg-amber-100 border border-amber-300 rounded-xl px-3 py-2 max-w-xl leading-relaxed">
+              Demo walkthrough. The campers, medications, and doses below are made-up sample data, and
+              signing off here records nothing &mdash; nothing is written to any chart or database. Do not use
+              this page to track a real medication administration.
+            </p>
           </div>
 
           <div className="flex gap-2 bg-stone-100 p-1 rounded-2xl border border-stone-200 text-xs font-bold">
@@ -105,7 +110,7 @@ export default function NurseEmarPage() {
                       </div>
                       {isDone ? (
                         <span className="eyebrow-pill bg-emerald-100 text-emerald-800 border border-emerald-200">
-                          ✓ Dispensed
+                          ✓ Dispensed (demo)
                         </span>
                       ) : (
                         <span className="eyebrow-pill bg-amber-100 text-amber-800 border border-amber-200">
@@ -139,7 +144,7 @@ export default function NurseEmarPage() {
                     }`}
                   >
                     <CheckCircle2 className="w-4 h-4" />
-                    <span>{isDone ? "Recorded in Supabase by Nurse" : "Sign Off & Dispense Dose"}</span>
+                    <span>{isDone ? "Demo only — not recorded" : "Sign Off & Dispense Dose (demo)"}</span>
                   </button>
 
                 </div>

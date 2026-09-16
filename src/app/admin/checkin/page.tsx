@@ -57,6 +57,10 @@ export default function ExpressCheckinPage() {
           <h1 className="font-display font-black text-2xl sm:text-3xl text-stone-900 mt-2">
             Express Gate Check-In Scanner
           </h1>
+          <p className="text-[11px] font-bold text-amber-900 bg-amber-100 border border-amber-300 rounded-xl px-3 py-2 mt-2 max-w-xl leading-relaxed">
+            Demo screen. The camper shown below is sample data, the search box is not wired up yet,
+            and checking in here saves nothing and notifies nobody.
+          </p>
         </div>
         <Link href="/admin" className="px-4 py-2 rounded-full bg-stone-100 text-stone-800 font-bold text-xs hover:bg-stone-200 w-max">
           ← Back to Director Hub
@@ -68,7 +72,7 @@ export default function ExpressCheckinPage() {
           <Search className="w-5 h-5 text-stone-400 absolute left-4 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Scan Parent Boarding Pass QR or type camper last name..."
+            placeholder="Camper lookup — not wired up in this demo"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-12 pr-4 py-4 rounded-xl border-2 border-stone-300 text-stone-900 text-base font-bold focus:border-forest-800 focus:outline-none"
@@ -87,7 +91,7 @@ export default function ExpressCheckinPage() {
             {selectedCamper.checkedIn ? (
               <span className="px-5 py-2.5 rounded-full bg-emerald-100 text-emerald-950 font-black text-xs sm:text-sm border-2 border-emerald-300 flex items-center gap-2">
                 <CheckCircle2 className="w-5 h-5 text-emerald-700" />
-                <span>CHECKED IN AT GATE</span>
+                <span>CHECKED IN (DEMO)</span>
               </span>
             ) : (
               <span className="px-5 py-2.5 rounded-full bg-amber-100 text-amber-950 font-black text-xs sm:text-sm border-2 border-amber-300 flex items-center gap-2">
@@ -113,7 +117,7 @@ export default function ExpressCheckinPage() {
             <div className="p-4 rounded-2xl bg-purple-50 border border-purple-200 space-y-1">
               <span className="font-mono text-[10px] font-bold text-purple-800 uppercase block">CANTEEN WRISTBAND</span>
               <b className="text-base font-black text-purple-950 block">{selectedCamper.canteenBalance} Loaded</b>
-              <span className="text-xs text-purple-800 block">Issue Green Wristband #402</span>
+              <span className="text-xs text-purple-800 block">Issue wristband at the gate</span>
             </div>
           </div>
 
@@ -124,11 +128,11 @@ export default function ExpressCheckinPage() {
               className="w-full py-5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-base sm:text-lg flex items-center justify-center gap-3 shadow-xl cursor-pointer active:scale-98 transition-transform"
             >
               <Check className="w-6 h-6 stroke-[3]" />
-              <span>Confirm 45-Second Gate Check-In & Issue Wristband</span>
+              <span>Confirm Gate Check-In (demo)</span>
             </button>
           ) : (
             <div className="p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-300 text-emerald-950 font-bold text-center text-sm">
-              ✓ Jamie Gallic has been checked in. Counselor Mark & Sarah notified at Cabin 4.
+              Demo check-in only. Nothing was saved to the camp roster and no counselor was notified.
             </div>
           )}
         </div>

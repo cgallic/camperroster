@@ -47,7 +47,11 @@ export default function CounselorRosterPage() {
           Cabin 4 • Timber Lodge
         </h1>
         <p className="text-xs sm:text-sm text-stone-300 font-medium">
-          Counselors: Mark Henderson & Sarah Jenkins • 8 Campers Total
+          Counselors: Mark Henderson & Sarah Jenkins • {campers.length} campers
+        </p>
+        <p className="text-[11px] font-bold text-amber-200 bg-amber-400/10 border border-amber-400/30 rounded-xl px-3 py-2 leading-relaxed">
+          Demo roster. These campers, allergies and phone numbers are made-up examples &mdash;
+          do not use this screen for a real cabin.
         </p>
       </div>
 
@@ -59,10 +63,16 @@ export default function CounselorRosterPage() {
                 <h3 className="font-display font-black text-lg text-stone-900">{c.name}</h3>
                 <span className="text-xs text-stone-500 font-semibold">{c.age} • Buddy: {c.buddy}</span>
               </div>
-              <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-950 font-bold text-xs flex items-center gap-1">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
-                <span>Present</span>
-              </span>
+              {c.checkedIn ? (
+                <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-950 font-bold text-xs flex items-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
+                  <span>Present</span>
+                </span>
+              ) : (
+                <span className="px-3 py-1 rounded-full bg-stone-100 text-stone-600 font-bold text-xs">
+                  Not checked in
+                </span>
+              )}
             </div>
 
             {c.allergy !== "None" && (

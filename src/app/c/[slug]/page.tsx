@@ -57,6 +57,15 @@ export default function DynamicTenantPage({ params }: { params: Promise<{ slug: 
 
   return (
     <main className="space-y-12 sm:space-y-20 pb-20">
+
+      {/* DEMO RIBBON - these tenants are samples, not customers */}
+      <div className="bg-amber-100 border-b-2 border-amber-300 px-4 py-3 text-center">
+        <p className="text-xs font-bold text-amber-950 max-w-3xl mx-auto leading-relaxed">
+          Example camp portal. {tenant.name} is one of our sample camps, not a CamperRoster customer &mdash;
+          this page shows what your own camp&apos;s branded registration page would look like. Sessions,
+          prices and openings below are made up, and nothing here takes a payment.
+        </p>
+      </div>
       
       {/* TENANT BRANDED HERO */}
       <section className="px-3 sm:px-6 lg:px-8 pt-4 sm:pt-8">
@@ -72,11 +81,11 @@ export default function DynamicTenantPage({ params }: { params: Promise<{ slug: 
           {/* TOP PILLS */}
           <div className="relative z-10 flex flex-wrap items-center gap-2">
             <span className="bg-amber-400 text-stone-950 font-black text-xs px-3.5 py-1.5 rounded-full shadow-md">
-              SUMMER 2027 REGISTRATION
+              SAMPLE CAMP PORTAL
             </span>
             <span className="bg-emerald-400 text-stone-950 font-black text-xs px-3.5 py-1.5 rounded-full shadow-md flex items-center gap-1">
               <CheckCircle2 className="w-3.5 h-3.5" />
-              <span>SPOTS AVAILABLE</span>
+              <span>EXAMPLE SESSIONS</span>
             </span>
             <span className="text-xs font-mono font-bold text-stone-300 bg-black/60 px-3 py-1.5 rounded-full backdrop-blur-xs">
               Powered by CamperRoster OS
@@ -86,7 +95,7 @@ export default function DynamicTenantPage({ params }: { params: Promise<{ slug: 
           {/* TITLE & CALL TO ACTION */}
           <div className="relative z-10 max-w-2xl space-y-4 pt-12">
             <span className="text-amber-300 font-mono text-xs font-bold tracking-widest uppercase block">
-              {tenant.location} • Director: {tenant.director}
+              {tenant.location} • Example camp
             </span>
             <h1 className="font-display font-black text-3xl sm:text-6xl text-white tracking-tight leading-tight drop-shadow-md">
               {tenant.name}
@@ -100,7 +109,7 @@ export default function DynamicTenantPage({ params }: { params: Promise<{ slug: 
                 href={`/register?camp=${slug}`}
                 className="px-8 py-4 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-stone-950 font-black text-sm flex items-center justify-center gap-2 shadow-xl cursor-pointer active:scale-98 transition-transform"
               >
-                <span>Register a Camper ($100 Deposit)</span>
+                <span>Try the registration flow</span>
                 <ArrowRight className="w-4 h-4 stroke-[3]" />
               </Link>
               <Link
@@ -118,7 +127,7 @@ export default function DynamicTenantPage({ params }: { params: Promise<{ slug: 
       <section className="px-3 sm:px-6 lg:px-8 max-w-6xl mx-auto space-y-6">
         <div className="text-center space-y-2">
           <span className="font-mono text-xs font-bold uppercase text-forest-800 bg-forest-100 px-3 py-1 rounded-full">
-            AVAILABLE SESSIONS
+EXAMPLE SESSIONS
           </span>
           <h2 className="font-display font-black text-2xl sm:text-4xl text-stone-950">
             Choose Your Week at {tenant.name}
@@ -131,7 +140,7 @@ export default function DynamicTenantPage({ params }: { params: Promise<{ slug: 
               <div className="space-y-3">
                 <div className="flex justify-between items-center text-xs font-bold">
                   <span className="bg-amber-100 text-amber-950 px-2.5 py-1 rounded-md">{s.grades}</span>
-                  <span className="text-emerald-800 font-mono">{s.spots} Spots Left</span>
+                  <span className="text-stone-500 font-mono">Sample: {s.spots} spots</span>
                 </div>
                 <h3 className="font-display font-black text-xl text-stone-950">{s.name}</h3>
                 <div className="flex items-center gap-1.5 text-xs text-stone-600 font-bold">
@@ -146,7 +155,7 @@ export default function DynamicTenantPage({ params }: { params: Promise<{ slug: 
                   href={`/register?camp=${slug}&session=${encodeURIComponent(s.name)}`}
                   className="w-full py-3.5 rounded-xl bg-forest-900 hover:bg-forest-950 text-white font-black text-xs text-center block"
                 >
-                  Reserve Spot ($100 Deposit) →
+                  Walk through this booking →
                 </Link>
               </div>
             </div>

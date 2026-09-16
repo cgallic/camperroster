@@ -23,8 +23,8 @@ export default function KaiCallsSimulatorModal({
               <Mic className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-display font-bold text-base">KaiCalls 24/7 Voice Assistant</h3>
-              <div className="text-xs text-emerald-400 font-mono">Live Call Connected • Session 1 Roster</div>
+              <h3 className="font-display font-bold text-base">KaiCalls Voice Assistant — Demo</h3>
+              <div className="text-xs text-amber-300 font-mono">Scripted example • no call is taking place</div>
             </div>
           </div>
           <button onClick={onClose} className="text-stone-400 hover:text-white transition-colors cursor-pointer">
@@ -48,7 +48,7 @@ export default function KaiCallsSimulatorModal({
 
         {/* Live Transcript Terminal */}
         <div className="bg-black/50 rounded-xl p-4 font-mono text-xs text-stone-300 max-h-48 overflow-y-auto space-y-2 border border-white/5">
-          <div className="text-stone-500">[09:14:02] Connected to Camp Hope Line (+1 908-555-0147).</div>
+          <div className="text-stone-500">[example] A parent calls the camp&apos;s KaiCalls line.</div>
           <div className="text-emerald-400">
             <b>Kai:</b> "Hello! Thanks for calling Camp Hope. How can I help you with our Summer 2027 registration?"
           </div>
@@ -56,7 +56,7 @@ export default function KaiCallsSimulatorModal({
             <b>Parent:</b> "Hi, do you still have spots open for 4th grade boys in Session 1?"
           </div>
           <div className="text-stone-400 text-[11px] bg-white/5 p-1.5 rounded">
-            → [MCP Tool] check_session_capacity(grade: 4, gender: &apos;male&apos;) ⇒ 14 spots left
+            → [example tool call] check_session_capacity(grade: 4, gender: &apos;male&apos;) ⇒ 14 spots left
           </div>
           <div className="text-emerald-400">
             <b>Kai:</b> "Yes! We have 14 spots left for Grade 4 boys. Would you like me to text you a 1-tap registration link?"
@@ -64,10 +64,15 @@ export default function KaiCallsSimulatorModal({
           {sentSms && (
             <div className="text-emerald-300 bg-emerald-950/60 p-2 rounded border border-emerald-500/30 flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-              <span>[SMS Dispatched] → &quot;Hi Peter, tap here to complete Jamie&apos;s registration: https://camperroster.com/register&quot;</span>
+              <span>[example SMS — not sent] &quot;Hi, tap here to complete your camper&apos;s registration: https://camperroster.com/register&quot;</span>
             </div>
           )}
         </div>
+
+        <p className="text-[11px] text-stone-400 leading-relaxed -mt-1">
+          This is a scripted walkthrough of how the voice assistant handles an inbound
+          registration call. Nothing here places a call, sends a text, or reads live availability.
+        </p>
 
         <div className="flex gap-3 pt-2">
           <button
@@ -75,13 +80,13 @@ export default function KaiCallsSimulatorModal({
             className="flex-1 inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-3 px-4 rounded-xl transition-all shadow-sm cursor-pointer"
           >
             <Send className="w-4 h-4" />
-            Dispatch Magic Link SMS
+            Show the SMS step
           </button>
           <button
             onClick={onClose}
             className="px-4 py-3 bg-white/10 hover:bg-white/15 text-white font-bold text-xs rounded-xl transition-colors cursor-pointer"
           >
-            End Call
+            Close
           </button>
         </div>
       </div>
