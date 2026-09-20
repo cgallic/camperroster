@@ -1,12 +1,7 @@
 // CamperRoster PWA Service Worker v1.2
-const CACHE_NAME = 'camperroster-cache-v1';
+const CACHE_NAME = 'camperroster-cache-v2';
 const STATIC_ASSETS = [
   '/',
-  '/portal',
-  '/counselor',
-  '/nurse/emar',
-  '/admin/checkin',
-  '/canteen/pos',
   '/manifest.json',
   '/icons/icon-192x192.png',
   '/icons/icon-512x512.png',
@@ -34,6 +29,13 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  // Never persist authenticated responses, API data, or session-specific pages.
+  // Cache Storage does not automatically honor HTTP Cache-Control: no-store.
+  const url = new URL(event.request.url);
+  if (event.request.method !== 'GET' || url.origin !== self.location.origin ||
+      /^\/(api|admin|portal|counselor|nurse|canteen|billing|login)(\/|$)/.test(url.pathname)) {
+    return;
+  }
   // Network first with cache fallback for HTML navigation, cache first for static assets
   if (event.request.mode === 'navigate') {
     event.respondWith(
@@ -50,7 +52,8 @@ self.addEventListener('fetch', (event) => {
           return cachedResponse;
         }
         return fetch(event.request).then((response) => {
-          if (!response || response.status !== 200 || response.type !== 'basic') {
+          if (!response || response.status !== 200 || response.type !== 'basic' ||
+              /no-store|private/i.test(response.headers.get('Cache-Control') || '')) {
             return response;
           }
           const responseToCache = response.clone();

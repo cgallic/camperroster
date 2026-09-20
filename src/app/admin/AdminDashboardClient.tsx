@@ -3,11 +3,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useState } from "react";
+import Link from "next/link";
 import { Check, RefreshCw, ShieldAlert } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import {
   Badge,
   Button,
+  buttonClass,
   DataTable,
   Drawer,
   PageHeader,
@@ -153,6 +155,7 @@ export default function AdminDashboardClient({
         description="Where the season stands this morning, and the records nobody else can clear."
         actions={
           <>
+            <Link href="/admin/history" className={buttonClass("secondary")}>Camp records</Link>
             <Button variant="secondary" onClick={fetchLiveData}>
               <RefreshCw className={"h-3.5 w-3.5 " + (loading ? "animate-spin" : "")} />
               Sync DB
