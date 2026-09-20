@@ -198,6 +198,7 @@ export default function AdminDashboardPage() {
             <h1 className="font-display font-black text-3xl text-stone-900 mt-2">Camp Director Command Center</h1>
           </div>
           <div className="flex gap-3">
+            <Link href="/admin/history" className="px-4 py-2 rounded-xl bg-forest-900 text-white font-bold text-xs flex items-center">Camp records</Link>
             <button
               onClick={fetchLiveData}
               className="px-3.5 py-2 bg-white border border-stone-200 hover:bg-stone-50 text-stone-700 font-bold text-xs rounded-xl shadow-sm transition-all flex items-center gap-1.5 cursor-pointer"
