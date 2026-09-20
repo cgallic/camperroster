@@ -55,7 +55,7 @@ export default function Navbar() {
               <span>KaiCalls Voice AI Demo</span>
             </button>
 
-            <AuthNav />
+            <div className="hidden md:block"><AuthNav /></div>
 
             <Link
               href="/start"
