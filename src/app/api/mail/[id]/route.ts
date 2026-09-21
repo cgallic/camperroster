@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { badRequest, fromZod, requireMailAdmin } from "../_guard";
 import type { Database } from "@/lib/supabase/database.types";
+import { smtpConfig } from "@/lib/email";
 
 type MessagePatch = Database["public"]["Tables"]["outgoing_messages"]["Update"];
 
@@ -50,6 +51,12 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
   const action = input.action ?? "save";
 
   if (action === "approve" || action === "approve_and_schedule") {
+    if (!smtpConfig()) {
+      return NextResponse.json(
+        { error: "Email delivery is not configured. The draft was not approved or scheduled." },
+        { status: 503 }
+      );
+    }
     const when = input.scheduledFor ?? existing.scheduled_for;
     if (!when) return badRequest("Approving needs a send time — schedule it first");
     patch.scheduled_for = when;

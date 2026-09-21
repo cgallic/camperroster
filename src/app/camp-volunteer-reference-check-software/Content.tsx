@@ -30,20 +30,20 @@ export default function DeepSeoLandingPage() {
 
   const faqs = [
   {
-    "q": "What questions does KaiCalls Voice AI ask references?",
-    "a": "KaiCalls asks 4 to 5 standardized questions: (1) How long have you known the candidate? (2) Have you observed them working with youth or children? (3) How do they handle stressful situations? (4) Would you recommend them without reservation to care for children at camp? Custom questions can also be added."
+    "q": "How are volunteer references handled today?",
+    "a": "CamperRoster collects reference contact details and keeps the director's review attached to the volunteer application. Camp staff place reference calls today; automated KaiCalls interviews are still in development."
   },
   {
     "q": "What happens if a reference doesn't answer the phone call?",
-    "a": "KaiCalls leaves a friendly voicemail and sends an automated SMS message allowing the reference to click a link to schedule a callback at their convenience."
+    "a": "Camp staff decide how to follow up when a reference does not answer. Automated voicemail, retry, and SMS callback scheduling are not enabled today."
   },
   {
     "q": "Can camp directors listen to the actual call recording?",
     "a": "Yes! Every completed reference check includes the full audio recording with interactive waveform playback and a timestamped text transcript."
   },
   {
-    "q": "Is KaiCalls Voice AI included in CamperRoster's platform pricing?",
-    "a": "Yes! Automated KaiCalls reference checks are included standard for all volunteer and counselor staff applications on CamperRoster."
+    "q": "Is volunteer reference tracking included in CamperRoster's platform pricing?",
+    "a": "Volunteer reference tracking is included. Automated KaiCalls reference interviews are in development and are not active today."
   }
 ];
 
@@ -54,7 +54,7 @@ export default function DeepSeoLandingPage() {
       <section className="text-center space-y-6 max-w-4xl mx-auto">
         <span className="eyebrow-pill bg-forest-100 text-forest-950 border border-forest-300">
           <Sparkles className="w-3.5 h-3.5 text-amber-700" />
-          <span>VOICE AI AUTOMATION • KAICALLS INTEGRATION</span>
+          <span>VOLUNTEER APPLICATIONS • REFERENCE TRACKING</span>
         </span>
         
         <h1 className="font-display font-black text-3xl sm:text-5xl lg:text-6xl text-stone-950 tracking-tight leading-[1.1]">
@@ -157,7 +157,7 @@ export default function DeepSeoLandingPage() {
         <div className="text-center max-w-3xl mx-auto space-y-2">
           <span className="font-mono text-xs font-bold uppercase text-emerald-800 tracking-wider">SIDE-BY-SIDE EVALUATION</span>
           <h2 className="font-display font-black text-2xl sm:text-4xl text-stone-950">
-            Manual Staff Calling vs KaiCalls Voice AI
+            Manual reference calling, organized in one place
           </h2>
           <p className="text-xs sm:text-sm text-stone-600 font-medium">
             See how automated telephony transforms seasonal staff onboarding.
@@ -195,9 +195,9 @@ export default function DeepSeoLandingPage() {
         <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Structured AI Character, Reliability & Safety Rating</td>
       </tr>
       <tr>
-        <td className="p-4 sm:p-5 font-bold">Smart Retries & SMS Follow-ups</td>
+        <td className="p-4 sm:p-5 font-bold">Retry & Follow-up Status</td>
         <td className="p-4 sm:p-5 text-stone-600">Manual Sticky Notes & Reminders</td>
-        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Automated Retry Cadence + SMS Callback Booking Link</td>
+        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Director-managed follow-up today</td>
       </tr>
             </tbody>
           </table>
@@ -209,7 +209,7 @@ export default function DeepSeoLandingPage() {
         <div className="text-center max-w-3xl mx-auto space-y-2">
           <span className="font-mono text-xs font-bold uppercase text-forest-800 tracking-wider">ALL-IN-ONE ARCHITECTURE</span>
           <h2 className="font-display font-black text-2xl sm:text-4xl text-stone-950">
-            How KaiCalls Voice AI Reference Screening Works
+            How Volunteer Reference Tracking Works
           </h2>
           <p className="text-xs sm:text-sm text-stone-600 font-medium">
             A complete, compliant, and friendly telephone interview experience.
@@ -220,7 +220,7 @@ export default function DeepSeoLandingPage() {
           <div className="p-6 rounded-2xl bg-white border-2 border-stone-200 space-y-2">
         <b className="font-display font-black text-lg text-stone-950 block">🎙️ Real Conversational AI Voice</b>
         <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-          KaiCalls speaks with a friendly, natural voice. It asks structured questions about the candidate's reliability, character with children, and work ethic.
+          The application captures a reference contact so a camp leader can ask consistent questions about reliability, character with children, and work ethic.
         </p>
       </div>
       <div className="p-6 rounded-2xl bg-white border-2 border-stone-200 space-y-2">
@@ -230,9 +230,9 @@ export default function DeepSeoLandingPage() {
         </p>
       </div>
       <div className="p-6 rounded-2xl bg-white border-2 border-stone-200 space-y-2">
-        <b className="font-display font-black text-lg text-stone-950 block">📱 SMS Callback Scheduling</b>
+        <b className="font-display font-black text-lg text-stone-950 block">📱 Follow-up Tracking</b>
         <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-          If a pastor is in a meeting, KaiCalls automatically sends an SMS with a link to pick a convenient 2-minute callback window.
+          If a reference does not answer, the camp team records the follow-up and chooses when to try again. Automated SMS scheduling is not enabled.
         </p>
       </div>
       <div className="p-6 rounded-2xl bg-white border-2 border-stone-200 space-y-2">

@@ -98,7 +98,7 @@ export default function PricingAndRoiPage() {
             Pay only when campers register. <span className="text-forest-800">$0/month in winter.</span>
           </h1>
           <p className="text-sm sm:text-xl text-stone-600 font-medium max-w-2xl mx-auto leading-relaxed">
-            Eliminate the $6,000+ annual software tax. Get automated KaiCalls voice references, health lodge eMAR, and parent bunk notes in one transparent platform.
+            Eliminate the $6,000+ annual software tax. Get registration, health lodge eMAR, volunteer reference tracking, and parent bunk notes in one transparent platform.
           </p>
         </div>
       </section>
@@ -308,7 +308,7 @@ Estimate, not a quote
 
                 <ul className="space-y-3 pt-4 border-t border-stone-100 text-xs font-bold text-stone-700">
                   <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-600" /> 5-Step Camper Registration Wizard</li>
-                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-600" /> 1-Tap SMS Magic Links</li>
+                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-600" /> Shareable Registration Links</li>
                   <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-600" /> Flexible Installment Schedules</li>
                   <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-600" /> Director Command Center</li>
                   <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-600" /> Standard 2.5% + $1.50 Card Processing</li>
@@ -352,7 +352,7 @@ BUILT TO REPLACE ULTRACAMP
 
                 <ul className="space-y-3 pt-4 border-t border-white/10 text-xs font-bold text-stone-200">
                   <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Everything in Starter</li>
-                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-amber-400" /> <b>KaiCalls AI Voice Reference Calling</b></li>
+                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-amber-400" /> <b>Volunteer Reference Tracking</b></li>
                   <li className="flex items-center gap-2"><Check className="w-4 h-4 text-sky-400" /> <b>Health Lodge eMAR Dispenser</b></li>
                   <li className="flex items-center gap-2"><Check className="w-4 h-4 text-purple-400" /> <b>Cashless Canteen POS Register</b></li>
                   <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> <b>Parent Bunk Notes & Daily Photos</b></li>

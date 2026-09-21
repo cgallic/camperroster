@@ -94,6 +94,19 @@ for (const name of ["PUBLIC_INTAKE_TOKEN_SECRET", "KAICALLS_WEBHOOK_SECRET"]) {
   }
 }
 
+if (mode === "production") {
+  const independentSecrets = ["PUBLIC_INTAKE_TOKEN_SECRET", "KAICALLS_WEBHOOK_SECRET", "CRON_SECRET"];
+  for (let i = 0; i < independentSecrets.length; i += 1) {
+    for (let j = i + 1; j < independentSecrets.length; j += 1) {
+      const left = independentSecrets[i];
+      const right = independentSecrets[j];
+      if (values[left] && values[right] && values[left] === values[right]) {
+        errors.push(`${left} and ${right}: must use independent secrets`);
+      }
+    }
+  }
+}
+
 if (errors.length) {
   console.error(`Environment validation failed (${mode}):`);
   for (const error of errors) console.error(`- ${error}`);

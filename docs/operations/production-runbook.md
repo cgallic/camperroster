@@ -82,6 +82,14 @@ with at least 32 random bytes. KaiCalls must send `x-kaicalls-timestamp` as Unix
 seconds and `x-kaicalls-signature` as
 `sha256=` plus `HMAC-SHA256(secret, timestamp + "." + rawBody)`.
 
+`vercel.json` installs `/api/mail/dispatch` every five minutes. Vercel supplies
+`Authorization: Bearer <CRON_SECRET>` for this request. After each production
+promotion, confirm the cron appears in the Vercel project and inspect one
+successful invocation before relying on scheduled mail. The app does not yet
+have an SMS provider or outbound KaiCalls client: SMS links must be shared
+manually and volunteer references must be called by a person until those
+providers are separately implemented and verified.
+
 ## 4. Apply migrations additively
 
 First inspect the local/remote migration ledger. Then dry-run before the push.
@@ -155,6 +163,8 @@ Run these against production after the deployment:
 5. Create one Stripe test transaction before enabling live customer traffic;
    verify both the Stripe event and the matching database state.
 6. Send one controlled mail item and verify the provider receipt plus queue state.
+7. Confirm a scheduled invocation of `/api/mail/dispatch` returns HTTP 200 and
+   that a second invocation does not send the same message again.
 
 ## Rollback
 

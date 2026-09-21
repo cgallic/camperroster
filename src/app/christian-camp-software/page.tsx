@@ -3,7 +3,7 @@ import Content from "./Content";
 
 const title = "Christian Camp Software for Ministry Camps";
 const description =
-  "Software for Christian camps, retreats, and conference centers: KaiCalls pastoral reference calls, Health Lodge eMAR, Bunk Notes mail, $0 off-season fees.";
+  "Software for Christian camps, retreats, and conference centers: pastoral reference tracking, Health Lodge eMAR, Bunk Notes mail, and $0 off-season fees.";
 const url = "https://camperroster.com/christian-camp-software";
 
 export const metadata: Metadata = {

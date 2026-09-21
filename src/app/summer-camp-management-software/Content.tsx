@@ -88,7 +88,7 @@ export default function DeepSeoLandingPage() {
           </span>
           <span className="flex items-center gap-1.5 text-stone-800">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>KaiCalls Automated Voice AI References</span>
+            <span>Volunteer Reference Tracking</span>
           </span>
           <span className="flex items-center gap-1.5 text-stone-800">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
@@ -187,7 +187,7 @@ export default function DeepSeoLandingPage() {
       <tr>
         <td className="p-4 sm:p-5 font-bold">Staff Reference Verification</td>
         <td className="p-4 sm:p-5 text-stone-600">Manual Staff Calling (40+ hours)</td>
-        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Automated 2-Min KaiCalls Voice AI (Audio + Transcript)</td>
+        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Reference Details + Manual Review</td>
       </tr>
       <tr>
         <td className="p-4 sm:p-5 font-bold">Health Lodge eMAR Dispenser</td>

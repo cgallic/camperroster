@@ -197,7 +197,7 @@ export default function DeepSeoLandingPage() {
       <tr>
         <td className="p-4 sm:p-5 font-bold">Staff Volunteer Reference Checks</td>
         <td className="p-4 sm:p-5 text-stone-600">40+ Hours Manual Calling</td>
-        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Automated 2-Min KaiCalls Voice AI Interviews</td>
+        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Reference Details + Manual Review</td>
       </tr>
             </tbody>
           </table>

@@ -368,6 +368,26 @@ export async function sendMessage(db: any, message: OutgoingMessageRow): Promise
     return { ok: false, id: message.id, reason: `Refusing to send a message in status "${message.status}"` };
   }
 
+  // Claim the row before contacting SMTP. Vercel may retry a cron invocation,
+  // and two overlapping dispatches must never send the same approved message
+  // twice. `failed` is the only non-sendable in-progress state supported by
+  // the existing production constraint. A process crash therefore leaves the
+  // row visibly failed for a human to review instead of silently duplicating
+  // mail on the next run.
+  const { data: claimed, error: claimError } = await db
+    .from("outgoing_messages")
+    .update({ status: "failed", failure_reason: "Dispatch in progress" })
+    .eq("id", message.id)
+    .eq("status", "approved")
+    .select("id")
+    .maybeSingle();
+  if (claimError) {
+    return { ok: false, id: message.id, reason: `Could not claim message for dispatch: ${claimError.message}` };
+  }
+  if (!claimed) {
+    return { ok: false, id: message.id, reason: "Message is no longer approved or is already being dispatched" };
+  }
+
   const recipients = (message.recipients ?? []).map((r) => r.email).filter(Boolean);
   if (recipients.length === 0) {
     await markFailed(db, message.id, "No recipients on the message");

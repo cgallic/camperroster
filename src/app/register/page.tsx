@@ -414,7 +414,7 @@ function RegisterPageInner() {
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs sm:text-sm font-bold text-stone-800">Mobile Phone Number (for 1-Tap SMS) *</label>
+                <label className="text-xs sm:text-sm font-bold text-stone-800">Mobile Phone Number *</label>
                 <input
                   type="tel"
                   name="parentPhone"

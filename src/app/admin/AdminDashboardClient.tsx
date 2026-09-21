@@ -162,10 +162,11 @@ export default function AdminDashboardClient({
             </Button>
             <Button
               variant="destructive"
-              onClick={() => alert("🚨 Emergency voice blast queued to all 86 registered families via KaiCalls.")}
+              disabled
+              title="Emergency messaging is not configured for this camp."
             >
               <ShieldAlert className="h-4 w-4" />
-              Emergency blast
+              Emergency messaging unavailable
             </Button>
           </>
         }
@@ -236,12 +237,15 @@ export default function AdminDashboardClient({
         {selectedRecord && selectedRecord.type === "medical" ? (
           <div className="space-y-4 text-xs">
             <div className="space-y-1 rounded-xl border border-alert-red-border bg-alert-red-bg p-4">
-              <b className="text-sm text-alert-red">{selectedRecord.data.allergy_details || "Severe allergy"}</b>
-              <p className="text-stone-700">Carries EpiPen in backpack + backup stored at health lodge.</p>
+              <b className="text-sm text-alert-red">{selectedRecord.data.allergy_details || "Allergy details not provided"}</b>
+              <p className="text-stone-700">
+                {selectedRecord.data.has_epipen
+                  ? `EpiPen recorded${selectedRecord.data.epipen_location ? ` — ${selectedRecord.data.epipen_location}` : "."}`
+                  : "No EpiPen is recorded on this profile."}
+              </p>
             </div>
             <dl className="space-y-2">
               <DetailRow label="Camper" value={selectedRecord.title} />
-              <DetailRow label="Cabin" value="Pine 2 (Male 4th Grade)" />
               <DetailRow label="Record ID" value={selectedRecord.data.id} mono />
             </dl>
           </div>
@@ -249,21 +253,22 @@ export default function AdminDashboardClient({
           <div className="space-y-4 text-xs">
             <div className="space-y-2 rounded-xl border border-sun-100 bg-sun-50 p-4">
               <div className="flex items-center justify-between gap-2">
-                <b className="text-sun-600">Pastor Dave Keller — audio transcript</b>
+                <b className="text-sun-600">{selectedRecord.data.reference_name || "Unnamed reference"} — call transcript</b>
                 <span className="rounded bg-white px-2 py-0.5 font-mono text-[10px] font-bold text-forest-800">
-                  Score: {selectedRecord.data.sentiment_score || "4.95"} / 5.0
+                  {selectedRecord.data.sentiment_score == null
+                    ? "Not scored"
+                    : `Score: ${selectedRecord.data.sentiment_score} / 5.0`}
                 </span>
               </div>
               <p className="italic leading-relaxed text-stone-700">
                 &ldquo;
-                {selectedRecord.data.call_transcript ||
-                  "Alex served in youth ministry for 3 years. Exceptional maturity, great with kids."}
+                {selectedRecord.data.call_transcript || "No transcript is available for this reference."}
                 &rdquo;
               </p>
             </div>
             <dl className="space-y-2">
               <DetailRow label="Applicant" value={selectedRecord.title} />
-              <DetailRow label="Phone" value={selectedRecord.data.phone || "(908) 555-0199"} />
+              <DetailRow label="Phone" value={selectedRecord.data.phone || "Not provided"} />
               <DetailRow label="Record ID" value={selectedRecord.data.id} mono />
             </dl>
           </div>
