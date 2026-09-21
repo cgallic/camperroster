@@ -119,49 +119,46 @@ export async function POST(req: Request) {
   }
 
   const campId = lookup.camp.id;
+  const idempotencyKey = str(req.headers.get("idempotency-key"));
+  if (idempotencyKey.length < 8 || idempotencyKey.length > 200) {
+    return NextResponse.json(
+      { success: false, error: "A valid Idempotency-Key header is required. Nothing was saved." },
+      { status: 400 }
+    );
+  }
 
   try {
-    const { data: applicant, error: appErr } = await supabaseAdmin
-      .from("staff_applications")
-      .insert({
-        camp_id: campId,
-        first_name: firstName,
-        last_name: lastName,
-        email,
-        phone,
-        birth_date: birthDate,
-        role_applied: role,
-        status: "references_pending",
-      })
-      .select("id")
-      .single();
-
-    if (appErr) throw appErr;
-
-    const { data: reference, error: refErr } = await supabaseAdmin
-      .from("staff_references")
-      .insert({
-        camp_id: campId,
-        application_id: applicant.id,
-        reference_name: refName,
-        relationship: refRelationship,
-        phone: refPhone,
-        email: refEmail,
-        status: "call_scheduled",
-      })
-      .select("id")
-      .single();
-
-    if (refErr) throw refErr;
+    const { data: result, error: intakeError } = await (supabaseAdmin as any).rpc(
+      "create_volunteer_intake",
+      {
+        p_camp_id: campId,
+        p_idempotency_key: idempotencyKey,
+        p_payload: {
+          first_name: firstName,
+          last_name: lastName,
+          email,
+          phone,
+          birth_date: birthDate,
+          role,
+          reference_name: refName,
+          reference_phone: refPhone,
+          reference_email: refEmail,
+          reference_relationship: refRelationship,
+        },
+      }
+    );
+    if (intakeError) throw intakeError;
+    const applicationId = String(result.application_id);
+    const referenceId = String(result.reference_id);
 
     await notifyInbound({
       kind: "volunteer",
       summary: `New volunteer application: ${name} (${email}) for ${role}`,
       details: {
-        application_id: applicant.id,
+        application_id: applicationId,
         camp_id: campId,
         camp_slug: lookup.camp.slug,
-        reference_id: reference.id,
+        reference_id: referenceId,
         applicant_email: email,
         applicant_phone: phone,
         role,
@@ -173,13 +170,22 @@ export async function POST(req: Request) {
     return NextResponse.json({
       success: true,
       message: "Volunteer application saved and queued for a reference call.",
-      applicationId: applicant.id,
-      referenceId: reference.id,
+      applicationId,
+      referenceId,
     });
   } catch (err: any) {
     if (isSetupIncompleteError(err) || err?.code === "23502") {
       console.error("Volunteer Error (migrations not applied):", err);
       return setupIncompleteResponse(err);
+    }
+    if (err?.code === "22023") {
+      return NextResponse.json({ success: false, error: err.message }, { status: 400 });
+    }
+    if (err?.code === "40001") {
+      return NextResponse.json(
+        { success: false, error: "That application is already being processed. Retry with the same Idempotency-Key." },
+        { status: 409 }
+      );
     }
     console.error("Volunteer Error:", err);
     return NextResponse.json(

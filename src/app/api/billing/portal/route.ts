@@ -38,6 +38,12 @@ export async function POST() {
       { status: 401 }
     );
   }
+  if (camp.role !== "director") {
+    return NextResponse.json(
+      { success: false, error: "forbidden", message: "Only a camp director can manage billing." },
+      { status: 403 }
+    );
+  }
 
   let stripe: ReturnType<typeof getStripe>;
   let siteUrl: string;

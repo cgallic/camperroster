@@ -5,6 +5,7 @@ import { isSetupIncompleteError, setupIncompleteResponse } from "@/lib/auth";
 import { notifyInbound } from "@/lib/notify";
 import type { RegisterPayload } from "@/lib/formContracts";
 import { isValidEmail, normalizeSlug } from "@/lib/formContracts";
+import { issueIntakeToken } from "@/lib/signed-payload";
 
 /**
  * Public, unauthenticated write: a parent registering a camper.
@@ -17,37 +18,11 @@ import { isValidEmail, normalizeSlug } from "@/lib/formContracts";
  * no fallback organisation id.
  */
 
-/**
- * Tuition per session, in cents. Mirrors the prices printed on the session
- * cards in src/app/register/page.tsx. Keep the two in sync.
- */
-const SESSION_TUITION_CENTS: Record<string, number> = {
-  "session-1": 65000,
-  "session-2": 65000,
-  "session-3": 67500,
-};
-
-/** Form value -> the value stored in registrations.payment_plan. */
-const PAYMENT_PLAN_MAP: Record<string, string> = {
-  installment: "installment_3mo",
-  deposit_only: "deposit_only",
-  pay_in_full: "pay_in_full",
-};
-
 function str(v: unknown): string {
   return typeof v === "string" ? v.trim() : "";
 }
 
-/**
- * Resolve the camp_sessions UUID for the session the parent picked.
- * The form sends a slug ("session-2"); the DB column is a UUID FK, so the
- * mapping has to come from configuration. Set CAMP_SESSION_ID_SESSION_2 etc.
- * to route each slug to its own session row; CAMP_SESSION_ID is the fallback.
- */
-function resolveSessionId(slug: string): string | undefined {
-  const key = "CAMP_SESSION_ID_" + slug.toUpperCase().replace(/[^A-Z0-9]+/g, "_");
-  return process.env[key] || process.env.CAMP_SESSION_ID;
-}
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export async function POST(req: Request) {
   let body: Partial<RegisterPayload>;
@@ -69,7 +44,7 @@ export async function POST(req: Request) {
   const parentZip = str(body.parentZip);
   const relationship = str(body.relationship) || "Parent / Guardian";
 
-  const sessionSlug = str(body.sessionSlug) || "session-1";
+  const sessionId = str(body.sessionId) || str(body.sessionSlug);
   const camperFirstName = str(body.camperFirstName);
   const camperLastName = str(body.camperLastName);
   const camperDob = str(body.camperDob);
@@ -142,6 +117,20 @@ export async function POST(req: Request) {
     );
   }
 
+  const idempotencyKey = str(req.headers.get("idempotency-key"));
+  if (idempotencyKey.length < 8 || idempotencyKey.length > 200) {
+    return NextResponse.json(
+      { success: false, error: "A valid Idempotency-Key header is required. Nothing was saved." },
+      { status: 400 }
+    );
+  }
+  if (!UUID_RE.test(sessionId)) {
+    return NextResponse.json(
+      { success: false, error: "Choose a session from this camp before submitting. Nothing was saved." },
+      { status: 400 }
+    );
+  }
+
   const gradeEntering = parseInt(camperGrade, 10);
   if (Number.isNaN(gradeEntering)) {
     return NextResponse.json(
@@ -195,139 +184,74 @@ export async function POST(req: Request) {
   }
 
   const campId = lookup.camp.id;
-  // May legitimately be undefined: a camp with no configured session stores a
-  // null session_id rather than borrowing another camp's session UUID.
-  const sessionId = resolveSessionId(sessionSlug);
 
   try {
-    // ---- guardians --------------------------------------------------------
-    const { data: guardian, error: guardianErr } = await supabaseAdmin
-      .from("guardians")
-      .insert({
-        camp_id: campId,
-        first_name: parentFirstName,
-        last_name: parentLastName,
-        email: parentEmail,
-        phone: parentPhone,
-        relationship,
-        address_line1: parentStreet,
-        city: parentCity,
-        state: parentState,
-        zip: parentZip,
-      })
-      .select("id")
-      .single();
-
-    if (guardianErr) throw guardianErr;
-
-    // ---- campers ----------------------------------------------------------
-    const { data: camper, error: camperErr } = await supabaseAdmin
-      .from("campers")
-      .insert({
-        camp_id: campId,
-        guardian_id: guardian.id,
-        legal_first_name: camperFirstName,
-        legal_last_name: camperLastName,
-        birth_date: camperDob,
-        gender: camperGender,
-        grade_entering: gradeEntering,
-      })
-      .select("id")
-      .single();
-
-    if (camperErr) throw camperErr;
-
-    // ---- health_profiles --------------------------------------------------
-    // NOTE: immunization_status starts unverified. The nurse flow in
-    // src/app/admin/page.tsx is what sets it to "approved" after a human
-    // reviews the record — this route must never pre-approve it.
-    const { error: healthErr } = await supabaseAdmin
-      .from("health_profiles")
-      .insert({
-        camp_id: campId,
-        camper_id: camper.id,
-        has_allergies: peanutAllergy,
-        allergy_details: peanutAllergy ? "Peanut / nut allergy reported by guardian at registration." : null,
-        has_epipen: epipen,
-        epipen_location: epipen ? "Reported at registration — confirm storage location at check-in." : null,
-        dietary_restrictions: dietaryRestrictions || null,
-        medical_conditions: medicalConditions || null,
-        physician_name: primaryPhysician || null,
-        physician_phone: physicianPhone || null,
-        immunization_status: "pending_review",
-        special_care_notes: inhaler ? "Camper carries an inhaler." : null,
-      });
-
-    if (healthErr) throw healthErr;
-
-    // ---- insurance_policies (optional) ------------------------------------
-    // TODO: schema/feature — card_front_url / card_back_url are intentionally
-    // not written. The wizard's file inputs only capture a local filename;
-    // there is no upload to Supabase Storage yet, and a filename is not a URL.
-    if (insuranceCarrier && policyNumber) {
-      const { error: insuranceErr } = await supabaseAdmin.from("insurance_policies").insert({
-        camp_id: campId,
-        camper_id: camper.id,
-        insurance_company: insuranceCarrier,
-        policyholder_name: `${parentFirstName} ${parentLastName}`,
-        relationship_to_camper: relationship,
-        member_id: policyNumber,
-        group_number: groupNumber || null,
-        status: "pending_review",
-      });
-
-      if (insuranceErr) throw insuranceErr;
-    }
-
-    // ---- registrations ----------------------------------------------------
-    const { data: registration, error: regErr } = await supabaseAdmin
-      .from("registrations")
-      .insert({
-        camp_id: campId,
-        ...(sessionId ? { session_id: sessionId } : {}),
-        camper_id: camper.id,
-        guardian_id: guardian.id,
-        status: "submitted",
-        step_completed: 5,
-        progress_percentage: 100,
-        consents_agreed: {
-          emergency_medical: emergencyAuth,
-          waterfront_swimming: waterfrontConsent,
+    const { data: result, error: intakeError } = await (supabaseAdmin as any).rpc(
+      "create_registration_intake",
+      {
+        p_camp_id: campId,
+        p_session_id: sessionId,
+        p_idempotency_key: idempotencyKey,
+        p_payload: {
+          parent_first_name: parentFirstName,
+          parent_last_name: parentLastName,
+          parent_email: parentEmail,
+          parent_phone: parentPhone,
+          parent_street: parentStreet,
+          parent_city: parentCity,
+          parent_state: parentState,
+          parent_zip: parentZip,
+          relationship,
+          camper_first_name: camperFirstName,
+          camper_last_name: camperLastName,
+          camper_dob: camperDob,
+          camper_gender: camperGender,
+          camper_grade: String(gradeEntering),
+          cabin_buddy: cabinBuddy,
+          peanut_allergy: peanutAllergy,
+          epipen,
+          inhaler,
+          dietary_restrictions: dietaryRestrictions,
+          medical_conditions: medicalConditions,
+          physician_name: primaryPhysician,
+          physician_phone: physicianPhone,
+          insurance_carrier: insuranceCarrier,
+          policy_number: policyNumber,
+          group_number: groupNumber,
+          payment_plan: paymentPlan,
+          signature,
         },
-        signed_by: signature,
-        signed_at: new Date().toISOString(),
-        buddy_requests: cabinBuddy ? [cabinBuddy] : [],
-        payment_plan: PAYMENT_PLAN_MAP[paymentPlan] || "installment_3mo",
-        total_tuition_cents: SESSION_TUITION_CENTS[sessionSlug] ?? 65000,
-        // No payment has been taken by this route. Stripe checkout owns this
-        // number — do not report money we have not collected.
-        amount_paid_cents: 0,
-      })
-      .select("id")
-      .single();
-
-    if (regErr) throw regErr;
+      }
+    );
+    if (intakeError) throw intakeError;
+    const registrationId = String(result.registration_id);
+    const camperId = String(result.camper_id);
+    const invoiceId = String(result.invoice_id);
+    const uploadToken = issueIntakeToken({ campId, registrationId, camperId, invoiceId });
 
     await notifyInbound({
       kind: "registration",
       summary: `New camper registration: ${camperFirstName} ${camperLastName} (guardian ${parentFirstName} ${parentLastName}, ${parentEmail})`,
       details: {
-        registration_id: registration.id,
+        registration_id: registrationId,
         camp_id: campId,
         camp_slug: lookup.camp.slug,
-        camper_id: camper.id,
-        session: sessionSlug,
+        camper_id: camperId,
+        session_id: sessionId,
         guardian_email: parentEmail,
         guardian_phone: parentPhone,
-        payment_plan: PAYMENT_PLAN_MAP[paymentPlan] || "installment_3mo",
+        payment_plan: String(result.payment_plan),
       },
     });
 
     return NextResponse.json({
       success: true,
       message: "Camper registration saved.",
-      registrationId: registration.id,
-      camperId: camper.id,
+      registrationId,
+      camperId,
+      invoiceId,
+      uploadToken,
+      parentAccountStatus: "not_created",
     });
   } catch (err: any) {
     // The tenancy migration has not been applied: camp_id does not exist yet.
@@ -341,6 +265,18 @@ export async function POST(req: Request) {
     if (err?.code === "23502") {
       console.error("Registration Error (NOT NULL on a retired column):", err);
       return setupIncompleteResponse(err);
+    }
+    if (err?.code === "22023" || err?.code === "23503") {
+      return NextResponse.json(
+        { success: false, error: err.message || "That camp session is unavailable. Nothing was saved." },
+        { status: 400 }
+      );
+    }
+    if (err?.code === "40001") {
+      return NextResponse.json(
+        { success: false, error: "That submission is already being processed. Retry with the same Idempotency-Key." },
+        { status: 409 }
+      );
     }
     console.error("Registration Error:", err);
     return NextResponse.json(

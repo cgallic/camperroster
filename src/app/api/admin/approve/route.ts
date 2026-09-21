@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
-import { isSetupIncompleteError, resolveCampOrRespond, setupIncompleteResponse } from "@/lib/auth";
+import { isSetupIncompleteError, resolveCampWithRolesOrRespond, setupIncompleteResponse } from "@/lib/auth";
 
 /**
  * Director sign-off on a medical clearance or a volunteer reference.
@@ -10,11 +10,7 @@ import { isSetupIncompleteError, resolveCampOrRespond, setupIncompleteResponse }
  * not someone else's child marked medically cleared.
  */
 export async function POST(req: Request) {
-  const resolved = await resolveCampOrRespond();
-  if (resolved.response) return resolved.response;
-  const { camp } = resolved;
-
-  let body: { type?: unknown; id?: unknown };
+  let body: { type?: unknown; id?: unknown; note?: unknown };
   try {
     body = await req.json();
   } catch {
@@ -34,14 +30,27 @@ export async function POST(req: Request) {
     );
   }
 
+  const resolved = await resolveCampWithRolesOrRespond(
+    type === "medical" ? ["nurse"] : ["registrar", "red_shirt"]
+  );
+  if (resolved.response) return resolved.response;
+  const { camp } = resolved;
+
   const supabase = await createServerSupabaseClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ success: false, error: "unauthenticated" }, { status: 401 });
 
   try {
     const query =
       type === "medical"
-        ? supabase
+        ? (supabase as any)
             .from("health_profiles")
-            .update({ immunization_status: "approved", special_care_notes: "RN approved" })
+            .update({
+              immunization_status: "approved",
+              immunization_reviewed_by: user.id,
+              immunization_reviewed_at: new Date().toISOString(),
+              immunization_review_note: typeof body.note === "string" ? body.note.trim().slice(0, 1000) || null : null,
+            })
             .eq("id", id)
             .eq("camp_id", camp.campId)
             .select("id")
