@@ -7,7 +7,7 @@
  * the other fails to compile.
  */
 
-export type PaymentPlan = "installment" | "deposit_only" | "pay_in_full";
+export type PaymentPlan = "pay_in_full" | "two_payments" | "monthly";
 export type SessionSlug = "session-1" | "session-2" | "session-3";
 
 /** POST /api/register */
@@ -70,7 +70,7 @@ export interface RegisterResponse {
   camperId?: string;
   invoiceId?: string;
   uploadToken?: string | null;
-  parentAccountStatus?: "not_created";
+  parentAccountStatus?: "invited" | "existing" | "not_created";
 }
 
 /** POST /api/volunteer */

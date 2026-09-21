@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { hasServiceRoleKey, supabaseAdmin } from "@/lib/supabase";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { isSetupIncompleteError, setupIncompleteResponse } from "@/lib/auth";
-import { lookupCampBySlug } from "@/lib/campLookup";
+import { getPublicCampConfiguration, lookupCampBySlug } from "@/lib/campLookup";
 import { notifyInbound } from "@/lib/notify";
 import type { CampSignupPayload } from "@/lib/formContracts";
 import { isValidEmail, MIN_PASSWORD_LENGTH, normalizeSlug, SLUG_PATTERN } from "@/lib/formContracts";
@@ -292,8 +292,19 @@ export async function GET(req: Request) {
     return NextResponse.json({ success: false, error: "not_found" }, { status: 404 });
   }
 
-  return NextResponse.json({
-    success: true,
-    camp: { name: lookup.camp.name, slug: lookup.camp.slug },
-  });
+  try {
+    const configuration = await getPublicCampConfiguration(lookup.camp.id);
+    return NextResponse.json({
+      success: true,
+      camp: {
+        name: lookup.camp.name,
+        slug: lookup.camp.slug,
+        sessions: configuration.sessions,
+        activeSeason: configuration.activeSeason,
+      },
+    });
+  } catch (error) {
+    if (isSetupIncompleteError(error)) return setupIncompleteResponse(error);
+    return NextResponse.json({ success: false, error: "Camp registration configuration could not be loaded." }, { status: 500 });
+  }
 }

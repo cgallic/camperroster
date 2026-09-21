@@ -1,7 +1,8 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   CheckCircle2,
   Calendar,
@@ -17,6 +18,7 @@ import {
 } from "lucide-react";
 import type { RegisterPayload, RegisterResponse } from "@/lib/formContracts";
 import { CampScopeBlocker, useCampScope } from "@/components/CampScope";
+import { chooseSessionId, registrationDraftKey } from "@/lib/public-registration";
 
 /**
  * Which camp this registration belongs to now comes from ?camp=<slug> (the
@@ -26,12 +28,20 @@ import { CampScopeBlocker, useCampScope } from "@/components/CampScope";
  */
 function RegisterPageInner() {
   const campScope = useCampScope();
+  const searchParams = useSearchParams();
+  const formRef = useRef<HTMLFormElement>(null);
   const [step, setStep] = useState(1);
-  const [session, setSession] = useState("session-1");
-  const [paymentPlan, setPaymentPlan] = useState("installment_3mo");
-  const [submitted, setSubmitted] = useState(false);
+  const [session, setSession] = useState("");
+  const [paymentPlan, setPaymentPlan] = useState<"pay_in_full" | "two_payments" | "monthly">("monthly");
+  const [receipt, setReceipt] = useState<RegisterResponse | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [uploadWarning, setUploadWarning] = useState<string | null>(null);
+  const [accessMessage, setAccessMessage] = useState<string | null>(null);
+  const [immunizationFile, setImmunizationFile] = useState<File | null>(null);
+  const [cardFrontFile, setCardFrontFile] = useState<File | null>(null);
+  const [cardBackFile, setCardBackFile] = useState<File | null>(null);
+  const [draftReady, setDraftReady] = useState(false);
 
   // Form State. Every key here is either sent to /api/register under this exact
   // name (see src/lib/formContracts.ts) or is a local-only UI value — nothing
@@ -62,15 +72,52 @@ function RegisterPageInner() {
     insuranceCarrier: "",
     policyNumber: "",
     groupNumber: "",
-    // Local-only: the wizard shows the chosen filename. File upload to storage
-    // is not implemented, so these are deliberately NOT sent or persisted.
-    immunizationFile: "",
-    cardFrontFile: "",
-    cardBackFile: "",
     emergencyAuth: false,
     waterfrontConsent: false,
     signature: ""
   });
+
+  const selectedSession = useMemo(
+    () => campScope.status === "found" ? campScope.sessions.find((item) => item.id === session) ?? null : null,
+    [campScope, session],
+  );
+
+  const draftKey = campScope.status === "found" ? registrationDraftKey(campScope.slug) : null;
+
+  useEffect(() => {
+    if (campScope.status !== "found") return;
+    const requested = searchParams.get("session");
+    setSession((current) => chooseSessionId(campScope.sessions, current, requested));
+  }, [campScope, searchParams]);
+
+  // A tab-scoped draft survives an accidental refresh without leaving a
+  // child's medical details permanently in localStorage or on a shared device.
+  useEffect(() => {
+    if (!draftKey) return;
+    try {
+      const raw = sessionStorage.getItem(draftKey);
+      if (raw) {
+        const saved = JSON.parse(raw) as { formData?: typeof formData; step?: number; session?: string; paymentPlan?: typeof paymentPlan };
+        if (saved.formData) setFormData(saved.formData);
+        if (saved.step && saved.step >= 1 && saved.step <= 5) setStep(saved.step);
+        if (saved.session) setSession(saved.session);
+        if (["pay_in_full", "two_payments", "monthly"].includes(saved.paymentPlan ?? "")) {
+          setPaymentPlan(saved.paymentPlan!);
+        }
+      }
+    } catch {
+      sessionStorage.removeItem(draftKey);
+    } finally {
+      setDraftReady(true);
+    }
+    // Restore once per camp; subsequent changes are handled below.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draftKey]);
+
+  useEffect(() => {
+    if (!draftKey || !draftReady || receipt) return;
+    sessionStorage.setItem(draftKey, JSON.stringify({ formData, step, session, paymentPlan }));
+  }, [draftKey, draftReady, formData, step, session, paymentPlan, receipt]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
@@ -82,12 +129,47 @@ function RegisterPageInner() {
     }
   };
 
-  // TODO: file upload. This only records the chosen filename for display.
-  // Nothing is uploaded to storage yet, so /api/register deliberately does not
-  // write a card_front_url / card_back_url — a filename is not a URL.
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, field: string) => {
-    if (e.target.files && e.target.files[0]) {
-      setFormData(prev => ({ ...prev, [field]: e.target.files![0].name }));
+  const advance = (nextStep: number) => {
+    const currentFields = formRef.current?.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(
+      "input, select, textarea",
+    );
+    const invalid = Array.from(currentFields ?? []).find((field) => !field.checkValidity());
+    if (invalid) {
+      invalid.reportValidity();
+      invalid.focus();
+      return;
+    }
+    setStep(nextStep);
+  };
+
+  const uploadDocuments = async (data: RegisterResponse) => {
+    if (!data.uploadToken) {
+      if (immunizationFile || cardFrontFile || cardBackFile) {
+        setUploadWarning("Your registration was saved, but document upload is not configured. Keep the files and contact the camp office.");
+      }
+      return;
+    }
+
+    const jobs: Promise<Response>[] = [];
+    if (immunizationFile) {
+      const form = new FormData();
+      form.set("kind", "immunization");
+      form.set("file", immunizationFile);
+      jobs.push(fetch("/api/register/documents", { method: "POST", headers: { Authorization: `Bearer ${data.uploadToken}` }, body: form }));
+    }
+    if (cardFrontFile || cardBackFile) {
+      if (!cardFrontFile || !cardBackFile) throw new Error("Both sides of the insurance card are required when uploading a card.");
+      const form = new FormData();
+      form.set("kind", "insurance");
+      form.set("front", cardFrontFile);
+      form.set("back", cardBackFile);
+      jobs.push(fetch("/api/register/documents", { method: "POST", headers: { Authorization: `Bearer ${data.uploadToken}` }, body: form }));
+    }
+    const results = await Promise.all(jobs);
+    const failed = results.find((result) => !result.ok);
+    if (failed) {
+      const body = await failed.json().catch(() => ({}));
+      throw new Error(body.error ?? "One or more documents could not be uploaded.");
     }
   };
 
@@ -98,6 +180,10 @@ function RegisterPageInner() {
     try {
       if (campScope.status !== "found") {
         setError("This registration is not attached to a camp. Nothing was saved.");
+        return;
+      }
+      if (!selectedSession) {
+        setError("Choose an active session before submitting.");
         return;
       }
 
@@ -113,6 +199,7 @@ function RegisterPageInner() {
         parentZip: formData.parentZip,
         relationship: formData.relationship,
         sessionSlug: session,
+        sessionId: session,
         camperFirstName: formData.camperFirstName,
         camperLastName: formData.camperLastName,
         camperDob: formData.camperDob,
@@ -135,15 +222,35 @@ function RegisterPageInner() {
         signature: formData.signature
       };
 
+      const idempotencyStorageKey = `camperroster:idempotency:${campScope.slug}`;
+      const idempotencyKey = sessionStorage.getItem(idempotencyStorageKey) ?? crypto.randomUUID();
+      sessionStorage.setItem(idempotencyStorageKey, idempotencyKey);
+
       const res = await fetch("/api/register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "Idempotency-Key": idempotencyKey },
         body: JSON.stringify(payload)
       });
       const data: RegisterResponse = await res.json().catch(() => ({ success: false }));
 
       if (res.ok && data.success) {
-        setSubmitted(true);
+        setReceipt(data);
+        if (draftKey) sessionStorage.removeItem(draftKey);
+        sessionStorage.removeItem(idempotencyStorageKey);
+        try {
+          await uploadDocuments(data);
+        } catch (uploadError) {
+          setUploadWarning(uploadError instanceof Error ? uploadError.message : "Documents could not be uploaded.");
+        }
+        if (data.uploadToken) {
+          try {
+            const accessResponse = await fetch("/api/register/parent-access", { method: "POST", headers: { Authorization: `Bearer ${data.uploadToken}` } });
+            if (accessResponse.ok) setAccessMessage("Check your email for a secure link to your parent portal.");
+            else setAccessMessage("Your registration is saved. Parent-portal email could not be sent; use password recovery later or contact the camp office.");
+          } catch {
+            setAccessMessage("Your registration is saved. Parent-portal email could not be sent; contact the camp office for access.");
+          }
+        }
       } else {
         setError(data.error || "We could not save this registration. Please try again or call the camp office.");
       }
@@ -166,25 +273,46 @@ function RegisterPageInner() {
     return <CampScopeBlocker scope={campScope} what="registration" />;
   }
 
-  if (submitted) {
+  if (receipt) {
     return (
       <main className="max-w-2xl mx-auto px-4 py-12 sm:py-20 text-center space-y-6">
         <div className="w-16 h-16 bg-emerald-100 text-emerald-800 rounded-full flex items-center justify-center mx-auto shadow-md">
           <CheckCircle2 className="w-8 h-8" />
         </div>
         <h1 className="font-display font-black text-3xl sm:text-4xl text-stone-900">
-          Camper Registration Confirmed!
+          Registration saved
         </h1>
         <p className="text-sm sm:text-base text-stone-600 leading-relaxed max-w-md mx-auto">
-          We saved {formData.camperFirstName || "your camper"}&apos;s registration with {campScope.name}. The camp office will follow up at {formData.parentEmail || "the email you provided"} to confirm your spot and payment schedule.
+          We saved {formData.camperFirstName || "your camper"}&apos;s registration with {campScope.name}.
         </p>
+        {receipt.registrationId && (
+          <p className="font-mono text-xs text-stone-500">Confirmation: {receipt.registrationId}</p>
+        )}
+        {uploadWarning && <div className="text-left rounded-xl border-2 border-amber-300 bg-amber-50 p-4 text-sm text-amber-950">{uploadWarning}</div>}
+        {accessMessage && <p className="text-sm font-semibold text-stone-700">{accessMessage}</p>}
+        <p className="text-sm text-stone-600">No payment has been taken yet. Use secure checkout below if tuition is ready, or sign in later to pay from the parent portal.</p>
         <div className="pt-4 flex flex-col sm:flex-row justify-center gap-3">
+          {receipt.invoiceId && receipt.uploadToken && (
+            <CheckoutButton invoiceId={receipt.invoiceId} uploadToken={receipt.uploadToken} />
+          )}
           <Link href="/portal" className="btn-primary-agency text-xs py-3 px-6">
             Go to Parent Portal
           </Link>
           <Link href="/" className="px-6 py-3 rounded-full bg-stone-100 text-stone-800 font-bold text-xs">
             Return Home
           </Link>
+        </div>
+      </main>
+    );
+  }
+
+  if (campScope.sessions.length === 0) {
+    return (
+      <main className="max-w-xl mx-auto px-4 py-16">
+        <div className="rounded-3xl border-2 border-amber-300 bg-white p-8 space-y-3">
+          <h1 className="font-display font-black text-2xl text-stone-900">Registration is not open yet</h1>
+          <p className="text-sm text-stone-600">{campScope.name} has not published an active session. No registration was started.</p>
+          <Link href={`/c/${campScope.slug}`} className="text-sm font-bold text-forest-900 underline">Return to the camp page</Link>
         </div>
       </main>
     );
@@ -236,7 +364,7 @@ function RegisterPageInner() {
       </div>
 
       {/* FORM CARD */}
-      <form onSubmit={handleSubmit} className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-10 border-2 border-stone-200 shadow-lg space-y-6 sm:space-y-8">
+      <form ref={formRef} onSubmit={handleSubmit} className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-10 border-2 border-stone-200 shadow-lg space-y-6 sm:space-y-8">
         
         {/* STEP 1: HOUSEHOLD & GUARDIAN */}
         {step === 1 && (
@@ -370,7 +498,7 @@ function RegisterPageInner() {
             <div className="pt-4 border-t border-stone-100 flex justify-end">
               <button
                 type="button"
-                onClick={() => setStep(2)}
+                onClick={() => advance(2)}
                 className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-forest-900 text-white font-black text-sm flex items-center justify-center gap-2 shadow-md active:scale-98 cursor-pointer"
               >
                 <span>Continue to Camper Details</span>
@@ -392,38 +520,23 @@ function RegisterPageInner() {
 
             {/* SESSION CARDS */}
             <div className="space-y-2">
-              <label className="text-xs sm:text-sm font-bold text-stone-800">Choose Summer 2027 Session *</label>
+              <label className="text-xs sm:text-sm font-bold text-stone-800">Choose {campScope.activeSeason?.name ?? "an active"} session *</label>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div
-                  onClick={() => setSession("session-1")}
-                  className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                    session === "session-1" ? "border-forest-800 bg-forest-50 shadow-sm" : "border-stone-200 bg-white"
-                  }`}
-                >
-                  <b className="text-xs sm:text-sm font-black text-stone-900 block">Junior (Grades 2–4)</b>
-                  <span className="text-[11px] text-stone-600 block">July 11–17 • $650</span>
-                  <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full inline-block mt-2">8 Spots Left</span>
-                </div>
-                <div
-                  onClick={() => setSession("session-2")}
-                  className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                    session === "session-2" ? "border-forest-800 bg-forest-50 shadow-sm" : "border-stone-200 bg-white"
-                  }`}
-                >
-                  <b className="text-xs sm:text-sm font-black text-stone-900 block">Intermediate (5–6)</b>
-                  <span className="text-[11px] text-stone-600 block">July 18–24 • $650</span>
-                  <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full inline-block mt-2">14 Spots Left</span>
-                </div>
-                <div
-                  onClick={() => setSession("session-3")}
-                  className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                    session === "session-3" ? "border-forest-800 bg-forest-50 shadow-sm" : "border-stone-200 bg-white"
-                  }`}
-                >
-                  <b className="text-xs sm:text-sm font-black text-stone-900 block">Senior Teen (7–8)</b>
-                  <span className="text-[11px] text-stone-600 block">July 25–31 • $675</span>
-                  <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full inline-block mt-2">6 Spots Left</span>
-                </div>
+                {campScope.sessions.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    aria-pressed={session === item.id}
+                    onClick={() => setSession(item.id)}
+                    className={`p-4 rounded-xl border-2 text-left cursor-pointer transition-all ${
+                      session === item.id ? "border-forest-800 bg-forest-50 shadow-sm" : "border-stone-200 bg-white"
+                    }`}
+                  >
+                    <b className="text-xs sm:text-sm font-black text-stone-900 block">{item.name} (Grades {item.minGrade}&ndash;{item.maxGrade})</b>
+                    <span className="text-[11px] text-stone-600 block">{formatSessionDates(item.startDate, item.endDate)} &bull; {formatMoney(item.priceCents)}</span>
+                    {item.depositCents > 0 && <span className="text-[10px] font-bold text-amber-900 bg-amber-100 px-2 py-0.5 rounded-full inline-block mt-2">{formatMoney(item.depositCents)} deposit</span>}
+                  </button>
+                ))}
               </div>
             </div>
 
@@ -486,8 +599,11 @@ function RegisterPageInner() {
                   onChange={handleInputChange}
                   className="w-full p-3.5 rounded-xl border-2 border-stone-200 text-stone-900 text-base bg-white focus:border-forest-800 focus:outline-none"
                 >
-                  {[2, 3, 4, 5, 6, 7, 8].map(g => (
-                    <option key={g} value={String(g)}>{g}th Grade</option>
+                  {Array.from(
+                    { length: Math.max(0, (selectedSession?.maxGrade ?? 12) - (selectedSession?.minGrade ?? 1) + 1) },
+                    (_, index) => (selectedSession?.minGrade ?? 1) + index,
+                  ).map(g => (
+                    <option key={g} value={String(g)}>Grade {g}</option>
                   ))}
                 </select>
               </div>
@@ -515,7 +631,7 @@ function RegisterPageInner() {
               </button>
               <button
                 type="button"
-                onClick={() => setStep(3)}
+                onClick={() => advance(3)}
                 className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-forest-900 text-white font-black text-sm flex items-center justify-center gap-2 shadow-md active:scale-98 cursor-pointer"
               >
                 <span>Continue to Medical & Allergies</span>
@@ -625,13 +741,13 @@ function RegisterPageInner() {
               <label className="border-2 border-dashed border-stone-300 rounded-xl p-4 sm:p-6 flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-stone-50 transition-colors">
                 <Upload className="w-6 h-6 text-stone-400" />
                 <span className="text-xs sm:text-sm font-extrabold text-forest-900">
-                  {formData.immunizationFile || "Tap to select immunization PDF or take photo"}
+                  {immunizationFile?.name || "Tap to select immunization PDF or take photo"}
                 </span>
                 <span className="text-[11px] text-stone-400">Supported: PDF, JPG, PNG (Max 15MB)</span>
                 <input
                   type="file"
                   accept="image/*,.pdf"
-                  onChange={(e) => handleFileChange(e, "immunizationFile")}
+                  onChange={(e) => setImmunizationFile(e.target.files?.[0] ?? null)}
                   className="hidden"
                 />
               </label>
@@ -648,7 +764,7 @@ function RegisterPageInner() {
               </button>
               <button
                 type="button"
-                onClick={() => setStep(4)}
+                onClick={() => advance(4)}
                 className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-forest-900 text-white font-black text-sm flex items-center justify-center gap-2 shadow-md active:scale-98 cursor-pointer"
               >
                 <span>Continue to Insurance</span>
@@ -710,13 +826,13 @@ function RegisterPageInner() {
               <label className="border-2 border-dashed border-stone-300 rounded-xl p-4 sm:p-6 flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-stone-50 transition-colors">
                 <Upload className="w-5 h-5 text-stone-400" />
                 <span className="text-xs sm:text-sm font-extrabold text-forest-900">
-                  {formData.cardFrontFile || "Front of Insurance Card"}
+                  {cardFrontFile?.name || "Front of Insurance Card"}
                 </span>
                 <span className="text-[11px] text-stone-400">Take photo with phone or upload</span>
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={(e) => handleFileChange(e, "cardFrontFile")}
+                  onChange={(e) => setCardFrontFile(e.target.files?.[0] ?? null)}
                   className="hidden"
                 />
               </label>
@@ -724,13 +840,13 @@ function RegisterPageInner() {
               <label className="border-2 border-dashed border-stone-300 rounded-xl p-4 sm:p-6 flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-stone-50 transition-colors">
                 <Upload className="w-5 h-5 text-stone-400" />
                 <span className="text-xs sm:text-sm font-extrabold text-forest-900">
-                  {formData.cardBackFile || "Back of Insurance Card"}
+                  {cardBackFile?.name || "Back of Insurance Card"}
                 </span>
                 <span className="text-[11px] text-stone-400">Take photo with phone or upload</span>
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={(e) => handleFileChange(e, "cardBackFile")}
+                  onChange={(e) => setCardBackFile(e.target.files?.[0] ?? null)}
                   className="hidden"
                 />
               </label>
@@ -747,7 +863,7 @@ function RegisterPageInner() {
               </button>
               <button
                 type="button"
-                onClick={() => setStep(5)}
+                onClick={() => advance(5)}
                 className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-forest-900 text-white font-black text-sm flex items-center justify-center gap-2 shadow-md active:scale-98 cursor-pointer"
               >
                 <span>Continue to Waivers & Review</span>
@@ -771,33 +887,39 @@ function RegisterPageInner() {
             <div className="space-y-2">
               <label className="text-xs sm:text-sm font-bold text-stone-800">Select Tuition Schedule *</label>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div
-                  onClick={() => setPaymentPlan("installment_3mo")}
+                <button
+                  type="button"
+                  aria-pressed={paymentPlan === "monthly"}
+                  onClick={() => setPaymentPlan("monthly")}
                   className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                    paymentPlan === "installment_3mo" ? "border-forest-800 bg-forest-50 shadow-sm" : "border-stone-200 bg-white"
+                    paymentPlan === "monthly" ? "border-forest-800 bg-forest-50 shadow-sm" : "border-stone-200 bg-white"
                   }`}
                 >
-                  <b className="text-xs sm:text-sm font-black text-stone-900 block">3-Month Plan (Recommended)</b>
-                  <span className="text-xs text-stone-600 block mt-1">$100 today + $275/mo</span>
-                </div>
-                <div
-                  onClick={() => setPaymentPlan("deposit_only")}
+                  <b className="text-xs sm:text-sm font-black text-stone-900 block">Monthly installments</b>
+                  <span className="text-xs text-stone-600 block mt-1">The exact schedule appears before checkout.</span>
+                </button>
+                <button
+                  type="button"
+                  aria-pressed={paymentPlan === "two_payments"}
+                  onClick={() => setPaymentPlan("two_payments")}
                   className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                    paymentPlan === "deposit_only" ? "border-forest-800 bg-forest-50 shadow-sm" : "border-stone-200 bg-white"
+                    paymentPlan === "two_payments" ? "border-forest-800 bg-forest-50 shadow-sm" : "border-stone-200 bg-white"
                   }`}
                 >
-                  <b className="text-xs sm:text-sm font-black text-stone-900 block">Deposit Only</b>
-                  <span className="text-xs text-stone-600 block mt-1">$100 today (balance due June 1)</span>
-                </div>
-                <div
+                  <b className="text-xs sm:text-sm font-black text-stone-900 block">Two payments</b>
+                  <span className="text-xs text-stone-600 block mt-1">{selectedSession?.depositCents ? `${formatMoney(selectedSession.depositCents)} deposit, then the balance` : "Deposit and balance"}</span>
+                </button>
+                <button
+                  type="button"
+                  aria-pressed={paymentPlan === "pay_in_full"}
                   onClick={() => setPaymentPlan("pay_in_full")}
                   className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
                     paymentPlan === "pay_in_full" ? "border-forest-800 bg-forest-50 shadow-sm" : "border-stone-200 bg-white"
                   }`}
                 >
                   <b className="text-xs sm:text-sm font-black text-stone-900 block">Pay in Full</b>
-                  <span className="text-xs text-stone-600 block mt-1">$650 single payment</span>
-                </div>
+                  <span className="text-xs text-stone-600 block mt-1">{selectedSession ? `${formatMoney(selectedSession.priceCents)} total` : "Full tuition"}</span>
+                </button>
               </div>
             </div>
 
@@ -813,7 +935,7 @@ function RegisterPageInner() {
                   className="w-5 h-5 text-emerald-600 rounded mt-0.5"
                 />
                 <span className="text-xs sm:text-sm text-stone-800 font-bold">
-                  I hereby authorize Camp Hope staff and licensed health personnel to administer first aid and emergency medical treatment. *
+                  I authorize {campScope.name} staff and licensed health personnel to administer first aid and seek emergency medical treatment when reasonably necessary. *
                 </span>
               </label>
 
@@ -827,7 +949,7 @@ function RegisterPageInner() {
                   className="w-5 h-5 text-emerald-600 rounded mt-0.5"
                 />
                 <span className="text-xs sm:text-sm text-stone-800 font-bold">
-                  I grant permission for my child to participate in supervised lake swimming, kayaking, and outdoor ropes activities. *
+                  I grant permission for my child to participate in the supervised activities offered for the selected session, subject to the medical information I provided. *
                 </span>
               </label>
             </div>
@@ -874,7 +996,7 @@ function RegisterPageInner() {
                 ) : (
                   <>
                     <Lock className="w-4 h-4" />
-                    <span>Complete Registration & Secure Spot</span>
+                    <span>Submit Registration</span>
                   </>
                 )}
               </button>
@@ -885,6 +1007,50 @@ function RegisterPageInner() {
       </form>
     </main>
   );
+}
+
+function CheckoutButton({ invoiceId, uploadToken }: { invoiceId: string; uploadToken: string }) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const startCheckout = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${uploadToken}`,
+        },
+        body: JSON.stringify({ invoiceId }),
+      });
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok || !body.checkoutUrl) throw new Error(body.error ?? "Secure checkout is unavailable.");
+      window.location.assign(body.checkoutUrl);
+    } catch (checkoutError) {
+      setError(checkoutError instanceof Error ? checkoutError.message : "Secure checkout is unavailable.");
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-2">
+      <button type="button" disabled={loading} onClick={startCheckout} className="btn-primary-agency text-xs py-3 px-6 disabled:opacity-50">
+        {loading ? "Opening secure checkout…" : "Pay tuition securely"}
+      </button>
+      {error && <p className="text-xs font-semibold text-red-700">{error}</p>}
+    </div>
+  );
+}
+
+function formatMoney(cents: number): string {
+  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(cents / 100);
+}
+
+function formatSessionDates(start: string, end: string): string {
+  const formatter = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
+  return `${formatter.format(new Date(`${start}T00:00:00Z`))}–${formatter.format(new Date(`${end}T00:00:00Z`))}`;
 }
 
 /**

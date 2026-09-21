@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AlertTriangle, ArrowRight, Loader2 } from "lucide-react";
 import { normalizeSlug } from "@/lib/formContracts";
+import type { PublicCampSession } from "@/lib/campLookup";
 
 /**
  * Which camp is this public form submitting to?
@@ -21,7 +22,13 @@ import { normalizeSlug } from "@/lib/formContracts";
 export type CampScope =
   | { status: "missing" }
   | { status: "loading"; slug: string }
-  | { status: "found"; slug: string; name: string }
+  | {
+      status: "found";
+      slug: string;
+      name: string;
+      sessions: PublicCampSession[];
+      activeSeason: { id: string; name: string; year: number } | null;
+    }
   | { status: "not_found"; slug: string }
   | { status: "setup_incomplete"; slug: string }
   | { status: "error"; slug: string; message: string };
@@ -51,7 +58,13 @@ export function useCampScope(): CampScope {
         } else if (res.status === 404) {
           setScope({ status: "not_found", slug });
         } else if (res.ok && data.success && data.camp?.name) {
-          setScope({ status: "found", slug: data.camp.slug || slug, name: data.camp.name });
+          setScope({
+            status: "found",
+            slug: data.camp.slug || slug,
+            name: data.camp.name,
+            sessions: Array.isArray(data.camp.sessions) ? data.camp.sessions : [],
+            activeSeason: data.camp.activeSeason ?? null,
+          });
         } else {
           setScope({ status: "error", slug, message: data.error || "Camp lookup failed." });
         }

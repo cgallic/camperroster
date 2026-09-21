@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { createAdminClient } from "@/lib/supabase/server";
+import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { stripeClient, siteUrl } from "@/lib/stripe";
 import { INVOICE_COLUMNS, type InvoiceRow } from "@/lib/invoicing";
 import { formatCents } from "@/lib/pricing";
+import { verifyIntakeToken } from "@/lib/signed-payload";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -41,6 +42,24 @@ export async function POST(req: Request) {
   if (invoiceError) return NextResponse.json({ error: invoiceError.message }, { status: 500 });
   if (!invoiceRow) return NextResponse.json({ error: "No such invoice" }, { status: 404 });
   const invoice = invoiceRow as unknown as InvoiceRow;
+
+  const bearer = req.headers.get("authorization")?.match(/^Bearer\s+(.+)$/i)?.[1] ?? "";
+  const claims = verifyIntakeToken(bearer);
+  let authorized = Boolean(claims && claims.invoiceId === invoice.id && claims.campId === invoice.camp_id);
+  if (!authorized) {
+    const sessionDb = await createClient();
+    const { data: { user } } = await sessionDb.auth.getUser();
+    if (user) {
+      const escapedEmail = user.email?.replace(/[%_]/g, "\\$&") ?? "";
+      let guardianQuery = db.from("guardians").select("id").eq("camp_id", invoice.camp_id).eq("family_id", invoice.family_id);
+      guardianQuery = user.email
+        ? guardianQuery.or(`auth_user_id.eq.${user.id},email.ilike.${escapedEmail}`)
+        : guardianQuery.eq("auth_user_id", user.id);
+      const { data: guardian } = await guardianQuery.limit(1).maybeSingle();
+      authorized = Boolean(guardian);
+    }
+  }
+  if (!authorized) return NextResponse.json({ error: "You do not have access to this invoice." }, { status: 403 });
 
   const outstanding = Math.max(0, invoice.total_due_cents - invoice.amount_paid_cents);
   if (outstanding <= 0) {

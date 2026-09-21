@@ -1,18 +1,21 @@
 import Link from "next/link";
 import Image from "next/image";
 import { AlertTriangle, ArrowRight, Calendar, CheckCircle2, HeartHandshake } from "lucide-react";
-import { lookupCampBySlug } from "@/lib/campLookup";
+import {
+  getPublicCampConfiguration,
+  lookupCampBySlug,
+  type PublicCampSession,
+} from "@/lib/campLookup";
 
 /**
  * A camp's public page.
  *
  * Three outcomes, and they are kept apart on purpose:
- *   1. one of the three SAMPLE slugs  -> the existing demo page, still labelled
- *      a sample, still taking no payment. Unchanged behaviour.
- *   2. a real camps row               -> that camp's own page, with its real
+ *   1. a real camps row               -> that camp's own page, with its real
  *      name and links that carry ?camp=<slug> so registrations land in ITS
  *      tenant.
- *   3. neither                        -> an honest "no camp here" page.
+ *   2. one of the remaining SAMPLE slugs -> the labelled example page.
+ *   3. neither                         -> an honest "no camp here" page.
  *
  * Before this change every unknown slug silently fell through to Camp Hope
  * (`TENANTS[slug] || TENANTS.camphope`), so a director who typed their link
@@ -70,17 +73,29 @@ export default async function CampSlugPage({ params }: { params: Promise<{ slug:
   const { slug: rawSlug } = await params;
   const slug = rawSlug.toLowerCase();
 
-  // 1. Sample slugs keep their existing demo page.
-  const sample = SAMPLE_TENANTS[slug];
-  if (sample) {
-    return <SampleCampPortal slug={slug} tenant={sample} />;
-  }
-
-  // 2. A real camp row.
+  // A real tenant always wins. Camp Hope used to be permanently shadowed by
+  // the sample with the same slug, making its actual portal unreachable.
   const lookup = await lookupCampBySlug(slug);
   if (lookup.status === "found") {
-    return <RealCampPortal slug={lookup.camp.slug} name={lookup.camp.name} directorName={lookup.camp.directorName} />;
+    let sessions: PublicCampSession[] = [];
+    try {
+      sessions = (await getPublicCampConfiguration(lookup.camp.id)).sessions;
+    } catch {
+      // The identity is still real. Configuration failures must not fall back
+      // to made-up sample sessions or another camp.
+    }
+    return (
+      <RealCampPortal
+        slug={lookup.camp.slug}
+        name={lookup.camp.name}
+        directorName={lookup.camp.directorName}
+        sessions={sessions}
+      />
+    );
   }
+
+  const sample = SAMPLE_TENANTS[slug];
+  if (sample) return <SampleCampPortal slug={slug} tenant={sample} />;
 
   // 3. Anything else — including "the database is not migrated yet" — is stated
   //    plainly rather than being papered over with another camp's branding.
@@ -93,10 +108,12 @@ function RealCampPortal({
   slug,
   name,
   directorName,
+  sessions,
 }: {
   slug: string;
   name: string;
   directorName: string | null;
+  sessions: PublicCampSession[];
 }) {
   return (
     <main className="space-y-10 sm:space-y-14 pb-20">
@@ -144,23 +161,57 @@ function RealCampPortal({
         </div>
       </section>
 
-      <section className="px-4 max-w-2xl mx-auto">
-        {/* No sessions, prices or spot counts are shown, because no session data
-            has been configured for this camp. Inventing them would be the same
-            mistake the sample pages are explicitly labelled for. */}
-        <div className="bg-white rounded-2xl p-6 border-2 border-stone-200 shadow-sm space-y-2">
-          <b className="font-display font-extrabold text-base text-stone-900 block">
-            Sessions are not published yet
-          </b>
-          <p className="text-sm text-stone-600 leading-relaxed">
-            {name} has not published session dates or pricing through CamperRoster. Registrations
-            submitted from this page still reach {name}&apos;s office — the camp will confirm the
-            session and the amount with you directly.
-          </p>
-        </div>
+      <section className="px-4 max-w-4xl mx-auto">
+        {sessions.length ? (
+          <div className="space-y-4">
+            <div>
+              <h2 className="font-display font-black text-2xl text-stone-900">Available sessions</h2>
+              <p className="text-sm text-stone-600 mt-1">Dates and tuition come directly from {name}&apos;s current setup.</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {sessions.map((session) => (
+                <article key={session.id} className="bg-white rounded-2xl p-6 border-2 border-stone-200 shadow-sm space-y-3">
+                  <div>
+                    <h3 className="font-display font-extrabold text-lg text-stone-900">{session.name}</h3>
+                    <p className="text-sm text-stone-600">{formatDateRange(session.startDate, session.endDate)}</p>
+                  </div>
+                  <div className="flex flex-wrap gap-2 text-xs font-bold text-stone-700">
+                    <span className="bg-stone-100 rounded-full px-3 py-1">Grades {session.minGrade}&ndash;{session.maxGrade}</span>
+                    <span className="bg-emerald-100 text-emerald-900 rounded-full px-3 py-1">{formatMoney(session.priceCents)}</span>
+                    {session.depositCents > 0 && (
+                      <span className="bg-amber-100 text-amber-900 rounded-full px-3 py-1">{formatMoney(session.depositCents)} deposit</span>
+                    )}
+                  </div>
+                  <Link
+                    href={`/register?camp=${encodeURIComponent(slug)}&session=${encodeURIComponent(session.id)}`}
+                    className="inline-flex items-center gap-2 text-sm font-black text-forest-900 underline underline-offset-4"
+                  >
+                    Register for this session <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </article>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="bg-white rounded-2xl p-6 border-2 border-stone-200 shadow-sm space-y-2">
+            <b className="font-display font-extrabold text-base text-stone-900 block">Registration is not open yet</b>
+            <p className="text-sm text-stone-600 leading-relaxed">
+              {name} has not published an active session through CamperRoster. No dates, prices, or availability are being guessed.
+            </p>
+          </div>
+        )}
       </section>
     </main>
   );
+}
+
+function formatMoney(cents: number): string {
+  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(cents / 100);
+}
+
+function formatDateRange(start: string, end: string): string {
+  const formatter = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
+  return `${formatter.format(new Date(`${start}T00:00:00Z`))} – ${formatter.format(new Date(`${end}T00:00:00Z`))}`;
 }
 
 // -------------------------------------------------------------- no such camp --
