@@ -41,6 +41,12 @@ declare
   v_invoice_id uuid;
   v_plan text;
   v_result jsonb;
+  v_installments int;
+  v_i int;
+  v_base_amount int;
+  v_remainder int;
+  v_due_on date;
+  v_first_amount int;
 begin
   if p_camp_id is null or p_session_id is null then
     raise exception 'camp and session are required' using errcode = '22023';
@@ -164,6 +170,36 @@ begin
     (camp_id, season_id, family_id, camper_count, tier_cents, payment_plan)
   values (p_camp_id, v_season_id, v_family_id, 1, v_session.price_cents, v_plan)
   returning id into v_invoice_id;
+
+  -- Build the first payable schedule inside the same transaction. Checkout
+  -- never falls back to charging the full balance for a monthly/deposit plan.
+  if v_plan = 'pay_in_full' then
+    insert into public.payment_schedule_items (camp_id, invoice_id, due_on, amount_cents)
+    values (p_camp_id, v_invoice_id, current_date, v_session.price_cents);
+  elsif v_plan = 'two_payments' then
+    v_first_amount := least(v_session.price_cents,
+      case when v_session.deposit_cents > 0 then v_session.deposit_cents
+           else (v_session.price_cents + 1) / 2 end);
+    insert into public.payment_schedule_items (camp_id, invoice_id, due_on, amount_cents)
+    values (p_camp_id, v_invoice_id, current_date, v_first_amount);
+    if v_session.price_cents > v_first_amount then
+      insert into public.payment_schedule_items (camp_id, invoice_id, due_on, amount_cents)
+      values (p_camp_id, v_invoice_id, greatest(current_date, v_session.start_date - 1),
+              v_session.price_cents - v_first_amount);
+    end if;
+  else
+    v_installments := greatest(1, least(12,
+      (extract(year from age(v_session.start_date, current_date))::int * 12)
+      + extract(month from age(v_session.start_date, current_date))::int + 1));
+    v_base_amount := v_session.price_cents / v_installments;
+    v_remainder := v_session.price_cents % v_installments;
+    for v_i in 0..v_installments - 1 loop
+      v_due_on := least((current_date + (v_i || ' months')::interval)::date, v_session.start_date - 1);
+      insert into public.payment_schedule_items (camp_id, invoice_id, due_on, amount_cents)
+      values (p_camp_id, v_invoice_id, greatest(current_date, v_due_on),
+              v_base_amount + case when v_i < v_remainder then 1 else 0 end);
+    end loop;
+  end if;
 
   v_result := jsonb_build_object(
     'registration_id', v_registration_id,
