@@ -89,17 +89,23 @@ Use a percent-encoded direct Postgres `DATABASE_URL`; never echo it into logs.
 
 ```bash
 supabase migration list --db-url "$DATABASE_URL"
+supabase migration repair --db-url "$DATABASE_URL" --status applied 20260916020000
+supabase migration list --db-url "$DATABASE_URL"
 supabase db push --dry-run --db-url "$DATABASE_URL"
 supabase db push --db-url "$DATABASE_URL"
 supabase migration list --db-url "$DATABASE_URL"
 ```
 
-The migration gate requires one file for every sequence with no duplicates or
-gaps. On the consolidated release, `0000_core_schema.sql` creates missing legacy
-core tables before `0001` applies tenancy/RLS, and security hardening follows at
-`0021`. `0014_historical_imports.sql` is intentionally additive: if yesterday's table
-already exists it preserves every row and re-asserts the private director-only
-policy.
+The first `migration list` must show that production already records the exact
+20 versions from `20260916030241` through `20260916163453`. Production's core
+tables predate that ledger, so the one-time `migration repair` records
+`20260916020000_core_schema.sql` as applied without executing it. After repair,
+the second list must show only `20260921120000_historical_imports.sql` and
+`20260921121000_security_backend.sql` as local/pending. Stop if any other
+version differs. On a fresh database, filename order executes core first and
+then the same timestamped history. Historical imports are intentionally
+additive: an existing table and its 1,246 rows are preserved while the private
+director-only policy is re-asserted.
 
 Apply during a quiet window. Review the dry-run for table rewrites or long locks;
 do not continue if it differs from the checked-in sequence. RLS lookup columns

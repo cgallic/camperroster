@@ -4,46 +4,51 @@ Migrations live in `supabase/migrations/` and are applied **in filename order**.
 
 | File | What it does | Depends on |
 |---|---|---|
-| `0000_core_schema.sql` | Recreates the dashboard-era core tables a fresh database needs. Uses additive `IF NOT EXISTS` DDL and does not replace live rows. | Nothing. Run first. |
-| `0001_tenancy_and_auth.sql` | Makes `public.camps` the single tenant root, adds `camp_members`, adds `camp_id` to every tenant-scoped table, enables deny-by-default RLS everywhere, retires `organizations` / `organization_id`. | `0000` core tables. |
-| `0002`-`0013` | Billing, roles, camp operations, documents, payments, communications, and function hardening. | Apply in filename order. |
-| `0014_historical_imports.sql` | Creates the director-only historical source table. It never overwrites or deletes imported rows. | `0001` membership helpers. |
-| `0015`-`0020` | Placement, payment notes, linter hardening, Stripe event ownership, camp location, and safety decisions. | Apply in filename order. |
-| `0021_security_backend.sql` | Adds transactional/idempotent intake, staff invitations, wallet integrity, medical review provenance, and tightened role policies. | Everything through `0020`. |
+| `20260916020000_core_schema.sql` | Recreates the dashboard-era core tables a fresh database needs. Uses additive `IF NOT EXISTS` DDL and does not replace live rows. | Nothing. Runs first on a fresh database. |
+| `20260916030241_tenancy_and_auth.sql` | Makes `public.camps` the single tenant root, adds `camp_members`, adds `camp_id` to every tenant-scoped table, enables deny-by-default RLS everywhere, retires `organizations` / `organization_id`. | Core schema. |
+| `20260916034301`-`20260916163453` | The 19 remaining migrations already recorded in the hosted production ledger: billing, roles, camp operations, documents, payments, communications, placement, and hardening. | Apply in filename order. |
+| `20260921120000_historical_imports.sql` | Creates the director-only historical source table. It never overwrites or deletes imported rows. | Membership helpers. |
+| `20260921121000_security_backend.sql` | Adds transactional/idempotent intake, staff invitations, wallet integrity, medical review provenance, and tightened role policies. | Everything through historical imports. |
 
-> `0002_billing.sql` is owned by a separate workstream and depends on `0001`
-> having been applied (it needs `camps`, `camp_members` and
-> `public.is_camp_member(uuid)`). Never run `0002` before `0001`.
+> `20260916034301_billing.sql` depends on tenancy/auth having been applied (it
+> needs `camps`, `camp_members` and `public.is_camp_member(uuid)`). Never run it
+> out of filename order.
 
-`npm run check:migrations` verifies that migration numbers are unique and
-contiguous and rejects table/schema drops and truncation before a release.
+`npm run check:migrations` verifies the exact hosted ledger filenames plus the
+approved pending migrations, requires unique increasing 14-digit versions, and
+rejects table/schema drops and truncation before a release.
 
 ---
 
 ## Applying them
 
-### Option A — Supabase SQL editor (no CLI, no DB password)
+### Fresh database
 
-1. Open the project at <https://supabase.com/dashboard> → **SQL Editor** → **New query**.
-2. Paste the **entire** contents of `0000_core_schema.sql`.
-3. Run it. It is wrapped in `begin; … commit;` — either all of it applies or none of it does.
-4. Repeat for each later migration, in filename order.
+Use the CLI so every migration is applied and recorded in timestamp order:
 
-The script is idempotent. Running it twice is a no-op, not an error: every
-`CREATE` is `IF NOT EXISTS`, every `CREATE POLICY` is preceded by
-`DROP POLICY IF EXISTS`, every table touched is guarded by `to_regclass(...)`,
-and functions use `CREATE OR REPLACE`. If a table listed in the script does not
-exist in this project, that table is skipped rather than aborting the run.
-
-### Option B — Supabase CLI
-
-```bash
-supabase link --project-ref <project-ref>
-supabase db push
+```sh
+supabase migration list --db-url "$DATABASE_URL"
+supabase db push --dry-run --db-url "$DATABASE_URL"
+supabase db push --db-url "$DATABASE_URL"
 ```
 
-`db push` needs the database password, which the machine that wrote these
-migrations did not have. Option A is the path that was designed for.
+### Existing production database
+
+Production already has the core tables and the 20 migrations from
+`20260916030241` through `20260916163453`. The core baseline predates that
+ledger, so mark only its version applied once; do not execute its DDL against
+production:
+
+```sh
+supabase migration list --db-url "$DATABASE_URL"
+supabase migration repair --db-url "$DATABASE_URL" --status applied 20260916020000
+supabase migration list --db-url "$DATABASE_URL"
+```
+
+The second list must align all versions through `20260916163453` and show only
+`20260921120000` and `20260921121000` as local/pending. Stop if it shows any
+other mismatch. Then dry-run and push those two genuinely new migrations. The
+repair changes only migration bookkeeping; it does not change participant data.
 
 ---
 

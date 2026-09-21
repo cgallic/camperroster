@@ -1,5 +1,5 @@
 -- =============================================================================
--- 0001_tenancy_and_auth.sql
+-- 20260916030241_tenancy_and_auth.sql
 -- CamperRoster: multi-tenancy + authentication + deny-by-default RLS.
 --
 -- WHY THIS EXISTS

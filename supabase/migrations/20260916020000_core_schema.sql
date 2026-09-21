@@ -4,7 +4,7 @@
 -- Supabase dashboard.  That made a clean database impossible to reproduce.
 -- This migration is deliberately conservative: CREATE TABLE IF NOT EXISTS
 -- leaves the live database untouched while giving a fresh database the base
--- schema required by 0001 and later additive migrations.
+-- schema required by the timestamped tenancy migration and everything after it.
 
 create schema if not exists extensions;
 create extension if not exists pgcrypto with schema extensions;
@@ -69,6 +69,23 @@ create table if not exists public.camp_sessions (
   check (end_date >= start_date),
   check (max_grade >= min_grade)
 );
+
+-- The first hosted schema included cabins before the timestamped tenancy
+-- migrations began. Keep the base table in this fresh-install baseline so
+-- roles/audit and the later cabin migrations never depend on dashboard state.
+create table if not exists public.cabins (
+  id uuid primary key default gen_random_uuid(),
+  session_id uuid not null references public.camp_sessions(id) on delete cascade,
+  name text not null,
+  gender text not null,
+  min_grade int not null,
+  max_grade int not null,
+  capacity int not null default 12 check (capacity >= 0),
+  created_at timestamptz default now(),
+  check (max_grade >= min_grade)
+);
+
+create index if not exists cabins_session_id_idx on public.cabins(session_id);
 
 create table if not exists public.registrations (
   id uuid primary key default gen_random_uuid(),

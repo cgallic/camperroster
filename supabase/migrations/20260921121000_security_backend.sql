@@ -1,6 +1,12 @@
 -- Security and transactional integrity for public intake and staff operations.
 -- Additive/idempotent: no participant rows are deleted and no tenant ids are
--- rewritten.  Apply after 0020.
+-- rewritten. Apply after 20260921120000_historical_imports.sql.
+
+-- The hosted 20260916141244 migration revoked public placement access but its
+-- legacy audit-trigger hardening was never represented in that ledger entry.
+-- Repeat this additive revoke in the genuinely pending migration so production
+-- receives the same protection as a fresh install.
+revoke execute on function public.record_audit() from public, anon, authenticated;
 
 -- ---------------------------------------------------------------------------
 -- Public intake idempotency and atomic registration/application creation
