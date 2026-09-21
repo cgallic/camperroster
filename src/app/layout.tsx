@@ -58,7 +58,7 @@ export const metadata: Metadata = {
     default: "CamperRoster — Modern Camp Registration Software & Operations Platform",
     template: "%s | CamperRoster"
   },
-  description: "Get every camper and volunteer ready before opening day. $0/month off-season pricing, automated KaiCalls AI phone reference checking, health lodge eMAR, and cashless canteen POS.",
+  description: "Get every camper and volunteer ready before opening day with registration, paperwork tracking, health records, cabin assignments, and camp operations in one place.",
   keywords: [
     "camp registration software",
     "church camp software",
@@ -91,7 +91,7 @@ export const metadata: Metadata = {
     url: "./",
     siteName: "CamperRoster",
     title: "CamperRoster — Modern Camp Registration Software & Operations Platform",
-    description: "Zero off-season retainers, 2-minute automated KaiCalls phone references, 1-tap SMS health links, and express QR gate check-in.",
+    description: "Camp registration, paperwork tracking, health records, cabin assignments, and express QR gate check-in.",
     images: [
       {
         url: "/images/camp_hero.jpg",
@@ -104,7 +104,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "CamperRoster — Modern Camp Registration Software",
-    description: "Zero off-season retainers, automated KaiCalls AI phone references, and mobile-first parent registration.",
+    description: "Mobile-first camp registration and day-to-day camp operations without off-season retainers.",
     images: ["/images/camp_hero.jpg"]
   },
   // "./" resolves against metadataBase + the current pathname, so every route

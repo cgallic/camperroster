@@ -32,7 +32,7 @@ export default function UltraCampAlternativePage() {
   const faqs = [
     {
       q: "Why do summer camps switch from UltraCamp to CamperRoster?",
-      a: "Camps switch primarily to eliminate UltraCamp's off-season monthly retainer fees ($275 to $975/month from October to March), replace outdated non-responsive desktop forms with modern 16px mobile-first registration, automate staff reference phone calls via KaiCalls Voice AI, and eliminate 30-minute Sunday opening-day check-in traffic lines."
+      a: "Camps switch to eliminate off-season monthly retainers, replace outdated desktop forms with mobile-first registration, organize staff reference reviews, and shorten opening-day check-in lines."
     },
     {
       q: "How does the CamperRoster $0 off-season pricing model compare to UltraCamp?",
@@ -47,8 +47,8 @@ export default function UltraCampAlternativePage() {
       a: "CamperRoster includes a native, full-featured Health Lodge tablet eMAR system. Camp nurses schedule and log Breakfast, Lunch, Dinner, and Bedtime medications with timestamped records compliant with ACA and HIPAA standards. There is no need for a separate CampDoc subscription or double parent logins."
     },
     {
-      q: "How does the KaiCalls automated volunteer reference check work?",
-      a: "When a seasonal counselor or volunteer applies, KaiCalls Voice AI dials their pastor, employer, or professor. The AI conducts a friendly, structured 2-minute safety interview, records the call, and generates a timestamped audio recording and verified transcript with a safety score in your director dashboard."
+      q: "How does volunteer reference tracking work?",
+      a: "When a counselor or volunteer applies, CamperRoster collects their reference's contact details and keeps the director's manual review attached to the application. Automated KaiCalls interviews are still in development."
     },
     {
       q: "How does Sunday opening-day gate check-in work?",
@@ -56,7 +56,7 @@ export default function UltraCampAlternativePage() {
     },
     {
       q: "Can parents split payments or set up monthly installment schedules?",
-      a: "Yes. Parents can pay an initial deposit (e.g. $100) and configure automated monthly installment plans via credit card or ACH bank transfer. CamperRoster automatically handles failed card retries and sends SMS receipts without director intervention."
+      a: "Payment capabilities depend on the camp's configured Stripe account and published registration pricing. CamperRoster does not send SMS receipts today."
     },
     {
       q: "Is our camp's medical and financial data secure?",
@@ -79,7 +79,7 @@ export default function UltraCampAlternativePage() {
         </h1>
         
         <p className="text-base sm:text-xl text-stone-600 font-medium max-w-3xl mx-auto leading-relaxed">
-          UltraCamp bills camps $275–$975 every month during dead winter months while forcing parents through 15-year-old desktop forms. CamperRoster delivers modern 5-step mobile registration, automated KaiCalls Voice AI reference checking, and <b>$0/month in the off-season.</b>
+          UltraCamp bills camps $275–$975 every month during dead winter months while forcing parents through old desktop forms. CamperRoster delivers mobile registration, volunteer reference tracking, and <b>$0/month in the off-season.</b>
         </p>
 
         <div className="pt-2 flex flex-col sm:flex-row justify-center items-center gap-3.5">
@@ -109,7 +109,7 @@ export default function UltraCampAlternativePage() {
           </span>
           <span className="flex items-center gap-1.5 text-stone-800">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>Automated KaiCalls Voice References</span>
+            <span>Volunteer Reference Tracking</span>
           </span>
         </div>
       </section>
@@ -199,7 +199,7 @@ export default function UltraCampAlternativePage() {
               <tr>
                 <td className="p-4 sm:p-5 font-bold">Volunteer Staff Reference Checks</td>
                 <td className="p-4 sm:p-5 text-stone-600">Manual Staff Calling (40+ hours)</td>
-                <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Automated 2-Min KaiCalls Voice AI (Audio + Transcript)</td>
+                <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Reference Details + Manual Review</td>
               </tr>
               <tr>
                 <td className="p-4 sm:p-5 font-bold">Opening-Day Gate Drop-Off Check-In</td>
@@ -224,7 +224,7 @@ export default function UltraCampAlternativePage() {
               <tr>
                 <td className="p-4 sm:p-5 font-bold">Parent Authentication UX</td>
                 <td className="p-4 sm:p-5 text-stone-600">Forgotten Password Resets Required</td>
-                <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">1-Tap SMS Magic Links (Zero Passwords Needed)</td>
+                <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Shareable Registration Links</td>
               </tr>
               <tr>
                 <td className="p-4 sm:p-5 font-bold">Historical Data Migration</td>
@@ -269,7 +269,7 @@ export default function UltraCampAlternativePage() {
             <span className="text-xs font-bold text-stone-400 block">CamperRoster Pro All-Inclusive</span>
             <b className="font-display font-black text-3xl text-emerald-400 block">$2,100 / year</b>
             <p className="text-xs text-stone-400 leading-relaxed pt-1">
-              $0 off-season retainers + flat $6/camper fee covering registration, medical eMAR, Bunk Notes, and KaiCalls Voice AI.
+              $0 off-season retainers + flat per-camper pricing covering registration, medical eMAR, Bunk Notes, and volunteer reference tracking.
             </p>
           </div>
 
@@ -318,7 +318,7 @@ export default function UltraCampAlternativePage() {
             <span className="font-mono text-xs font-bold text-forest-800 bg-forest-100 px-2.5 py-1 rounded-full">STEP 3</span>
             <h4 className="font-display font-black text-base text-stone-950 pt-2">Launch Your Branded Portal</h4>
             <p className="text-xs text-stone-600 leading-relaxed">
-              Your camp portal is live with all historical family records intact. Send 1-tap SMS magic links to parents to register for Summer 2027.
+              Your camp portal is live with historical family records intact. Share registration links with parents for the next season.
             </p>
           </div>
         </div>

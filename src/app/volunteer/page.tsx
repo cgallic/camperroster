@@ -5,6 +5,7 @@ import Link from "next/link";
 import { PhoneCall, CheckCircle2, ArrowRight, Loader2, ArrowLeft, HeartHandshake, ShieldCheck, AlertTriangle } from "lucide-react";
 import type { VolunteerPayload, VolunteerResponse } from "@/lib/formContracts";
 import { CampScopeBlocker, useCampScope } from "@/components/CampScope";
+import { volunteerIdempotencyStorageKey, volunteerRequest } from "@/lib/public-volunteer";
 
 /** Camp comes from ?camp=<slug>; see the note in src/components/CampScope.tsx. */
 function VolunteerPageInner() {
@@ -46,15 +47,16 @@ function VolunteerPageInner() {
         refRelationship,
       };
 
-      const res = await fetch("/api/volunteer", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      const idempotencyStorageKey = volunteerIdempotencyStorageKey(campScope.slug);
+      const idempotencyKey = sessionStorage.getItem(idempotencyStorageKey) ?? crypto.randomUUID();
+      sessionStorage.setItem(idempotencyStorageKey, idempotencyKey);
+
+      const res = await fetch("/api/volunteer", volunteerRequest(payload, idempotencyKey));
       const data: VolunteerResponse = await res.json().catch(() => ({ success: false }));
 
       // Only a real row id counts as success. No id, no success screen.
       if (res.ok && data.success && data.applicationId) {
+        sessionStorage.removeItem(idempotencyStorageKey);
         setAppId(data.applicationId);
         setSubmitted(true);
       } else {
@@ -76,18 +78,18 @@ function VolunteerPageInner() {
       <div className="max-w-3xl mx-auto space-y-8">
         
         <div className="space-y-2">
-          <Link href="/" className="inline-flex items-center gap-2 text-xs font-bold text-stone-500 hover:text-stone-900 transition-colors">
+          <Link href={`/c/${campScope.slug}`} className="inline-flex items-center gap-2 text-xs font-bold text-stone-500 hover:text-stone-900 transition-colors">
             <ArrowLeft className="w-4 h-4" />
-            <span>Back to CamperRoster</span>
+            <span>Back to {campScope.name}</span>
           </Link>
           <span className="eyebrow-pill bg-sun-100 text-sun-900 border border-sun-200">
             STAFF & VOLUNTEER APPLICATION
           </span>
           <h1 className="font-display font-black text-3xl sm:text-4xl text-stone-900 mt-2">
-            Serve at Camp Hope Summer 2027
+            Serve at {campScope.name}
           </h1>
           <p className="text-xs sm:text-sm text-stone-600">
-            Join our dedicated team of counselors, nurses, and kitchen staff to mentor youth in a safe camp environment.
+            Apply for a volunteer role with {campScope.name}. The camp office will review your application and reference before anyone is contacted.
           </p>
         </div>
 
@@ -106,8 +108,8 @@ function VolunteerPageInner() {
                 <div className="font-mono text-xs text-forest-800 bg-white p-3 rounded-xl border border-forest-200 max-w-sm mx-auto">
                   Application ID: {appId}
                 </div>
-                <Link href="/" className="btn-primary-agency text-xs justify-center py-3 mt-4">
-                  Return to Home
+                <Link href={`/c/${campScope.slug}`} className="btn-primary-agency text-xs justify-center py-3 mt-4">
+                  Return to {campScope.name}
                 </Link>
               </div>
             ) : (

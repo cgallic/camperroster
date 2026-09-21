@@ -49,7 +49,13 @@ function toLocalInput(iso: string | null): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-export default function MailQueueClient({ messages }: { messages: QueuedMessage[] }) {
+export default function MailQueueClient({
+  messages,
+  mailConfigured,
+}: {
+  messages: QueuedMessage[];
+  mailConfigured: boolean;
+}) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [tab, setTab] = useState("review");
@@ -149,6 +155,13 @@ export default function MailQueueClient({ messages }: { messages: QueuedMessage[
           </>
         }
       />
+
+      {!mailConfigured && (
+        <Notice tone="error">
+          Email delivery is not configured. You can review and edit drafts, but approval and scheduled sending are
+          disabled until the camp&apos;s SMTP settings are installed and verified.
+        </Notice>
+      )}
 
       <StatStrip>
         <StatCard
@@ -310,7 +323,7 @@ export default function MailQueueClient({ messages }: { messages: QueuedMessage[
                       <Button
                         variant="primary"
                         size="sm"
-                        disabled={disabled}
+                        disabled={disabled || !mailConfigured}
                         onClick={() =>
                           act(m, "approve_and_schedule", "Approved. It will send at the time on the draft.")
                         }

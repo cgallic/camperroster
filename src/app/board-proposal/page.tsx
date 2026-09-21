@@ -115,7 +115,7 @@ An example evaluation of moving a camp off fragmented legacy tools (UltraCamp, s
                 <tr>
                   <td className="p-3.5 font-bold">Staff Volunteer Reference Calling</td>
                   <td className="p-3.5 text-stone-600">40 hrs staff labor (~$1,000)</td>
-                  <td className="p-3.5 bg-emerald-50/50 font-bold text-emerald-900">Included (KaiCalls Voice AI)</td>
+                  <td className="p-3.5 bg-emerald-50/50 font-bold text-emerald-900">Included (manual workflow)</td>
                   <td className="p-3.5 font-black text-emerald-700">Save 40 Hours</td>
                 </tr>
                 <tr>
@@ -155,7 +155,7 @@ An example evaluation of moving a camp off fragmented legacy tools (UltraCamp, s
               </p>
             </div>
             <div className="p-4 rounded-xl border border-stone-200 space-y-1">
-              <b className="text-stone-950 block">🎙️ Automated KaiCalls Voice References</b>
+              <b className="text-stone-950 block">🎙️ Planned KaiCalls Voice References</b>
               <p className="text-stone-600 leading-relaxed">
 In development: the voice assistant dials mentors and pastors, runs a 2-minute structured interview, and files the recording and transcript against the applicant. Until it ships, references are reviewed by hand in the director dashboard.
               </p>
@@ -167,7 +167,7 @@ In development: the voice assistant dials mentors and pastors, runs a 2-minute s
               </p>
             </div>
             <div className="p-4 rounded-xl border border-stone-200 space-y-1">
-              <b className="text-stone-950 block">📱 1-Tap SMS Magic Links</b>
+              <b className="text-stone-950 block">📱 Shareable Registration Links</b>
               <p className="text-stone-600 leading-relaxed">
 In development: no more forgotten parent passwords &mdash; a one-tap link to finish missing immunization cards and photo uploads.
               </p>

@@ -2,6 +2,7 @@ import { requireArea } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import StaffHeader from "@/components/StaffHeader";
 import MailQueueClient, { type QueuedMessage } from "./MailQueueClient";
+import { smtpConfig } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
 
@@ -44,7 +45,7 @@ export default async function MailQueuePage() {
   return (
     <>
       <StaffHeader />
-      <MailQueueClient messages={messages} />
+      <MailQueueClient messages={messages} mailConfigured={smtpConfig() !== null} />
     </>
   );
 }

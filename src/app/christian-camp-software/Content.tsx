@@ -30,8 +30,8 @@ export default function DeepSeoLandingPage() {
 
   const faqs = [
   {
-    "q": "Can KaiCalls be customized for our church camp's specific reference questions?",
-    "a": "Yes! You can configure custom doctrinal, character, and safety screening questions for volunteer counselors and staff applicants."
+    "q": "Can we use our church camp's own reference questions?",
+    "a": "Yes. Camp leaders can use their own doctrinal, character, and safety questions while recording the review against the volunteer application."
   },
   {
     "q": "Does CamperRoster support church scholarship and sponsorship codes?",
@@ -62,7 +62,7 @@ export default function DeepSeoLandingPage() {
         </h1>
         
         <p className="text-base sm:text-xl text-stone-600 font-medium max-w-3xl mx-auto leading-relaxed">
-          One platform for the whole ministry year: registration, Health Lodge eMAR, cashless canteen, and Bunk Notes mail call — with KaiCalls pastoral reference calling included and $0/month across your off-season. Built for CCCA member camps and conference centers.
+          One platform for the whole ministry year: registration, Health Lodge eMAR, cashless canteen, Bunk Notes mail call, and volunteer reference tracking — with $0/month across your off-season. Built for CCCA member camps and conference centers.
         </p>
 
         <div className="pt-2 flex flex-col sm:flex-row justify-center items-center gap-3.5">
@@ -84,7 +84,7 @@ export default function DeepSeoLandingPage() {
         <div className="pt-4 flex flex-wrap justify-center items-center gap-6 text-xs font-bold text-stone-500">
           <span className="flex items-center gap-1.5 text-stone-800">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>KaiCalls Pastoral Voice AI References</span>
+            <span>Pastoral Reference Tracking</span>
           </span>
           <span className="flex items-center gap-1.5 text-stone-800">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
@@ -177,7 +177,7 @@ export default function DeepSeoLandingPage() {
               <tr>
         <td className="p-4 sm:p-5 font-bold">Pastoral Reference Checking</td>
         <td className="p-4 sm:p-5 text-stone-600">Manual Staff Calling (40+ hours)</td>
-        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Automated 2-Min KaiCalls Voice AI (Audio + Transcript)</td>
+        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Reference Details + Manual Review</td>
       </tr>
       <tr>
         <td className="p-4 sm:p-5 font-bold">Winter Off-Season Retainer</td>
@@ -218,9 +218,9 @@ export default function DeepSeoLandingPage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div className="p-6 rounded-2xl bg-white border-2 border-stone-200 space-y-2">
-        <b className="font-display font-black text-lg text-stone-950 block">🎙️ KaiCalls Pastoral Reference AI</b>
+        <b className="font-display font-black text-lg text-stone-950 block">🎙️ Pastoral Reference Review</b>
         <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-          AI Voice Assistant calls references, conducts structured safety interviews, and generates verified transcripts with character ratings.
+          Collect pastoral reference details with the application and keep the camp director's manual review attached to the applicant.
         </p>
       </div>
       <div className="p-6 rounded-2xl bg-white border-2 border-stone-200 space-y-2">

@@ -34,8 +34,8 @@ export default function DeepSeoLandingPage() {
     "a": "Yes! CamperRoster allows church group leaders to register blocks of youth and track individual church balances seamlessly."
   },
   {
-    "q": "How does KaiCalls help youth pastors during volunteer recruitment?",
-    "a": "KaiCalls automatically calls pastoral and mentor references for volunteer cabin leaders, recording 2-minute character interviews and saving 40+ hours of phone tag."
+    "q": "How does CamperRoster help youth pastors review volunteer references?",
+    "a": "CamperRoster collects pastoral and mentor reference details with each volunteer application and keeps the director's manual review attached to the applicant. Automated KaiCalls interviews are still in development."
   },
   {
     "q": "Does CamperRoster charge off-season retainer fees?",
@@ -84,11 +84,11 @@ export default function DeepSeoLandingPage() {
         <div className="pt-4 flex flex-wrap justify-center items-center gap-6 text-xs font-bold text-stone-500">
           <span className="flex items-center gap-1.5 text-stone-800">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>1-Tap SMS Magic Links (Zero Passwords)</span>
+            <span>Shareable Registration Links</span>
           </span>
           <span className="flex items-center gap-1.5 text-stone-800">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>KaiCalls Pastoral Voice AI References</span>
+            <span>Pastoral Reference Tracking</span>
           </span>
           <span className="flex items-center gap-1.5 text-stone-800">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
@@ -177,7 +177,7 @@ export default function DeepSeoLandingPage() {
               <tr>
         <td className="p-4 sm:p-5 font-bold">Pastoral Reference Verification</td>
         <td className="p-4 sm:p-5 text-stone-600">Manual Staff Calling (40+ hours)</td>
-        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Automated 2-Min KaiCalls Voice AI (Audio + Transcript)</td>
+        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Reference Details + Manual Review</td>
       </tr>
       <tr>
         <td className="p-4 sm:p-5 font-bold">Winter Off-Season Retainer</td>
@@ -187,7 +187,7 @@ export default function DeepSeoLandingPage() {
       <tr>
         <td className="p-4 sm:p-5 font-bold">Parent Login Experience</td>
         <td className="p-4 sm:p-5 text-stone-600">Forgotten Password Resets Required</td>
-        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">1-Tap SMS Magic Links (Zero Passwords Needed)</td>
+        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Shareable Registration Links</td>
       </tr>
       <tr>
         <td className="p-4 sm:p-5 font-bold">Church Group Subsidy Codes</td>
@@ -218,9 +218,9 @@ export default function DeepSeoLandingPage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div className="p-6 rounded-2xl bg-white border-2 border-stone-200 space-y-2">
-        <b className="font-display font-black text-lg text-stone-950 block">🎙️ KaiCalls Pastoral Reference AI</b>
+        <b className="font-display font-black text-lg text-stone-950 block">🎙️ Pastoral Reference Review</b>
         <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-          AI Voice Assistant calls references, conducts structured safety interviews, and generates verified transcripts with character ratings.
+          Collect pastoral reference details with the application and keep the camp director's manual review attached to the applicant.
         </p>
       </div>
       <div className="p-6 rounded-2xl bg-white border-2 border-stone-200 space-y-2">
@@ -271,7 +271,7 @@ export default function DeepSeoLandingPage() {
             <span className="font-mono text-xs font-bold text-forest-800 bg-forest-100 px-2.5 py-1 rounded-full">STEP 2</span>
             <h4 className="font-display font-black text-base text-stone-950 pt-2">Send One Link to the Youth Group</h4>
             <p className="text-xs text-stone-600 leading-relaxed">
-              Families open the link and sign in with a 1-tap SMS magic link. No passwords to forget, and cabin buddy requests are collected in the form.
+              Families open the shared registration link and complete the form, including cabin buddy requests.
             </p>
           </div>
 

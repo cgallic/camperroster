@@ -88,7 +88,7 @@ export default function DeepSeoLandingPage() {
           </span>
           <span className="flex items-center gap-1.5 text-stone-800">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>Zero Double Logins (1-Tap SMS Magic Links)</span>
+            <span>Shareable Registration Links</span>
           </span>
           <span className="flex items-center gap-1.5 text-stone-800">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
@@ -187,7 +187,7 @@ export default function DeepSeoLandingPage() {
       <tr>
         <td className="p-4 sm:p-5 font-bold">Parent Login Requirements</td>
         <td className="p-4 sm:p-5 text-stone-600">Separate CampDoc Password Required</td>
-        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">1-Tap SMS Magic Links (Zero Passwords)</td>
+        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Shareable Registration Links</td>
       </tr>
       <tr>
         <td className="p-4 sm:p-5 font-bold">Per-Camper Additional Medical Fee</td>

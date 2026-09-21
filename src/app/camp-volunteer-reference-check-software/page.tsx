@@ -3,7 +3,7 @@ import Content from "./Content";
 
 const title = "Camp Volunteer Reference Check Software | Voice AI";
 const description =
-  "Automate camp volunteer reference checks. KaiCalls Voice AI phones each reference, runs a 2-minute child-safety interview, and returns audio and transcripts.";
+  "Collect volunteer reference details, keep reviews attached to each application, and track the camp director's follow-up in one place.";
 const url = "https://camperroster.com/camp-volunteer-reference-check-software";
 
 export const metadata: Metadata = {

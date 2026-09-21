@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { isSetupIncompleteError, resolveCampWithRolesOrRespond, setupIncompleteResponse } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 /**
  * Gate check-in. Staff-only, tenant-scoped.
  *
@@ -10,6 +12,54 @@ import { isSetupIncompleteError, resolveCampWithRolesOrRespond, setupIncompleteR
  * by guessing a UUID. It now runs on the user-scoped client (RLS applies) AND
  * filters explicitly on camp_id.
  */
+export async function GET() {
+  const resolved = await resolveCampWithRolesOrRespond(["registrar", "staff"]);
+  if (resolved.response) return resolved.response;
+  const { camp } = resolved;
+
+  try {
+    const supabase = await createServerSupabaseClient();
+    const { data, error } = await supabase
+      .from("registrations")
+      .select(
+        "id, status, cabin_name, counselor_name, canteen_balance_cents, checked_in, checked_in_at, campers(legal_first_name, legal_last_name, preferred_name, grade_entering)"
+      )
+      .eq("camp_id", camp.campId)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      if (isSetupIncompleteError(error)) return setupIncompleteResponse(error);
+      throw error;
+    }
+
+    const registrations = (data ?? []).map((row: any) => {
+      const camper = Array.isArray(row.campers) ? row.campers[0] : row.campers;
+      const legalName = [camper?.legal_first_name, camper?.legal_last_name].filter(Boolean).join(" ").trim();
+      return {
+        id: row.id,
+        name: camper?.preferred_name || legalName || `Registration ${String(row.id).slice(0, 8)}`,
+        legalName: legalName || null,
+        grade: camper?.grade_entering ?? null,
+        status: row.status ?? null,
+        cabin: row.cabin_name ?? null,
+        counselor: row.counselor_name ?? null,
+        canteenBalanceCents: row.canteen_balance_cents ?? 0,
+        checkedIn: Boolean(row.checked_in),
+        checkedInAt: row.checked_in_at ?? null,
+      };
+    });
+
+    return NextResponse.json({
+      success: true,
+      camp: { campId: camp.campId, campName: camp.campName },
+      registrations,
+    });
+  } catch (err: any) {
+    if (isSetupIncompleteError(err)) return setupIncompleteResponse(err);
+    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+  }
+}
+
 export async function POST(req: Request) {
   const resolved = await resolveCampWithRolesOrRespond(["registrar", "staff"]);
   if (resolved.response) return resolved.response;

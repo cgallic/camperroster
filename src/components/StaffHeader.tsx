@@ -1,7 +1,8 @@
 import { getMembership } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { navigationForRole } from "@/lib/staff-navigation";
 import SignOutButton from "./SignOutButton";
-import Link from "next/link";
+import StaffNavigation from "./StaffNavigation";
 
 /**
  * Shared strip on every guarded staff page: who is signed in, what role they
@@ -16,22 +17,26 @@ export default async function StaffHeader() {
 
   if (!user) return null;
 
+  const navigation = membership ? navigationForRole(membership.role) : [];
+
   return (
-    <div className="border-b border-stone-200 bg-white/80 backdrop-blur-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2 min-w-0">
-          <span className="text-xs text-stone-600 font-semibold truncate">{user.email}</span>
-          {membership && (
-            <span className="font-mono text-[10px] font-bold uppercase text-forest-800 bg-forest-50 px-2.5 py-1 rounded-full border border-forest-100 shrink-0">
-              {membership.role.replace("_", " ")}
-            </span>
-          )}
-        </div>
-        <div className="flex items-center gap-3">
-          {membership?.role === "director" && <Link href="/admin/staff" className="text-xs font-bold text-forest-900 underline">Team</Link>}
+    <header className="sticky top-0 z-40 border-b border-stone-200 bg-white/95 shadow-[0_1px_0_rgba(28,59,47,0.04)] backdrop-blur-md">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="flex items-center justify-between gap-3 border-b border-stone-100 py-2">
+          <div className="flex min-w-0 items-center gap-2">
+            <span className="font-display text-sm font-black tracking-tight text-forest-950">CamperRoster</span>
+            <span className="hidden h-4 w-px bg-stone-200 sm:block" aria-hidden="true" />
+            <span className="hidden max-w-64 truncate text-xs font-semibold text-stone-500 sm:block">{user.email}</span>
+            {membership && (
+              <span className="shrink-0 rounded-full border border-forest-100 bg-forest-50 px-2.5 py-1 font-mono text-[10px] font-bold uppercase text-forest-800">
+                {membership.role === "director" ? "super admin" : membership.role.replace("_", " ")}
+              </span>
+            )}
+          </div>
           <SignOutButton />
         </div>
+        {navigation.length > 0 && <StaffNavigation items={navigation} />}
       </div>
-    </div>
+    </header>
   );
 }

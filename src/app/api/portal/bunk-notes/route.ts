@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
-import { isSetupIncompleteError, resolveCampOrRespond, setupIncompleteResponse } from "@/lib/auth";
+import { isSetupIncompleteError, resolveCampWithRolesOrRespond, setupIncompleteResponse } from "@/lib/auth";
 
 /**
  * Bunk notes. Staff-only, tenant-scoped.
@@ -15,7 +15,7 @@ import { isSetupIncompleteError, resolveCampOrRespond, setupIncompleteResponse }
  */
 
 export async function GET(req: Request) {
-  const resolved = await resolveCampOrRespond();
+  const resolved = await resolveCampWithRolesOrRespond(["registrar"]);
   if (resolved.response) return resolved.response;
   const { camp } = resolved;
 
@@ -48,7 +48,7 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  const resolved = await resolveCampOrRespond();
+  const resolved = await resolveCampWithRolesOrRespond(["registrar"]);
   if (resolved.response) return resolved.response;
   const { camp } = resolved;
 

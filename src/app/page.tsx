@@ -31,7 +31,7 @@ export default function B2BSaasHomePage() {
     },
     {
       q: "How does the automated volunteer reference check work?",
-      a: "When a counselor or staff applicant applies, KaiCalls Voice Assistant automatically dials their pastor, youth leader, or mentor. It conducts a friendly 2-minute character interview, records the call, and delivers a verified transcript and safety assessment directly to your director dashboard."
+      a: "CamperRoster collects the applicant's reference details and keeps the review with the volunteer record. Calls are handled by camp staff today; automated KaiCalls interviews are still in development."
     },
     {
       q: "How do we migrate our existing roster data from UltraCamp or spreadsheets?",
@@ -83,7 +83,7 @@ export default function B2BSaasHomePage() {
             </h1>
 
             <p className="text-base sm:text-xl text-stone-200 font-medium leading-relaxed max-w-2xl drop-shadow-sm">
-              The modern camp registration and operations platform. Built to eliminate parent drop-off, automate staff reference checks with KaiCalls Voice AI, and cut winter software retainers to $0.
+              The modern camp registration and operations platform. Built to simplify parent registration, keep staff reference work organized, and cut winter software retainers to $0.
             </p>
 
             {/* ACTION BUTTONS */}
@@ -99,7 +99,7 @@ export default function B2BSaasHomePage() {
                 href="/c/camphope"
                 className="px-6 py-4 rounded-xl bg-stone-900/90 hover:bg-stone-900 text-white font-bold text-xs sm:text-sm border border-stone-700 flex items-center justify-center gap-2 backdrop-blur-xs"
               >
-                <span>Explore the Camp Hope demo camp →</span>
+                <span>Open the Camp Hope portal →</span>
               </Link>
             </div>
 
@@ -183,11 +183,11 @@ export default function B2BSaasHomePage() {
             <div className="p-6 space-y-3 flex-1 flex flex-col justify-between bg-amber-50/20">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <h3 className="font-display font-black text-xl text-stone-950">KaiCalls Automated Reference Checks</h3>
+                  <h3 className="font-display font-black text-xl text-stone-950">Volunteer Reference Tracking</h3>
                   <span className="text-[10px] font-bold bg-amber-400 text-stone-950 px-2.5 py-0.5 rounded-full">AUTOMATED CALLING</span>
                 </div>
                 <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-                  Built to take spring reference calls off the director&apos;s desk. The voice assistant dials pastoral and mentor references, conducts a 2-minute structured interview, and files the recording and transcript against the applicant.
+                  Collect reference details with each application and keep the director&apos;s review attached to the applicant. Automated KaiCalls interviews are in development; today, a person places the call.
                 </p>
               </div>
               <Link href="/volunteer" className="text-xs font-black text-amber-900 flex items-center gap-1 hover:underline pt-3">
@@ -300,27 +300,27 @@ export default function B2BSaasHomePage() {
         </div>
       </section>
 
-      {/* 3. INTERACTIVE DEMO SHOWCASE (DEMO TENANT: CAMP HOPE) */}
+      {/* 3. LIVE CAMP SHOWCASE */}
       <section className="px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="bg-stone-950 text-white rounded-3xl p-6 sm:p-12 border-2 border-stone-800 shadow-2xl space-y-8">
 
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-stone-800 pb-6">
             <div className="space-y-1">
               <span className="font-mono text-xs font-bold text-amber-400 uppercase tracking-widest">
-                INTERACTIVE PRODUCT DEMO
+                LIVE CAMP PORTAL
               </span>
               <h3 className="font-display font-black text-2xl sm:text-4xl text-white">
-                Walk through a whole camp season inside our demo camp.
+                See Camp Hope&apos;s live public registration portal.
               </h3>
               <p className="text-xs sm:text-sm text-stone-400 leading-relaxed pt-2 max-w-2xl">
-                &ldquo;Camp Hope&rdquo; is our sample camp, loaded with example campers, volunteers, and health records so you can click every screen before you sign up. No account, no sales call, nothing to install.
+                Camp Hope&apos;s portal uses its real published session and pricing. Private camper, volunteer, health, and operations records remain protected behind staff sign-in.
               </p>
             </div>
             <Link
               href="/c/camphope"
               className="px-5 py-3 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-stone-950 font-black text-xs sm:text-sm shrink-0 flex items-center gap-1.5"
             >
-              <span>Explore the Camp Hope Demo Portal</span>
+              <span>Open the Camp Hope Portal</span>
               <ArrowRight className="w-4 h-4 stroke-[3]" />
             </Link>
           </div>
@@ -336,17 +336,17 @@ export default function B2BSaasHomePage() {
 
             <div className="p-6 rounded-2xl bg-stone-900 border border-stone-800 space-y-2">
               <b className="font-display font-black text-3xl sm:text-4xl text-amber-400 block">2-Min Call</b>
-              <span className="text-xs font-bold text-stone-300 block">Try a KaiCalls Reference Check</span>
+              <span className="text-xs font-bold text-stone-300 block">Try a Volunteer Application</span>
               <p className="text-xs text-stone-400 leading-relaxed pt-1">
-                Submit a demo volunteer application and hear how the voice assistant structures a pastoral reference interview instead of you playing spring phone tag.
+                Submit a volunteer application and see how reference details are collected for the camp director&apos;s manual review.
               </p>
             </div>
 
             <div className="p-6 rounded-2xl bg-stone-900 border border-stone-800 space-y-2">
               <b className="font-display font-black text-3xl sm:text-4xl text-sky-400 block">6 Tools</b>
-              <span className="text-xs font-bold text-stone-300 block">Open in the Demo Right Now</span>
+              <span className="text-xs font-bold text-stone-300 block">Available to Authorized Staff</span>
               <p className="text-xs text-stone-400 leading-relaxed pt-1">
-                Registration wizard, gate QR check-in, nurse eMAR, canteen POS, bunk notes, and the director hub &mdash; all clickable with sample data.
+                Registration, check-in, nurse eMAR, canteen wallets, bunk notes, and the director workspace use the camp&apos;s live records with role-based access.
               </p>
             </div>
           </div>
