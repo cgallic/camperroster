@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { resolveCampOrRespond } from "@/lib/auth";
+import { buildNameSearchFilter } from "@/lib/name-search";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 
 export const dynamic = "force-dynamic";
@@ -20,7 +21,7 @@ export async function GET(request: Request) {
     .eq("camp_id", camp.campId);
   if (id) query = query.eq("id", id);
   if (year && /^20\d{2}$/.test(year)) query = query.eq("season_year", Number(year));
-  if (search) query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%`);
+  if (search) query = query.or(buildNameSearchFilter(search));
   const { data, error, count } = await query.order("season_year", { ascending: false }).order("last_name").order("first_name").order("id").range(page * 50, page * 50 + 49);
   if (error) return NextResponse.json({ error: "Imported records could not be loaded. Please try again." }, { status: 500 });
   return NextResponse.json({ records: data, total: count, campName: camp.campName }, { headers: { "Cache-Control": "private, no-store" } });
