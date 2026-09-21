@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { resolveCampOrRespond } from "@/lib/auth";
-import { buildNameSearchFilter } from "@/lib/name-search";
+import { buildNameSearchFilter, isUuid, parseNameSearch } from "@/lib/name-search";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 
 export const dynamic = "force-dynamic";
@@ -13,8 +13,10 @@ export async function GET(request: Request) {
   const params = new URL(request.url).searchParams;
   const year = params.get("year");
   const page = Math.max(0, Number.parseInt(params.get("page") || "0", 10) || 0);
-  const search = (params.get("q") || "").trim().replace(/[^\p{L}\p{N} '\-]/gu, "").slice(0, 80);
+  const { value: search, invalid: invalidSearch } = parseNameSearch(params.get("q") || "");
   const id = params.get("id");
+  if (invalidSearch) return NextResponse.json({ error: "Search must include at least one letter or number." }, { status: 400 });
+  if (id && !isUuid(id)) return NextResponse.json({ error: "Record id must be a valid UUID." }, { status: 400 });
   const supabase = await createServerSupabaseClient();
   let query = supabase.from("camp_registration_imports")
     .select(id ? "*" : "id,season_year,participant_type,first_name,last_name,source_status,source_workbook,source_sheet,source_row", { count: "exact" })

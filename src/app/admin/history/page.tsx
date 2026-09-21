@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { cancelLatestRequest, isCurrentRequest, startLatestRequest } from "@/lib/latest-request";
 
 type RecordRow = { id: string; season_year: number; participant_type: string; first_name: string; last_name: string; source_status: string | null; source_workbook: string; source_sheet: string; source_row: number; source_data?: Record<string, unknown> };
 
@@ -16,9 +17,12 @@ export default function ImportedRecordsPage() {
   const [error, setError] = useState("");
   const [selected, setSelected] = useState<RecordRow | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
+  const detailRequest = useRef<AbortController | null>(null);
 
   useEffect(() => {
     const abort = new AbortController();
+    cancelLatestRequest(detailRequest);
+    setDetailLoading(false);
     setLoading(true); setError(""); setRows([]); setSelected(null);
     const timer = setTimeout(async () => {
       try {
@@ -32,15 +36,24 @@ export default function ImportedRecordsPage() {
     return () => { clearTimeout(timer); abort.abort(); };
   }, [year, search, page]);
 
+  useEffect(() => () => cancelLatestRequest(detailRequest), []);
+
   async function openRecord(row: RecordRow) {
+    const request = startLatestRequest(detailRequest);
     setSelected(null); setDetailLoading(true); setError("");
     try {
-      const response = await fetch(`/api/admin/history?id=${encodeURIComponent(row.id)}`, { cache: "no-store" });
+      const response = await fetch(`/api/admin/history?id=${encodeURIComponent(row.id)}`, { cache: "no-store", signal: request.signal });
       const data = await response.json();
       if (!response.ok || !data.records?.[0]) throw new Error(data.error || "Could not open record.");
-      setSelected(data.records[0]);
-    } catch (e) { setError((e as Error).message); }
-    finally { setDetailLoading(false); }
+      if (isCurrentRequest(detailRequest, request)) setSelected(data.records[0]);
+    } catch (e) {
+      if (isCurrentRequest(detailRequest, request)) setError((e as Error).message);
+    } finally {
+      if (isCurrentRequest(detailRequest, request)) {
+        detailRequest.current = null;
+        setDetailLoading(false);
+      }
+    }
   }
 
   return <main className="max-w-7xl mx-auto px-4 sm:px-6 py-10 space-y-6">
