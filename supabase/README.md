@@ -5,10 +5,16 @@ Migrations live in `supabase/migrations/` and are applied **in filename order**.
 | File | What it does | Depends on |
 |---|---|---|
 | `0001_tenancy_and_auth.sql` | Makes `public.camps` the single tenant root, adds `camp_members`, adds `camp_id` to every tenant-scoped table, enables deny-by-default RLS everywhere, retires `organizations` / `organization_id`. | Nothing. Run first. |
+| `0002`-`0013` | Billing, roles, camp operations, documents, payments, communications, and function hardening. | Apply in filename order. |
+| `0014_historical_imports.sql` | Creates the director-only historical source table. It never overwrites or deletes imported rows. | `0001` membership helpers. |
+| `0015`-`0020` | Placement, payment notes, linter hardening, Stripe event ownership, camp location, and safety decisions. | Apply in filename order. |
 
 > `0002_billing.sql` is owned by a separate workstream and depends on `0001`
 > having been applied (it needs `camps`, `camp_members` and
 > `public.is_camp_member(uuid)`). Never run `0002` before `0001`.
+
+`npm run check:migrations` verifies that migration numbers are unique and
+contiguous and rejects table/schema drops and truncation before a release.
 
 ---
 

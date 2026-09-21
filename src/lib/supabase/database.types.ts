@@ -295,6 +295,65 @@ export type Database = {
           },
         ]
       }
+      camp_registration_imports: {
+        Row: {
+          camp_id: string
+          first_name: string
+          id: string
+          imported_at: string
+          last_name: string
+          participant_type: string
+          season_year: number
+          source_data: Json
+          source_registration_id: string | null
+          source_row: number
+          source_sha256: string
+          source_sheet: string
+          source_status: string | null
+          source_workbook: string
+        }
+        Insert: {
+          camp_id: string
+          first_name: string
+          id: string
+          imported_at?: string
+          last_name: string
+          participant_type: string
+          season_year: number
+          source_data: Json
+          source_registration_id?: string | null
+          source_row: number
+          source_sha256: string
+          source_sheet: string
+          source_status?: string | null
+          source_workbook: string
+        }
+        Update: {
+          camp_id?: string
+          first_name?: string
+          id?: string
+          imported_at?: string
+          last_name?: string
+          participant_type?: string
+          season_year?: number
+          source_data?: Json
+          source_registration_id?: string | null
+          source_row?: number
+          source_sha256?: string
+          source_sheet?: string
+          source_status?: string | null
+          source_workbook?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "camp_registration_imports_camp_id_fkey"
+            columns: ["camp_id"]
+            isOneToOne: false
+            referencedRelation: "camps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       camp_sessions: {
         Row: {
           camp_id: string | null

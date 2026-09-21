@@ -7,7 +7,14 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "test": "node --experimental-strip-types --test \"src/**/*.test.ts\" tests/*.test.mjs"
+    "test": "node --experimental-strip-types --test \"src/**/*.test.ts\" tests/*.test.mjs",
+    "test:import": "python scripts/test_import_camp_workbooks.py",
+    "test:private-cache": "node scripts/test-private-cache.cjs",
+    "check:migrations": "node scripts/check-migrations.mjs",
+    "validate:env": "node scripts/validate-env.mjs",
+    "ops:storage": "node --experimental-strip-types scripts/setup-storage.ts",
+    "ops:grant-access": "node --experimental-strip-types scripts/grant-access.ts",
+    "verify": "npm run typecheck && npm test && npm run test:import && npm run test:private-cache && npm run check:migrations && npm run build"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

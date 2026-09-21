@@ -5,7 +5,7 @@
  * counselor pages -- row-level security answers every other query with nothing.
  * A fresh database therefore has no way in, which is what this script is for.
  *
- *   npx tsx scripts/grant-access.ts dave@camphope.org camphope director
+ *   npm run ops:grant-access -- dave@camphope.org camphope director
  *
  * An unknown email is invited, which emails them a link to set a password. A
  * known one is just given the membership.

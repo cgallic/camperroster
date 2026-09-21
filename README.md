@@ -24,11 +24,20 @@ npm run dev
 There are no fallback values in the code. A missing variable fails the request
 that needs it rather than silently connecting somewhere unexpected.
 
+Before a production promotion, validate the complete payments, mail,
+notification, and registration configuration without printing any values:
+
+```bash
+vercel env pull .env.production.local --environment=production
+npm run validate:env -- production .env.production.local
+```
+
 ### Database
 
-Schema lives in `supabase/migrations/`, applied in filename order. `0001`-`0003`
-set up tenancy, auth and the camp subscription billing; everything from `0004`
-builds the camp operations on top of them.
+Schema lives in `supabase/migrations/`, applied in filename order. The migration
+gate rejects duplicate numbers, gaps, destructive table/schema drops, and
+truncation. `0014_historical_imports.sql` preserves the private Camp Hope history
+separately from current enrollment; reapplying it never replaces imported rows.
 
 Reference data comes from `supabase/seed/camp_defaults.sql`: a season, the five
 registration windows, the paperwork each population owes, the service areas, and
@@ -55,7 +64,7 @@ Row-level security means an account with no `camp_members` row sees nothing —
 including the admin pages. A fresh database has no way in, so:
 
 ```bash
-npx tsx scripts/grant-access.ts dave@camphope.org camphope director
+npm run ops:grant-access -- dave@camphope.org camphope director
 ```
 
 An unknown email is invited and gets a link to set a password; a known one is
@@ -68,7 +77,7 @@ Scanned paperwork lives in a **private** Supabase Storage bucket,
 `camp-documents`. Create it once per project:
 
 ```bash
-npx tsx scripts/setup-storage.ts
+npm run ops:storage
 ```
 
 The script is idempotent, and it re-asserts `public: false` every run — if
@@ -142,17 +151,15 @@ Vercel validates `vercel.json` against a strict schema and rejects any key it
 does not recognise, so don't add a comment field to explain a setting — the
 deployment fails on the config before it ever builds. Explain it here instead.
 
-**There is no CI.** GitHub Actions are not available on this repo — the billing
-isn't there, so a workflow fails rather than runs. Don't add one, and don't read
-a green Vercel status on a `claude/*` branch as proof of anything: it reports
-"Canceled by Ignored Build Step", which means the build was skipped.
+GitHub Actions runs the same verification command required locally. A skipped
+Vercel preview is not proof; production promotion requires the `CI` workflow on
+the exact commit plus the live checks in
+[`docs/operations/production-runbook.md`](docs/operations/production-runbook.md).
 
-Verification is local, and it is the only verification there is. Before pushing:
+Before pushing:
 
 ```bash
-npx tsc --noEmit
-npm test
-npm run build
+npm run verify
 ```
 
 ## Known issues

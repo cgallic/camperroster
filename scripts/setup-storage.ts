@@ -5,7 +5,7 @@
  * re-checked and, if someone made it public, forced back to private — that is
  * the failure mode worth guarding, since these objects are medical records.
  *
- *   npx tsx scripts/setup-storage.ts
+ *   npm run ops:storage
  *
  * Needs NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in the
  * environment (the service key never reaches the browser).
