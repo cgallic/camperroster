@@ -31,6 +31,8 @@ export interface RegisterPayload {
   relationship: string;
 
   // Step 2 — camper + session
+  /** Canonical camp_sessions UUID. sessionSlug remains a temporary legacy alias. */
+  sessionId?: string;
   sessionSlug: SessionSlug | string;
   camperFirstName: string;
   camperLastName: string;
@@ -66,6 +68,9 @@ export interface RegisterResponse {
   error?: string;
   registrationId?: string;
   camperId?: string;
+  invoiceId?: string;
+  uploadToken?: string | null;
+  parentAccountStatus?: "not_created";
 }
 
 /** POST /api/volunteer */

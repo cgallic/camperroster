@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
-import { isSetupIncompleteError, resolveCampOrRespond, setupIncompleteResponse } from "@/lib/auth";
+import { isSetupIncompleteError, resolveCampWithRolesOrRespond, setupIncompleteResponse } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
  * filters below.
  */
 export async function GET() {
-  const resolved = await resolveCampOrRespond();
+  const resolved = await resolveCampWithRolesOrRespond(["registrar"]);
   if (resolved.response) return resolved.response;
   const { camp } = resolved;
 

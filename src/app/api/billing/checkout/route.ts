@@ -63,6 +63,12 @@ export async function POST(req: Request) {
       { status: 401 }
     );
   }
+  if (camp.role !== "director") {
+    return NextResponse.json(
+      { success: false, error: "forbidden", message: "Only a camp director can change the camp subscription." },
+      { status: 403 }
+    );
+  }
 
   // ---- 2. What are they buying --------------------------------------------
   let body: unknown;

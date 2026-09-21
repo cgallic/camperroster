@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
-import { isSetupIncompleteError, resolveCampOrRespond, setupIncompleteResponse } from "@/lib/auth";
+import { isSetupIncompleteError, resolveCampWithRolesOrRespond, setupIncompleteResponse } from "@/lib/auth";
 
 /**
  * Canteen wallet credit/debit. Staff-only, tenant-scoped.
@@ -13,58 +13,36 @@ import { isSetupIncompleteError, resolveCampOrRespond, setupIncompleteResponse }
  * the report) — it must not be built by loosening this route.
  */
 export async function POST(req: Request) {
-  const resolved = await resolveCampOrRespond();
+  const resolved = await resolveCampWithRolesOrRespond(["registrar", "staff", "counselor"]);
   if (resolved.response) return resolved.response;
   const { camp } = resolved;
 
   try {
     const body = await req.json();
-    const { registration_id, amount_cents } = body;
+    const { registration_id, amount_cents, note } = body;
+    const idempotencyKey = req.headers.get("idempotency-key")?.trim() ?? "";
 
-    if (!registration_id || typeof amount_cents !== "number" || !Number.isFinite(amount_cents)) {
+    if (!registration_id || typeof amount_cents !== "number" || !Number.isFinite(amount_cents) || idempotencyKey.length < 8) {
       return NextResponse.json({ success: false, error: "Missing parameters" }, { status: 400 });
     }
 
     const supabase = await createServerSupabaseClient();
-
-    const { data: reg, error: fetchErr } = await supabase
-      .from("registrations")
-      .select("id, canteen_balance_cents")
-      .eq("id", registration_id)
-      .eq("camp_id", camp.campId)
-      .maybeSingle();
-
-    if (fetchErr) {
-      if (isSetupIncompleteError(fetchErr)) return setupIncompleteResponse(fetchErr);
-      throw fetchErr;
-    }
-    if (!reg) {
-      return NextResponse.json(
-        { success: false, error: "No such registration in your camp. Nothing was charged." },
-        { status: 404 }
-      );
-    }
-
-    const newBalance = (reg.canteen_balance_cents || 0) + amount_cents;
-    if (newBalance < 0) {
-      return NextResponse.json(
-        { success: false, error: "That would overdraw the camper's wallet. Nothing was charged." },
-        { status: 409 }
-      );
-    }
-
-    const { error } = await supabase
-      .from("registrations")
-      .update({ canteen_balance_cents: newBalance })
-      .eq("id", registration_id)
-      .eq("camp_id", camp.campId)
-      .select("id")
-      .single();
+    const { data, error } = await (supabase as any).rpc("mutate_canteen_wallet", {
+      p_registration_id: registration_id,
+      p_amount_cents: Math.trunc(amount_cents),
+      p_idempotency_key: idempotencyKey,
+      p_note: typeof note === "string" ? note.trim().slice(0, 500) || null : null,
+    });
 
     if (error) {
       if (isSetupIncompleteError(error)) return setupIncompleteResponse(error);
+      if (error.code === "P0002") return NextResponse.json({ success: false, error: "Registration not found." }, { status: 404 });
+      if (error.code === "42501") return NextResponse.json({ success: false, error: "Your role cannot change wallets." }, { status: 403 });
+      if (error.code === "23514") return NextResponse.json({ success: false, error: error.message }, { status: 409 });
+      if (error.code === "23505") return NextResponse.json({ success: false, error: error.message }, { status: 409 });
       throw error;
     }
+    const newBalance = Number(data.new_balance_cents);
 
     return NextResponse.json({
       success: true,

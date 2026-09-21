@@ -201,6 +201,13 @@ export function noCampResponse() {
   );
 }
 
+export function forbiddenResponse(message = "Your role cannot perform this action.") {
+  return NextResponse.json(
+    { success: false, error: "forbidden", message },
+    { status: 403 }
+  );
+}
+
 /**
  * Resolve the camp for a tenant-scoped API route.
  *
@@ -224,4 +231,17 @@ export async function resolveCampOrRespond(): Promise<
   }
 
   return { camp };
+}
+
+/** Resolve tenant and enforce one of the named roles for JSON API routes. */
+export async function resolveCampWithRolesOrRespond(
+  allowed: readonly Role[]
+): Promise<{ camp: CurrentCamp; response?: never } | { camp?: never; response: NextResponse }> {
+  const resolved = await resolveCampOrRespond();
+  if (resolved.response) return resolved;
+  const role = resolved.camp.role as Role;
+  if (role !== "director" && !allowed.includes(role)) {
+    return { response: forbiddenResponse() };
+  }
+  return { camp: resolved.camp };
 }
