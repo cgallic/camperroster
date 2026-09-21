@@ -8,6 +8,23 @@ export interface PublicCamp {
   directorName: string | null;
 }
 
+export interface PublicCampSession {
+  id: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  minGrade: number;
+  maxGrade: number;
+  priceCents: number;
+  depositCents: number;
+  capacity: number;
+}
+
+export interface PublicCampConfiguration {
+  sessions: PublicCampSession[];
+  activeSeason: { id: string; name: string; year: number } | null;
+}
+
 export type CampLookup =
   | { status: "found"; camp: PublicCamp }
   | { status: "not_found" }
@@ -62,4 +79,45 @@ export async function lookupCampBySlug(rawSlug: string): Promise<CampLookup> {
     }
     return { status: "error", message: (err as Error)?.message || "Camp lookup failed." };
   }
+}
+
+/** Public, non-PII configuration used by a camp page and its registration form. */
+export async function getPublicCampConfiguration(campId: string): Promise<PublicCampConfiguration> {
+  const [{ data: sessionRows, error: sessionError }, { data: seasonRow, error: seasonError }] =
+    await Promise.all([
+      supabaseAdmin
+        .from("camp_sessions")
+        .select("id, name, start_date, end_date, min_grade, max_grade, price_cents, deposit_cents, capacity")
+        .eq("camp_id", campId)
+        .eq("is_active", true)
+        .order("start_date", { ascending: true }),
+      supabaseAdmin
+        .from("seasons")
+        .select("id, name, year")
+        .eq("camp_id", campId)
+        .eq("is_active", true)
+        .order("year", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+    ]);
+
+  if (sessionError) throw sessionError;
+  if (seasonError) throw seasonError;
+
+  return {
+    sessions: (sessionRows ?? []).map((row) => ({
+      id: row.id,
+      name: row.name,
+      startDate: row.start_date,
+      endDate: row.end_date,
+      minGrade: row.min_grade,
+      maxGrade: row.max_grade,
+      priceCents: row.price_cents,
+      depositCents: row.deposit_cents,
+      capacity: row.capacity,
+    })),
+    activeSeason: seasonRow
+      ? { id: seasonRow.id, name: seasonRow.name, year: seasonRow.year }
+      : null,
+  };
 }

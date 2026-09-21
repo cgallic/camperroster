@@ -1,6 +1,7 @@
 import { getMembership } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import SignOutButton from "./SignOutButton";
+import Link from "next/link";
 
 /**
  * Shared strip on every guarded staff page: who is signed in, what role they
@@ -26,7 +27,10 @@ export default async function StaffHeader() {
             </span>
           )}
         </div>
-        <SignOutButton />
+        <div className="flex items-center gap-3">
+          {membership?.role === "director" && <Link href="/admin/staff" className="text-xs font-bold text-forest-900 underline">Team</Link>}
+          <SignOutButton />
+        </div>
       </div>
     </div>
   );

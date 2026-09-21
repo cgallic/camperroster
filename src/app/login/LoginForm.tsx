@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AlertTriangle, ArrowRight, Loader2, Lock } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 
 /** Only same-origin, path-only redirects. Blocks //evil.com and https://evil.com. */
 function safeNext(raw: string | null): string {
@@ -22,6 +23,8 @@ export default function LoginForm() {
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [resetSent, setResetSent] = useState(false);
+  const [sendingReset, setSendingReset] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,6 +48,26 @@ export default function LoginForm() {
       setError(err?.message || "Network error — you were not signed in.");
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const requestReset = async () => {
+    if (!email) {
+      setError("Enter your email address first.");
+      return;
+    }
+    setSendingReset(true);
+    setError(null);
+    try {
+      const supabase = createClient();
+      const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent("/reset-password")}`;
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+      if (resetError) throw resetError;
+      setResetSent(true);
+    } catch (resetError) {
+      setError(resetError instanceof Error ? resetError.message : "Could not request a password reset.");
+    } finally {
+      setSendingReset(false);
     }
   };
 
@@ -86,9 +109,12 @@ export default function LoginForm() {
         </div>
 
         <div className="space-y-1.5">
-          <label htmlFor="password" className="text-xs sm:text-sm font-bold text-stone-800">
-            Password
-          </label>
+          <div className="flex items-center justify-between gap-3">
+            <label htmlFor="password" className="text-xs sm:text-sm font-bold text-stone-800">Password</label>
+            <button type="button" onClick={requestReset} disabled={sendingReset} className="text-xs font-bold text-forest-900 underline disabled:opacity-50">
+              {sendingReset ? "Sending…" : "Forgot password?"}
+            </button>
+          </div>
           <input
             id="password"
             name="password"
@@ -107,6 +133,8 @@ export default function LoginForm() {
             <span className="text-xs text-red-800">{error}</span>
           </div>
         )}
+
+        {resetSent && <div className="p-4 rounded-xl bg-emerald-50 border-2 border-emerald-200 text-xs font-semibold text-emerald-900">If an account exists for {email}, Supabase has sent its password-reset link. Check spam too.</div>}
 
         <button
           type="submit"

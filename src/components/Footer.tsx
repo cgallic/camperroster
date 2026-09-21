@@ -21,7 +21,7 @@ export default function Footer() {
             </p>
             <div className="flex items-center gap-2 text-xs text-emerald-400 font-semibold pt-1">
               <ShieldCheck className="w-4 h-4 text-emerald-400" />
-              <span>ACA Standard Compliant • HIPAA-Compliant Medical Triage</span>
+              <span>Private document storage • Role-based staff access</span>
             </div>
           </div>
 
@@ -73,7 +73,7 @@ export default function Footer() {
 
         {/* BOTTOM BAR */}
         <div className="pt-8 border-t border-forest-900/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-stone-500">
-          <div>© 2026 CamperRoster. All rights reserved. Camp Hope is our demo camp, not a customer.</div>
+          <div className="flex flex-wrap items-center gap-3"><span>© 2026 CamperRoster. All rights reserved.</span><Link href="/privacy" className="hover:text-white underline">Privacy</Link><Link href="/terms" className="hover:text-white underline">Terms</Link></div>
           <div className="flex items-center gap-1 text-[11px]">
             <span>Engineered with</span>
             <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" />
