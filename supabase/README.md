@@ -4,10 +4,12 @@ Migrations live in `supabase/migrations/` and are applied **in filename order**.
 
 | File | What it does | Depends on |
 |---|---|---|
-| `0001_tenancy_and_auth.sql` | Makes `public.camps` the single tenant root, adds `camp_members`, adds `camp_id` to every tenant-scoped table, enables deny-by-default RLS everywhere, retires `organizations` / `organization_id`. | Nothing. Run first. |
+| `0000_core_schema.sql` | Recreates the dashboard-era core tables a fresh database needs. Uses additive `IF NOT EXISTS` DDL and does not replace live rows. | Nothing. Run first. |
+| `0001_tenancy_and_auth.sql` | Makes `public.camps` the single tenant root, adds `camp_members`, adds `camp_id` to every tenant-scoped table, enables deny-by-default RLS everywhere, retires `organizations` / `organization_id`. | `0000` core tables. |
 | `0002`-`0013` | Billing, roles, camp operations, documents, payments, communications, and function hardening. | Apply in filename order. |
 | `0014_historical_imports.sql` | Creates the director-only historical source table. It never overwrites or deletes imported rows. | `0001` membership helpers. |
 | `0015`-`0020` | Placement, payment notes, linter hardening, Stripe event ownership, camp location, and safety decisions. | Apply in filename order. |
+| `0021_security_backend.sql` | Adds transactional/idempotent intake, staff invitations, wallet integrity, medical review provenance, and tightened role policies. | Everything through `0020`. |
 
 > `0002_billing.sql` is owned by a separate workstream and depends on `0001`
 > having been applied (it needs `camps`, `camp_members` and
@@ -23,7 +25,7 @@ contiguous and rejects table/schema drops and truncation before a release.
 ### Option A — Supabase SQL editor (no CLI, no DB password)
 
 1. Open the project at <https://supabase.com/dashboard> → **SQL Editor** → **New query**.
-2. Paste the **entire** contents of `0001_tenancy_and_auth.sql`.
+2. Paste the **entire** contents of `0000_core_schema.sql`.
 3. Run it. It is wrapped in `begin; … commit;` — either all of it applies or none of it does.
 4. Repeat for each later migration, in filename order.
 

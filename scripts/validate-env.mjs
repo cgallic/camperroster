@@ -35,7 +35,8 @@ const production = [
   "STRIPE_BILLING_WEBHOOK_SECRET",
   "STRIPE_PRICE_STARTER",
   "STRIPE_PRICE_PRO",
-  "CAMP_SESSION_ID",
+  "PUBLIC_INTAKE_TOKEN_SECRET",
+  "KAICALLS_WEBHOOK_SECRET",
   "SMTP_HOST",
   "SMTP_PORT",
   "SMTP_USER",
@@ -78,9 +79,6 @@ for (const name of ["STRIPE_WEBHOOK_SECRET", "STRIPE_BILLING_WEBHOOK_SECRET"]) {
 for (const name of ["STRIPE_PRICE_STARTER", "STRIPE_PRICE_PRO"]) {
   if (values[name] && !values[name].startsWith("price_")) errors.push(`${name}: expected a Stripe price_ id`);
 }
-if (values.CAMP_SESSION_ID && !/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(values.CAMP_SESSION_ID)) {
-  errors.push("CAMP_SESSION_ID: expected a UUID");
-}
 if (values.SMTP_PORT && (!/^\d+$/.test(values.SMTP_PORT) || Number(values.SMTP_PORT) < 1 || Number(values.SMTP_PORT) > 65535)) {
   errors.push("SMTP_PORT: expected a TCP port from 1 to 65535");
 }
@@ -89,6 +87,11 @@ if (values.MAIL_FROM && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.MAIL_FROM)) {
 }
 if (values.CRON_SECRET && values.CRON_SECRET.length < 32) {
   errors.push("CRON_SECRET: must be at least 32 characters");
+}
+for (const name of ["PUBLIC_INTAKE_TOKEN_SECRET", "KAICALLS_WEBHOOK_SECRET"]) {
+  if (values[name] && Buffer.byteLength(values[name], "utf8") < 32) {
+    errors.push(`${name}: must be at least 32 bytes`);
+  }
 }
 
 if (errors.length) {

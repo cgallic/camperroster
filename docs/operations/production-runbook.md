@@ -77,6 +77,11 @@ raw request body; confirm a signed test delivery at each endpoint before launch.
 Do not enable Stripe automatic tax until the business has registered and decided
 where it must collect tax.
 
+Generate `PUBLIC_INTAKE_TOKEN_SECRET` and `KAICALLS_WEBHOOK_SECRET` independently
+with at least 32 random bytes. KaiCalls must send `x-kaicalls-timestamp` as Unix
+seconds and `x-kaicalls-signature` as
+`sha256=` plus `HMAC-SHA256(secret, timestamp + "." + rawBody)`.
+
 ## 4. Apply migrations additively
 
 First inspect the local/remote migration ledger. Then dry-run before the push.
