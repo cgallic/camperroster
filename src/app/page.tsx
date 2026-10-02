@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import FaqJsonLd from "@/components/FaqJsonLd";
 import Image from "next/image";
 import {
   CheckCircle2,
@@ -83,7 +84,7 @@ export default function B2BSaasHomePage() {
             </h1>
 
             <p className="text-base sm:text-xl text-stone-200 font-medium leading-relaxed max-w-2xl drop-shadow-sm">
-              The modern camp registration and operations platform. Built to simplify parent registration, keep staff reference work organized, and cut winter software retainers to $0.
+              The camp OS for registration, health records, and day-to-day operations. Built to simplify parent registration, keep staff reference work organized, and cut winter software retainers to $0.
             </p>
 
             {/* ACTION BUTTONS */}
@@ -393,6 +394,7 @@ export default function B2BSaasHomePage() {
         </div>
 
         <div className="space-y-3">
+          <FaqJsonLd faqs={faqs} />
           {faqs.map((faq, idx) => (
             <div
               key={idx}
@@ -405,11 +407,9 @@ export default function B2BSaasHomePage() {
                 <span>{faq.q}</span>
                 <ChevronDown className={`w-5 h-5 text-stone-500 transition-transform ${openFaq === idx ? "rotate-180" : ""}`} />
               </button>
-              {openFaq === idx && (
-                <div className="p-5 pt-0 text-xs sm:text-sm text-stone-600 font-medium leading-relaxed border-t border-stone-100">
-                  {faq.a}
-                </div>
-              )}
+              <div hidden={openFaq !== idx} className="p-5 pt-0 text-xs sm:text-sm text-stone-600 font-medium leading-relaxed border-t border-stone-100">
+                {faq.a}
+              </div>
             </div>
           ))}
         </div>

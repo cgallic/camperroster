@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import Content from "./Content";
 
-const title = "Church Camp Software: Registration & Group Billing";
+const title = "Camp Health Records Software (EHR + eMAR) | CamperRoster";
 const description =
-  "Register a whole youth group from one link with church-and-parent billing, sponsor codes, buddy requests, and payment plans.";
-const url = "https://camperroster.com/church-camp-registration-software";
+  "Collect camper health forms, immunizations and waivers in registration with one parent login. Built-in eMAR with offline med logging.";
+const url = "https://camperroster.com/camp-health-records-software";
 
 export const metadata: Metadata = {
   title: { absolute: title },

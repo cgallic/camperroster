@@ -5,11 +5,10 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: [
-        "/admin/",
-        "/api/",
-        "/portal/"
-      ],
+      // App areas are NOT disallowed here on purpose: a blocked URL can still be
+      // indexed from links, and Google never sees its noindex. next.config.ts
+      // sends X-Robots-Tag: noindex for them instead.
+      disallow: ["/api/"],
     },
     sitemap: "https://camperroster.com/sitemap.xml",
   };
