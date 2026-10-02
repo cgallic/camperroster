@@ -12,6 +12,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/ultracamp-alternative",
     "/campbrain-alternative",
     "/campdoc-alternative",
+    "/campminder-alternative",
+    "/camp-health-records-software",
     "/christian-camp-software",
     "/church-camp-registration-software",
     "/summer-camp-management-software",
@@ -19,19 +21,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/cashless-camp-canteen-pos",
     "/camp-registration-software-vs-google-forms",
     "/board-proposal",
-    "/register",
     "/start",
-    "/volunteer",
     "/c/camphope",
     "/c/pinetrail",
-    "/c/evergreen",
-    "/llms.txt"
+    "/c/evergreen"
   ];
 
   const staticEntries: MetadataRoute.Sitemap = routes.map((r) => ({
     url: `${baseUrl}${r}`,
     lastModified: now,
-    changeFrequency: r === "" || r === "/register" ? "daily" : "weekly",
+    changeFrequency: r === "" ? "daily" : "weekly",
     priority: r === "" ? 1.0 : r.startsWith("/c/") || r.includes("alternative") ? 0.9 : 0.8
   }));
 

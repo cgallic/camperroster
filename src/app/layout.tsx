@@ -55,7 +55,8 @@ export const metadata: Metadata = {
     ]
   },
   title: {
-    default: "CamperRoster — Modern Camp Registration Software & Operations Platform",
+    // "camp os" was the homepage's best-ranked query (avg. position 12, Sep 2026).
+    default: "CamperRoster | Camp OS & Camp Registration Software",
     template: "%s | CamperRoster"
   },
   description: "Get every camper and volunteer ready before opening day with registration, paperwork tracking, health records, cabin assignments, and camp operations in one place.",
@@ -90,7 +91,7 @@ export const metadata: Metadata = {
     // relative, so og:url matches the canonical on every route (see alternates below)
     url: "./",
     siteName: "CamperRoster",
-    title: "CamperRoster — Modern Camp Registration Software & Operations Platform",
+    title: "CamperRoster | Camp OS & Camp Registration Software",
     description: "Camp registration, paperwork tracking, health records, cabin assignments, and express QR gate check-in.",
     images: [
       {

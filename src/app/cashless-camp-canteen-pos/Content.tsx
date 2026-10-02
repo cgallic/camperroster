@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import FaqJsonLd from "@/components/FaqJsonLd";
 import {
   Sparkles,
   ArrowRight,
@@ -58,7 +59,7 @@ export default function DeepSeoLandingPage() {
         </span>
         
         <h1 className="font-display font-black text-3xl sm:text-5xl lg:text-6xl text-stone-950 tracking-tight leading-[1.1]">
-          Digital Wristband Store Register & Online Parent Wallet Reloads.
+          Camp POS for the Canteen: Digital Wristbands &amp; Online Parent Wallet Reloads.
         </h1>
         
         <p className="text-base sm:text-xl text-stone-600 font-medium max-w-3xl mx-auto leading-relaxed">
@@ -305,6 +306,7 @@ export default function DeepSeoLandingPage() {
         </div>
 
         <div className="space-y-3">
+          <FaqJsonLd faqs={faqs} />
           {faqs.map((faq, idx) => (
             <div
               key={idx}
@@ -317,11 +319,9 @@ export default function DeepSeoLandingPage() {
                 <span>{faq.q}</span>
                 <ChevronDown className={`w-5 h-5 text-stone-500 transition-transform ${openFaq === idx ? "rotate-180" : ""}`} />
               </button>
-              {openFaq === idx && (
-                <div className="p-5 pt-0 text-xs sm:text-sm text-stone-600 font-medium leading-relaxed border-t border-stone-100">
-                  {faq.a}
-                </div>
-              )}
+              <div hidden={openFaq !== idx} className="p-5 pt-0 text-xs sm:text-sm text-stone-600 font-medium leading-relaxed border-t border-stone-100">
+                {faq.a}
+              </div>
             </div>
           ))}
         </div>

@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import Content from "./Content";
 
-const title = "Church Camp Software: Registration & Group Billing";
+const title = "CampMinder Alternative for Small Camps | CamperRoster";
 const description =
-  "Register a whole youth group from one link with church-and-parent billing, sponsor codes, buddy requests, and payment plans.";
-const url = "https://camperroster.com/church-camp-registration-software";
+  "A lighter CampMinder alternative for church, nonprofit, day and overnight camps. Published pricing: $4-$6 per camper, $0/month off-season, $0 setup.";
+const url = "https://camperroster.com/campminder-alternative";
 
 export const metadata: Metadata = {
   title: { absolute: title },
