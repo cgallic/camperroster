@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import ProductShot from "@/components/ProductShot";
 import FaqJsonLd from "@/components/FaqJsonLd";
 import { Sparkles, ArrowRight, ChevronDown, CheckCircle2 } from "lucide-react";
 
@@ -23,11 +24,11 @@ export default function DeepSeoLandingPage() {
     },
     {
       q: "Can we move our camper roster from our current system into CamperRoster?",
-      a: "Yes. Export your families and campers to a CSV file and upload it at /admin/import. The importer shows how your columns map to family contacts, camper records, and allergy fields before anything is saved."
+      a: "Yes, with our help. There is no automatic import yet, so send us your families and campers as a spreadsheet export and we help you move your roster over during setup."
     },
     {
       q: "Does CamperRoster include health records and a nurse eMAR?",
-      a: "Yes. Health forms, immunization uploads, and medication details are collected during registration, and the Health Lodge eMAR lets nurses log medications by meal time with timestamped records, including offline logging when the health cabin loses Wi-Fi."
+      a: "Yes. Health forms, immunization uploads, and medication details are collected during registration, and the Health Lodge eMAR shows scheduled doses by meal window and records who gave each one and when. It needs an internet connection, such as camp Wi-Fi or a phone hotspot."
     },
     {
       q: "Do we need a sales call or a long onboarding project to start?",
@@ -85,6 +86,14 @@ export default function DeepSeoLandingPage() {
         </div>
       </section>
 
+      {/* REAL PRODUCT SCREEN */}
+      <section className="max-w-5xl mx-auto space-y-4">
+        <ProductShot name="admin" alt="CamperRoster director dashboard with registrations, volunteers and review queue" caption="The director dashboard in the demo camp." />
+        <p className="text-center text-sm font-bold">
+          <Link href="/demo" className="text-forest-900 underline underline-offset-4 hover:text-forest-700">See every screen in the product tour →</Link>
+        </p>
+      </section>
+
       {/* 2. WHO THIS IS FOR */}
       <section className="bg-stone-100 rounded-3xl p-6 sm:p-12 border border-stone-200 space-y-8">
         <div className="text-center max-w-2xl mx-auto space-y-2">
@@ -134,7 +143,7 @@ export default function DeepSeoLandingPage() {
               <h3 className="font-display font-black text-lg text-stone-950">You need it live this season, not next year</h3>
             </div>
             <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-              If registration opens soon, you can create your portal at /start yourself, import last year&apos;s roster, and share a registration link the same day.
+              If registration opens soon, you can create your portal at /start yourself, send us last year&apos;s roster to move over, and share a registration link the same day.
             </p>
           </div>
         </div>
@@ -190,7 +199,7 @@ export default function DeepSeoLandingPage() {
               <tr>
                 <td className="p-4 sm:p-5 font-bold">Breadth of modules</td>
                 <td className="p-4 sm:p-5 text-stone-600">Very broad, suited to complex operations</td>
-                <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Focused: registration, health, QR check-in, canteen POS, bunk notes</td>
+                <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Focused: registration, health, gate check-in, canteen POS, bunk notes</td>
               </tr>
             </tbody>
           </table>
@@ -227,15 +236,15 @@ export default function DeepSeoLandingPage() {
             </p>
           </div>
           <div className="p-6 rounded-2xl bg-white border-2 border-stone-200 space-y-2">
-            <b className="font-display font-black text-lg text-stone-950 block">⚡ QR Gate Check-In</b>
+            <b className="font-display font-black text-lg text-stone-950 block">⚡ Gate Check-In</b>
             <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-              Gate staff scan each family&apos;s QR code on opening day and see whether paperwork and health clearance are complete.
+              On opening day, gate staff search each camper by name, see their cabin and counselor, and mark them arrived.
             </p>
           </div>
           <div className="p-6 rounded-2xl bg-white border-2 border-stone-200 space-y-2">
             <b className="font-display font-black text-lg text-stone-950 block">🛒 Canteen POS & Bunk Notes</b>
             <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-              Cashless canteen wallets and parent bunk notes batched for mail call, in the same system as registration.
+              Cashless canteen wallets, and bunk notes that staff enter and print in one click for mail call, in the same system as registration.
             </p>
           </div>
         </div>
@@ -251,14 +260,14 @@ export default function DeepSeoLandingPage() {
             How to move your camp to CamperRoster
           </h3>
           <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-            Bring your existing families and campers with a CSV export. No setup fee and no migration project.
+            Send us a spreadsheet export of your families and campers and we help you move them over. No setup fee.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="p-6 rounded-2xl bg-stone-50 border border-stone-200 space-y-2">
             <span className="font-mono text-xs font-bold text-forest-800 bg-forest-100 px-2.5 py-1 rounded-full">STEP 1</span>
-            <h4 className="font-display font-black text-base text-stone-950 pt-2">Export your roster to CSV</h4>
+            <h4 className="font-display font-black text-base text-stone-950 pt-2">Export your roster</h4>
             <p className="text-xs text-stone-600 leading-relaxed">
               Export families, campers, and contact details from your current system or spreadsheet as a CSV file.
             </p>
@@ -266,9 +275,9 @@ export default function DeepSeoLandingPage() {
 
           <div className="p-6 rounded-2xl bg-stone-50 border border-stone-200 space-y-2">
             <span className="font-mono text-xs font-bold text-forest-800 bg-forest-100 px-2.5 py-1 rounded-full">STEP 2</span>
-            <h4 className="font-display font-black text-base text-stone-950 pt-2">Upload it at /admin/import</h4>
+            <h4 className="font-display font-black text-base text-stone-950 pt-2">Send it to us</h4>
             <p className="text-xs text-stone-600 leading-relaxed">
-              The importer shows how your columns map to family contacts, camper records, and allergy fields before anything is saved.
+              Automatic imports are not available yet. We help you move your roster over during setup, at no charge.
             </p>
           </div>
 
@@ -276,7 +285,7 @@ export default function DeepSeoLandingPage() {
             <span className="font-mono text-xs font-bold text-forest-800 bg-forest-100 px-2.5 py-1 rounded-full">STEP 3</span>
             <h4 className="font-display font-black text-base text-stone-950 pt-2">Open registration</h4>
             <p className="text-xs text-stone-600 leading-relaxed">
-              Share your registration link. Your imported families and campers are already in your roster, and you pay only when campers register.
+              Share your registration link. Families register through your portal, and you pay only when campers register.
             </p>
           </div>
         </div>

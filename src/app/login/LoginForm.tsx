@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { DEMO_EMAIL } from "@/lib/demo/constants";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AlertTriangle, ArrowRight, Loader2, Lock } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -19,7 +20,8 @@ export default function LoginForm() {
   const next = safeNext(searchParams.get("next"));
   const reason = searchParams.get("reason");
 
-  const [email, setEmail] = useState("");
+  // /demo links here with ?demo=1 to fill in the shared demo account's email.
+  const [email, setEmail] = useState(searchParams.get("demo") === "1" ? DEMO_EMAIL : "");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);

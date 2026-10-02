@@ -2,12 +2,10 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Trees, PhoneCall, ArrowUpRight, Menu, X } from "lucide-react";
-import KaiCallsSimulatorModal from "./KaiCallsSimulatorModal";
+import { Trees, ArrowUpRight, Menu, X } from "lucide-react";
 import AuthNav from "./AuthNav";
 
 export default function Navbar() {
-  const [modalOpen, setModalOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -36,6 +34,9 @@ export default function Navbar() {
             <Link href="/" className="hover:text-forest-900 transition-colors">
               Platform
             </Link>
+            <Link href="/demo" className="hover:text-forest-900 transition-colors">
+              Tour
+            </Link>
             <Link href="/pricing" className="hover:text-forest-900 transition-colors">
               Pricing
             </Link>
@@ -47,14 +48,6 @@ export default function Navbar() {
 
           {/* RIGHT ACTION PILLS */}
           <div className="flex items-center gap-4">
-            <button
-              onClick={() => setModalOpen(true)}
-              className="hidden lg:inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-100 text-emerald-950 border border-emerald-300 font-extrabold text-xs hover:bg-emerald-200 transition-all cursor-pointer shadow-xs"
-            >
-              <PhoneCall className="w-4 h-4 text-emerald-900" />
-              <span>KaiCalls Voice AI Demo</span>
-            </button>
-
             <div className="hidden md:block"><AuthNav /></div>
 
             <Link
@@ -80,6 +73,7 @@ export default function Navbar() {
           <div className="md:hidden mt-3 p-6 bg-white rounded-3xl space-y-4 border-2 border-stone-300 shadow-2xl animate-in fade-in slide-in-from-top-4 duration-300">
             <div className="grid grid-cols-2 gap-2 text-xs font-bold text-stone-950">
               <Link href="/" onClick={() => setMobileMenuOpen(false)} className="p-3.5 rounded-xl bg-stone-100 hover:bg-stone-200">Platform Overview</Link>
+              <Link href="/demo" onClick={() => setMobileMenuOpen(false)} className="p-3.5 rounded-xl bg-stone-100 hover:bg-stone-200">Product Tour</Link>
               <Link href="/pricing" onClick={() => setMobileMenuOpen(false)} className="p-3.5 rounded-xl bg-stone-100 hover:bg-stone-200">Pricing</Link>
               <Link href="/ultracamp-alternative" onClick={() => setMobileMenuOpen(false)} className="p-3.5 rounded-xl bg-amber-100 text-amber-950 font-black">vs UltraCamp</Link>
               <Link href="/start" onClick={() => setMobileMenuOpen(false)} className="p-3.5 rounded-xl bg-forest-100 text-forest-950 font-black">Create Your Camp</Link>
@@ -89,18 +83,9 @@ export default function Navbar() {
             <div className="pt-1">
               <AuthNav onNavigate={() => setMobileMenuOpen(false)} />
             </div>
-            <button
-              onClick={() => { setMobileMenuOpen(false); setModalOpen(true); }}
-              className="w-full py-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs flex items-center justify-center gap-2"
-            >
-              <PhoneCall className="w-4 h-4" />
-              <span>Launch KaiCalls AI Voice Demo</span>
-            </button>
           </div>
         )}
       </header>
-
-      <KaiCallsSimulatorModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
     </>
   );
 }

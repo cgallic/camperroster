@@ -3,7 +3,7 @@ import Content from "./Content";
 
 const title = "Church Camp Software: Registration & Group Billing";
 const description =
-  "Register a whole youth group from one link with church-and-parent billing, sponsor codes, buddy requests, and payment plans.";
+  "Register a whole youth group from one link with health forms, buddy requests, typed e-signatures, and card payment plans.";
 const url = "https://camperroster.com/church-camp-registration-software";
 
 export const metadata: Metadata = {

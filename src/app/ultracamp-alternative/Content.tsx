@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import ProductShot from "@/components/ProductShot";
 import FaqJsonLd from "@/components/FaqJsonLd";
 import Image from "next/image";
 import {
@@ -37,27 +38,27 @@ export default function UltraCampAlternativePage() {
     },
     {
       q: "How does the CamperRoster $0 off-season pricing model compare to UltraCamp?",
-      a: "UltraCamp charges camps year-round retainers regardless of whether registration is open. In contrast, CamperRoster charges $0/month during your 7 to 9 off-season months. Camps only pay a flat $4 to $6 per registered camper when parents actually register, saving the average 350-camper summer camp over $6,150 annually."
+      a: "UltraCamp charges camps year-round retainers regardless of whether registration is open. In contrast, CamperRoster charges $0/month during your 7 to 9 off-season months. Camps only pay a flat $4 to $6 per registered camper when parents actually register, which would save a 350-camper camp about $5,150 a year in our example."
     },
     {
-      q: "How does 1-click roster migration from UltraCamp work?",
-      a: "Export your historical camper and household database from UltraCamp as a CSV file. Upload it to CamperRoster's 1-Click Importer (/admin/import). Our engine automatically maps parent contact details, camper dates of birth, allergy flags, immunization histories, and cabin preferences in under 60 seconds with zero manual data entry."
+      q: "How do we move our roster over from UltraCamp?",
+      a: "Export your camper and household records from UltraCamp as a spreadsheet and send it to us. There is no automatic import yet, so we help you move your roster over during setup, at no charge."
     },
     {
       q: "Does CamperRoster include health forms, or do we need CampDoc as well?",
-      a: "CamperRoster includes a native, full-featured Health Lodge tablet eMAR system. Camp nurses schedule and log Breakfast, Lunch, Dinner, and Bedtime medications with timestamped records compliant with ACA and HIPAA standards. There is no need for a separate CampDoc subscription or double parent logins."
+      a: "CamperRoster includes a native, full-featured Health Lodge tablet eMAR system. Camp nurses schedule and log Breakfast, Lunch, Dinner, and Bedtime medications with timestamped records only health staff can see. There is no need for a separate CampDoc subscription or double parent logins."
     },
     {
       q: "How does volunteer reference tracking work?",
-      a: "When a counselor or volunteer applies, CamperRoster collects their reference's contact details and keeps the director's manual review attached to the application. Automated KaiCalls interviews are still in development."
+      a: "When a counselor or volunteer applies, CamperRoster collects one reference's name, phone, and email and keeps the director's manual review attached to the application. The director makes the call."
     },
     {
       q: "How does Sunday opening-day gate check-in work?",
-      a: "Parents receive an SVG boarding pass QR on their mobile phones. When their vehicle reaches the camp gate, staff scan the QR code with any smartphone or tablet. The scanner instantly verifies RN health clearance, displays the camper's assigned cabin and counselor, and dispenses canteen wristbands in under 45 seconds."
+      a: "Gate staff open the check-in screen on any phone or tablet, search the camper by name, and see their cabin, counselor and registration status. One tap confirms arrival."
     },
     {
       q: "Can parents split payments or set up monthly installment schedules?",
-      a: "Payment capabilities depend on the camp's configured Stripe account and published registration pricing. CamperRoster does not send SMS receipts today."
+      a: "Yes. Families choose pay in full, two payments, or monthly at registration. Each installment gets a due date, and parents pay it by card through Stripe Checkout from the parent portal."
     },
     {
       q: "Is our camp's medical and financial data secure?",
@@ -106,13 +107,21 @@ export default function UltraCampAlternativePage() {
           </span>
           <span className="flex items-center gap-1.5 text-stone-800">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>1-Click UltraCamp CSV Migration</span>
+            <span>Free Help Moving Your Roster</span>
           </span>
           <span className="flex items-center gap-1.5 text-stone-800">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
             <span>Volunteer Reference Tracking</span>
           </span>
         </div>
+      </section>
+
+      {/* REAL PRODUCT SCREEN */}
+      <section className="max-w-5xl mx-auto space-y-4">
+        <ProductShot name="admin" alt="CamperRoster director dashboard with registrations, volunteers and review queue" caption="The director dashboard in the demo camp." />
+        <p className="text-center text-sm font-bold">
+          <Link href="/demo" className="text-forest-900 underline underline-offset-4 hover:text-forest-700">See every screen in the product tour →</Link>
+        </p>
       </section>
 
       {/* 2. THE 4 CORE PAIN POINTS OF ULTRACAMP */}
@@ -154,7 +163,7 @@ export default function UltraCampAlternativePage() {
               <h3 className="font-display font-black text-lg text-stone-950">40+ Hours of Volunteer Reference Phone Tag</h3>
             </div>
             <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-              UltraCamp provides zero automated phone reference checking. Camp directors spend 40 to 60 hours every spring manually calling pastors and mentors to vet seasonal cabin counselors.
+              Camp directors spend 40 to 60 hours every spring calling pastors and mentors to vet seasonal cabin counselors, with reference notes scattered across email and paper.
             </p>
           </div>
 
@@ -205,7 +214,7 @@ export default function UltraCampAlternativePage() {
               <tr>
                 <td className="p-4 sm:p-5 font-bold">Opening-Day Gate Drop-Off Check-In</td>
                 <td className="p-4 sm:p-5 text-stone-600">Paper Clipboards (20–30 min delays)</td>
-                <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">45-Second Mobile QR Scanner with RN Medical Badge</td>
+                <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Name Search Check-In on Any Phone</td>
               </tr>
               <tr>
                 <td className="p-4 sm:p-5 font-bold">Health Lodge Medication Dispenser (eMAR)</td>
@@ -213,14 +222,14 @@ export default function UltraCampAlternativePage() {
                 <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Built-in Tablet eMAR (Breakfast, Lunch, Dinner, Bedtime)</td>
               </tr>
               <tr>
-                <td className="p-4 sm:p-5 font-bold">Parent Daily Bunk Notes Mail Call</td>
+                <td className="p-4 sm:p-5 font-bold">Daily Bunk Notes Mail Call</td>
                 <td className="p-4 sm:p-5 text-stone-600">Requires 3rd-Party Add-on (Bunk1 $800+)</td>
-                <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Native Daily Bunk Notes + 1-Click 11:00 AM Batch Printer</td>
+                <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Staff-Entered Bunk Notes + One-Click Printing</td>
               </tr>
               <tr>
                 <td className="p-4 sm:p-5 font-bold">Cashless Canteen Store POS</td>
                 <td className="p-4 sm:p-5 text-stone-600">Requires Extra Proprietary Hardware</td>
-                <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Runs on Any iPad/Phone + 1-Tap Online Parent Reloads</td>
+                <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Runs on Any iPad/Phone + Prepaid Wallets With Every Sale Logged</td>
               </tr>
               <tr>
                 <td className="p-4 sm:p-5 font-bold">Parent Authentication UX</td>
@@ -230,7 +239,7 @@ export default function UltraCampAlternativePage() {
               <tr>
                 <td className="p-4 sm:p-5 font-bold">Historical Data Migration</td>
                 <td className="p-4 sm:p-5 text-stone-600">Manual re-entry or paid onboarding</td>
-                <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">1-Click CSV Auto-Mapper in Under 60 Seconds</td>
+                <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">We Help You Move It Over During Setup</td>
               </tr>
             </tbody>
           </table>
@@ -245,7 +254,7 @@ export default function UltraCampAlternativePage() {
               REAL-WORLD FINANCIAL AUDIT
             </span>
             <h3 className="font-display font-black text-2xl sm:text-3xl text-white">
-              How Camp Hope Slashes $6,150 in Annual Software Costs
+              How Camp Hope Cuts $5,150 in Annual Costs
             </h3>
           </div>
           <Link
@@ -268,23 +277,23 @@ export default function UltraCampAlternativePage() {
 
           <div className="p-6 rounded-2xl bg-stone-900 border border-stone-800 space-y-2">
             <span className="text-xs font-bold text-stone-400 block">CamperRoster Pro All-Inclusive</span>
-            <b className="font-display font-black text-3xl text-emerald-400 block">$2,100 / year</b>
+            <b className="font-display font-black text-3xl text-emerald-400 block">$3,100 / year</b>
             <p className="text-xs text-stone-400 leading-relaxed pt-1">
-              $0 off-season retainers + flat per-camper pricing covering registration, medical eMAR, Bunk Notes, and volunteer reference tracking.
+              $2,100 in per-camper pricing covering registration, medical eMAR, and Bunk Notes, plus the same $1,000 of staff reference calling.
             </p>
           </div>
 
           <div className="p-6 rounded-2xl bg-emerald-950/40 border border-emerald-500/50 space-y-2">
             <span className="text-xs font-bold text-emerald-300 block">Total Net Savings for Camp Hope</span>
-            <b className="font-display font-black text-3xl text-emerald-400 block">SAVE $6,150 / YR</b>
+            <b className="font-display font-black text-3xl text-emerald-400 block">SAVE $5,150 / YR</b>
             <p className="text-xs text-emerald-200/80 leading-relaxed pt-1">
-              74% reduction in annual software overhead, freeing up critical budget for camp scholarships and facilities.
+              62% reduction in annual software overhead, freeing up critical budget for camp scholarships and facilities.
             </p>
           </div>
         </div>
       </section>
 
-      {/* 5. 60-SECOND CSV MIGRATION BLUEPRINT */}
+      {/* 5. ROSTER MIGRATION BLUEPRINT */}
       <section className="bg-white rounded-3xl p-6 sm:p-12 border-2 border-stone-300 shadow-xl space-y-8">
         <div className="max-w-3xl space-y-2">
           <span className="eyebrow-pill bg-rose-100 text-rose-950 border border-rose-300">
@@ -294,24 +303,24 @@ export default function UltraCampAlternativePage() {
             How to Migrate from UltraCamp in 3 Simple Steps
           </h3>
           <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-            You don't need expensive IT consultants or weeks of manual data entry. CamperRoster auto-maps your historical UltraCamp export in under a minute.
+            You don't need IT consultants. Automatic imports are not available yet, so we help you move your UltraCamp export over during setup.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="p-6 rounded-2xl bg-stone-50 border border-stone-200 space-y-2">
             <span className="font-mono text-xs font-bold text-forest-800 bg-forest-100 px-2.5 py-1 rounded-full">STEP 1</span>
-            <h4 className="font-display font-black text-base text-stone-950 pt-2">Export CSV from UltraCamp</h4>
+            <h4 className="font-display font-black text-base text-stone-950 pt-2">Export from UltraCamp</h4>
             <p className="text-xs text-stone-600 leading-relaxed">
-              Navigate to UltraCamp's report builder and export your camper, guardian, and medical history into a standard CSV spreadsheet.
+              Navigate to UltraCamp's report builder and export your camper and guardian records into a spreadsheet.
             </p>
           </div>
 
           <div className="p-6 rounded-2xl bg-stone-50 border border-stone-200 space-y-2">
             <span className="font-mono text-xs font-bold text-forest-800 bg-forest-100 px-2.5 py-1 rounded-full">STEP 2</span>
-            <h4 className="font-display font-black text-base text-stone-950 pt-2">Upload to 1-Click Importer</h4>
+            <h4 className="font-display font-black text-base text-stone-950 pt-2">Send It to Us</h4>
             <p className="text-xs text-stone-600 leading-relaxed">
-              Drop your CSV file into CamperRoster's Importer (/admin/import). Our engine automatically detects and maps column headers.
+              Email the export to director@camperroster.com. We work through it with you and move your families over by hand.
             </p>
           </div>
 
@@ -325,10 +334,10 @@ export default function UltraCampAlternativePage() {
         </div>
 
         <div className="pt-2 flex flex-col sm:flex-row gap-4">
-          <Link href="/admin/import" className="btn-primary-agency text-xs sm:text-sm py-4 px-8">
+          <a href="mailto:director@camperroster.com?subject=UltraCamp%20Roster%20Move" className="btn-primary-agency text-xs sm:text-sm py-4 px-8">
             <FileSpreadsheet className="w-4 h-4" />
-            <span>Test 1-Click UltraCamp Importer</span>
-          </Link>
+            <span>Ask About Moving From UltraCamp</span>
+          </a>
           <Link href="/pricing" className="px-6 py-4 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-800 font-bold text-xs sm:text-sm text-center">
             Calculate Your Camp's Savings →
           </Link>
@@ -375,7 +384,7 @@ export default function UltraCampAlternativePage() {
           Launch your camp portal in 3 minutes.
         </h2>
         <p className="text-sm sm:text-base text-stone-300 max-w-xl mx-auto leading-relaxed">
-          $0 setup, $0 off-season retainers, and free 1-click roster migration from UltraCamp. Join the modern standard for camp management.
+          $0 setup, $0 off-season retainers, and free help moving your roster over from UltraCamp. Join the modern standard for camp management.
         </p>
         <div className="pt-2 flex flex-col sm:flex-row justify-center gap-3">
           <Link

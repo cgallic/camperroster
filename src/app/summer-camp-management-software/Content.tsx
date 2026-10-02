@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import ProductShot from "@/components/ProductShot";
 import FaqJsonLd from "@/components/FaqJsonLd";
 import {
   Sparkles,
@@ -39,8 +40,8 @@ export default function DeepSeoLandingPage() {
     "a": "You pay $0/month during your 7 to 9 off-season months. You only pay a flat $4 to $6 per registered camper during active registration seasons."
   },
   {
-    "q": "Can we import our past rosters from spreadsheets or UltraCamp?",
-    "a": "Yes! Drop your CSV export into our 1-Click Importer (/admin/import) to auto-map all historical records in 60 seconds."
+    "q": "Can we bring over our past rosters from spreadsheets or UltraCamp?",
+    "a": "Yes, with our help. There is no automatic import yet, so send us your export and we help you move your roster over during setup."
   },
   {
     "q": "How fast can our camp go live on CamperRoster?",
@@ -63,7 +64,7 @@ export default function DeepSeoLandingPage() {
         </h1>
         
         <p className="text-base sm:text-xl text-stone-600 font-medium max-w-3xl mx-auto leading-relaxed">
-          Join residential and day camps across North America using CamperRoster to eliminate paper forms, automate staff hiring, and cut off-season software fees to $0.
+          Join residential and day camps across North America using CamperRoster to eliminate paper forms, keep volunteer references organized, and cut off-season software fees to $0.
         </p>
 
         <div className="pt-2 flex flex-col sm:flex-row justify-center items-center gap-3.5">
@@ -93,9 +94,17 @@ export default function DeepSeoLandingPage() {
           </span>
           <span className="flex items-center gap-1.5 text-stone-800">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>Health Lodge Tablet eMAR & 45-Sec Gate QR</span>
+            <span>Health Lodge Tablet eMAR & Gate Check-In</span>
           </span>
         </div>
+      </section>
+
+      {/* REAL PRODUCT SCREEN */}
+      <section className="max-w-5xl mx-auto space-y-4">
+        <ProductShot name="admin" alt="CamperRoster director dashboard for a summer camp" caption="The director dashboard in the demo camp." />
+        <p className="text-center text-sm font-bold">
+          <Link href="/demo" className="text-forest-900 underline underline-offset-4 hover:text-forest-700">See every screen in the product tour →</Link>
+        </p>
       </section>
 
       {/* 2. THE 4 CORE PAIN POINTS OF THE OLD WAY */}
@@ -193,12 +202,12 @@ export default function DeepSeoLandingPage() {
       <tr>
         <td className="p-4 sm:p-5 font-bold">Health Lodge eMAR Dispenser</td>
         <td className="p-4 sm:p-5 text-stone-600">Requires Expensive Separate CampDoc Sub</td>
-        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Built-in Tablet eMAR (ACA & HIPAA Compliant)</td>
+        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Built-in Tablet eMAR</td>
       </tr>
       <tr>
         <td className="p-4 sm:p-5 font-bold">Opening-Day Gate Drop-Off</td>
         <td className="p-4 sm:p-5 text-rose-700 font-bold">Paper Rosters (30-min delays)</td>
-        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">45-Second Mobile QR Scanner with RN Medical Clearance</td>
+        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Name Search Check-In on Any Phone</td>
       </tr>
             </tbody>
           </table>
@@ -221,25 +230,25 @@ export default function DeepSeoLandingPage() {
           <div className="p-6 rounded-2xl bg-white border-2 border-stone-200 space-y-2">
         <b className="font-display font-black text-lg text-stone-950 block">📱 5-Step Mobile Registration Wizard</b>
         <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-          16px inputs prevent mobile Safari zoom. Camera insurance card photo capture and multi-camper sibling discounts built-in.
+          16px inputs prevent mobile Safari zoom. Insurance card photos and immunization uploads from the phone camera.
         </p>
       </div>
       <div className="p-6 rounded-2xl bg-white border-2 border-stone-200 space-y-2">
         <b className="font-display font-black text-lg text-stone-950 block">💊 Health Lodge Tablet eMAR</b>
         <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-          Tablet medication dispenser for camp nurses. Schedule and log doses with timestamped records compliant with ACA and HIPAA.
+          Tablet medication dispenser for camp nurses. Schedule and log doses with timestamped records only health staff can see.
         </p>
       </div>
       <div className="p-6 rounded-2xl bg-white border-2 border-stone-200 space-y-2">
-        <b className="font-display font-black text-lg text-stone-950 block">⚡ 45-Second Express Gate QR Check-In</b>
+        <b className="font-display font-black text-lg text-stone-950 block">⚡ Fast Gate Check-In</b>
         <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-          Eliminate Sunday vehicle drop-off traffic. Parents show digital boarding pass; gate staff scan to confirm RN clearance.
+          Cut Sunday drop-off lines. Gate staff search the camper by name, see their cabin and counselor, and confirm arrival with one tap.
         </p>
       </div>
       <div className="p-6 rounded-2xl bg-white border-2 border-stone-200 space-y-2">
         <b className="font-display font-black text-lg text-stone-950 block">🛒 Cashless Canteen Store POS</b>
         <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-          Campers buy snacks with digital wristbands. Parents reload balances online from the portal with zero cash lost in the lake.
+          Campers buy snacks from a prepaid canteen wallet. Staff find them by name, charge the sale, and every purchase is logged, with zero cash lost in the lake.
         </p>
       </div>
         </div>
@@ -270,9 +279,9 @@ export default function DeepSeoLandingPage() {
 
           <div className="p-6 rounded-2xl bg-stone-50 border border-stone-200 space-y-2">
             <span className="font-mono text-xs font-bold text-forest-800 bg-forest-100 px-2.5 py-1 rounded-full">STEP 2</span>
-            <h4 className="font-display font-black text-base text-stone-950 pt-2">Import Past Rosters (Optional)</h4>
+            <h4 className="font-display font-black text-base text-stone-950 pt-2">Bring Over Past Rosters (Optional)</h4>
             <p className="text-xs text-stone-600 leading-relaxed">
-              Upload past CSV spreadsheets or UltraCamp exports into the 1-Click Importer. All family and medical profiles map in 60 seconds.
+              Automatic imports are not available yet. Send us your past spreadsheet or UltraCamp export and we help you move it over during setup.
             </p>
           </div>
 
@@ -336,7 +345,7 @@ export default function DeepSeoLandingPage() {
           Launch your camp portal in 3 minutes.
         </h2>
         <p className="text-sm sm:text-base text-stone-300 max-w-xl mx-auto leading-relaxed">
-          $0 setup, $0 off-season retainers, and free 1-click roster migration. Join the modern standard for summer camp operations.
+          $0 setup, $0 off-season retainers, and free help moving your roster over. Join the modern standard for summer camp operations.
         </p>
         <div className="pt-2 flex flex-col sm:flex-row justify-center gap-3">
           <Link

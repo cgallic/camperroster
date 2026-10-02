@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Camp Volunteer Reference Check Software",
-  description: "Automate staff and volunteer reference checks with AI voice calls. Two-minute structured reference interviews, transcribed and scored, instead of 40+ hours of phone tag.",
+  description: "Collect a reference with every volunteer application and keep the director's review and approval attached to the applicant, instead of notes scattered across email.",
   alternates: { canonical: "/camp-volunteer-reference-check-software" },
   openGraph: {
     title: "Camp Volunteer Reference Check Software",
-    description: "Automate staff and volunteer reference checks with AI voice calls. Two-minute structured reference interviews, transcribed and scored, instead of 40+ hours of phone tag.",
+    description: "Collect a reference with every volunteer application and keep the director's review and approval attached to the applicant, instead of notes scattered across email.",
     url: "/camp-volunteer-reference-check-software",
     type: "website"
   }

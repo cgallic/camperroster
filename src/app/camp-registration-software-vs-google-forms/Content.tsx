@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import ProductShot from "@/components/ProductShot";
 import FaqJsonLd from "@/components/FaqJsonLd";
 import {
   Sparkles,
@@ -35,12 +36,12 @@ export default function DeepSeoLandingPage() {
     "a": "While Google Forms has no software fee, it costs directors 100+ hours in manual payment reconciliation and risk. CamperRoster charges $0 in the off-season and a flat $4 to $6 per registered camper, which can be passed through in the registration fee."
   },
   {
-    "q": "Can we import our existing Google Forms spreadsheet into CamperRoster?",
-    "a": "Yes! Download your Google Form response spreadsheet as a CSV and upload it to our 1-Click Importer (/admin/import) to transfer all records in under 60 seconds."
+    "q": "Can we bring our existing Google Forms spreadsheet into CamperRoster?",
+    "a": "There is no automatic import yet. Send us your Google Form response spreadsheet and we help you move your roster over during setup."
   },
   {
     "q": "How do parents pay if we switch from Venmo?",
-    "a": "Parents can securely pay via credit card or ACH direct bank transfer with instant automated receipts and automated installment schedules."
+    "a": "Families choose pay in full, two payments, or monthly at registration. Each installment gets a due date, and parents pay it by card through Stripe Checkout from the parent portal."
   },
   {
     "q": "Is CamperRoster easy for non-technical camp staff to use?",
@@ -85,17 +86,25 @@ export default function DeepSeoLandingPage() {
         <div className="pt-4 flex flex-wrap justify-center items-center gap-6 text-xs font-bold text-stone-500">
           <span className="flex items-center gap-1.5 text-stone-800">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>Automated Stripe & ACH Installment Schedules</span>
+            <span>Card Payment Plans Through Stripe</span>
           </span>
           <span className="flex items-center gap-1.5 text-stone-800">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>HIPAA & ACA Compliant Medical Encryption</span>
+            <span>Medical Records Locked to Health Staff</span>
           </span>
           <span className="flex items-center gap-1.5 text-stone-800">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>45-Second Express Gate Drop-Off</span>
+            <span>Fast Gate Drop-Off</span>
           </span>
         </div>
+      </section>
+
+      {/* REAL PRODUCT SCREEN */}
+      <section className="max-w-5xl mx-auto space-y-4">
+        <ProductShot name="checkin" alt="CamperRoster check-in screen listing campers, cabins and canteen balances" caption="Check-in day in the demo camp: every registration, cabin and balance on one screen instead of a spreadsheet." />
+        <p className="text-center text-sm font-bold">
+          <Link href="/demo" className="text-forest-900 underline underline-offset-4 hover:text-forest-700">See every screen in the product tour →</Link>
+        </p>
       </section>
 
       {/* 2. THE 4 CORE PAIN POINTS OF THE OLD WAY */}
@@ -124,7 +133,7 @@ export default function DeepSeoLandingPage() {
       <div className="bg-white p-6 rounded-2xl border-2 border-stone-200 space-y-3">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-800 flex items-center justify-center font-black">2</div>
-          <h3 className="font-display font-black text-lg text-stone-950">Severe HIPAA & Medical Privacy Liability</h3>
+          <h3 className="font-display font-black text-lg text-stone-950">Medical Privacy Liability</h3>
         </div>
         <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
           Storing sensitive child medical histories, EpiPen plans, and insurance cards in shared Google Sheets violates standard privacy rules.
@@ -134,10 +143,10 @@ export default function DeepSeoLandingPage() {
       <div className="bg-white p-6 rounded-2xl border-2 border-stone-200 space-y-3">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-800 flex items-center justify-center font-black">3</div>
-          <h3 className="font-display font-black text-lg text-stone-950">No Capacity Limits (Accidental Over-Booking)</h3>
+          <h3 className="font-display font-black text-lg text-stone-950">No Cabin Waitlist (Accidental Over-Booking)</h3>
         </div>
         <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-          Google Forms doesn't automatically close sessions when cabin beds fill, leading to awkward phone calls turning families away.
+          Google Forms has no cabin waitlist, so when beds run out you are left making awkward phone calls to turn families away.
         </p>
       </div>
 
@@ -178,22 +187,22 @@ export default function DeepSeoLandingPage() {
               <tr>
         <td className="p-4 sm:p-5 font-bold">Payment & Deposit Processing</td>
         <td className="p-4 sm:p-5 text-rose-700 font-bold">Manual Venmo/Check Matching</td>
-        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Automated Stripe & ACH Installment Schedules</td>
+        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Dated Payment Plans Paid by Card Through Stripe</td>
       </tr>
       <tr>
         <td className="p-4 sm:p-5 font-bold">Medical Health Disclosures</td>
         <td className="p-4 sm:p-5 text-rose-700 font-bold">Unencrypted Public Spreadsheets</td>
-        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Encrypted PostgreSQL RLS (ACA & HIPAA Compliant)</td>
+        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Row-level security: health staff only</td>
       </tr>
       <tr>
-        <td className="p-4 sm:p-5 font-bold">Cabin Capacity & Auto-Close</td>
+        <td className="p-4 sm:p-5 font-bold">Full Cabins</td>
         <td className="p-4 sm:p-5 text-stone-600">Manual (Over-Booking Risk)</td>
-        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Automatic Session Caps & Waitlist Management</td>
+        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Cabin Waitlist You Promote From During Placement</td>
       </tr>
       <tr>
         <td className="p-4 sm:p-5 font-bold">Sunday Opening Gate Drop-Off</td>
         <td className="p-4 sm:p-5 text-stone-600">30-Min Paper Spreadsheet Lines</td>
-        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">45-Second Mobile QR Scanner with RN Badges</td>
+        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Name Search Check-In on Any Phone</td>
       </tr>
       <tr>
         <td className="p-4 sm:p-5 font-bold">Staff Volunteer Reference Checks</td>
@@ -210,36 +219,36 @@ export default function DeepSeoLandingPage() {
         <div className="text-center max-w-3xl mx-auto space-y-2">
           <span className="font-mono text-xs font-bold uppercase text-forest-800 tracking-wider">ALL-IN-ONE ARCHITECTURE</span>
           <h2 className="font-display font-black text-2xl sm:text-4xl text-stone-950">
-            Why Switching from Google Forms Takes 60 Seconds
+            What Changes When You Leave Google Forms
           </h2>
           <p className="text-xs sm:text-sm text-stone-600 font-medium">
-            Export your existing Google Sheet to CSV and import it into CamperRoster.
+            Registration, payments, health forms, and check-in in one system.
           </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div className="p-6 rounded-2xl bg-white border-2 border-stone-200 space-y-2">
-        <b className="font-display font-black text-lg text-stone-950 block">📥 1-Click Google Sheet Importer</b>
+        <b className="font-display font-black text-lg text-stone-950 block">✍️ Typed E-Signature at Registration</b>
         <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-          Export your Google Form responses as a CSV and drop it into CamperRoster (/admin/import). All past records map automatically.
+          Parents type their signature and check the consent boxes inside registration, and both are stored with the camper&apos;s record.
         </p>
       </div>
       <div className="p-6 rounded-2xl bg-white border-2 border-stone-200 space-y-2">
-        <b className="font-display font-black text-lg text-stone-950 block">💳 Automated Deposit Installments</b>
+        <b className="font-display font-black text-lg text-stone-950 block">💳 Payment Plans</b>
         <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-          Parents pay $100 today and choose automated monthly schedules, eliminating manual payment chasing for camp directors.
+          Families pick pay in full, two payments, or monthly. Each installment has a due date, and parents pay it by card from the portal.
         </p>
       </div>
       <div className="p-6 rounded-2xl bg-white border-2 border-stone-200 space-y-2">
         <b className="font-display font-black text-lg text-stone-950 block">💊 Health Lodge Tablet eMAR</b>
         <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-          Give your camp nurse a dedicated tablet dosage tracker compliant with ACA standards instead of paper medical binders.
+          Your nurse adds scheduled doses, sees them by meal window, and records who gave each one and when, instead of using a paper binder.
         </p>
       </div>
       <div className="p-6 rounded-2xl bg-white border-2 border-stone-200 space-y-2">
-        <b className="font-display font-black text-lg text-stone-950 block">⚡ 45-Second Express Gate Drop-Off</b>
+        <b className="font-display font-black text-lg text-stone-950 block">⚡ Fast Gate Drop-Off</b>
         <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-          Scan mobile QR boarding passes on Sunday to eliminate vehicle traffic jams at the camp entrance.
+          Gate staff search the camper by name, see their cabin and counselor, and confirm arrival with one tap.
         </p>
       </div>
         </div>
@@ -270,9 +279,9 @@ export default function DeepSeoLandingPage() {
 
           <div className="p-6 rounded-2xl bg-stone-50 border border-stone-200 space-y-2">
             <span className="font-mono text-xs font-bold text-forest-800 bg-forest-100 px-2.5 py-1 rounded-full">STEP 2</span>
-            <h4 className="font-display font-black text-base text-stone-950 pt-2">Import Past Rosters (Optional)</h4>
+            <h4 className="font-display font-black text-base text-stone-950 pt-2">Bring Over Past Rosters (Optional)</h4>
             <p className="text-xs text-stone-600 leading-relaxed">
-              Upload past CSV spreadsheets or UltraCamp exports into the 1-Click Importer. All family and medical profiles map in 60 seconds.
+              Automatic imports are not available yet. Send us your past spreadsheet or UltraCamp export and we help you move it over during setup.
             </p>
           </div>
 
@@ -336,7 +345,7 @@ export default function DeepSeoLandingPage() {
           Launch your camp portal in 3 minutes.
         </h2>
         <p className="text-sm sm:text-base text-stone-300 max-w-xl mx-auto leading-relaxed">
-          $0 setup, $0 off-season retainers, and free 1-click roster migration. Join the modern standard for summer camp operations.
+          $0 setup, $0 off-season retainers, and free help moving your roster over. Join the modern standard for summer camp operations.
         </p>
         <div className="pt-2 flex flex-col sm:flex-row justify-center gap-3">
           <Link

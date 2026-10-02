@@ -10,7 +10,7 @@ const article: Article = {
   category: "Staffing",
   readMinutes: 8,
   related: [
-    { href: "/camp-volunteer-reference-check-software", label: "How automated reference calling works" },
+    { href: "/camp-volunteer-reference-check-software", label: "How volunteer reference tracking works" },
     { href: "/summer-camp-management-software", label: "Camp registration and operations in one system" }
   ],
   body: [
@@ -114,10 +114,10 @@ const article: Article = {
     },
     {
       type: "cta",
-      title: "Or stop making the calls yourself",
-      text: "CamperRoster calls each reference automatically, asks the same structured questions every time, and returns a transcript and a score to the candidate's file. Directors get the answers without spending March on the phone.",
+      title: "Keep the reference with the application",
+      text: "CamperRoster's volunteer application collects a reference's name, phone, and email, and the director's review stays attached to the applicant. You still make the call, but the record is in one place.",
       href: "/camp-volunteer-reference-check-software",
-      label: "See how automated reference calls work"
+      label: "See how reference tracking works"
     },
     { type: "h2", text: "Questions to drop" },
     {

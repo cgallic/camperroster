@@ -3,7 +3,7 @@ import Content from "./Content";
 
 const title = "CampDoc Alternative: Built-In eMAR | CamperRoster";
 const description =
-  "Drop CampDoc's $6-$12 per-camper fee and second parent login. CamperRoster ships native HIPAA and ACA Health Lodge eMAR, offline med logging, no parent ads.";
+  "Drop CampDoc's $6-$12 per-camper fee and second parent login. CamperRoster ships a built-in Health Lodge eMAR, one parent login, no parent ads.";
 const url = "https://camperroster.com/campdoc-alternative";
 
 export const metadata: Metadata = {

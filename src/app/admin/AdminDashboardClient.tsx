@@ -150,7 +150,7 @@ export default function AdminDashboardClient({
   return (
     <PageShell>
       <PageHeader
-        eyebrow="Live Supabase production view"
+        eyebrow="Live camp data"
         title="Director Command Center"
         description="Where the season stands this morning, and the records nobody else can clear."
         actions={
@@ -158,7 +158,7 @@ export default function AdminDashboardClient({
             <Link href="/admin/history" className={buttonClass("secondary")}>Camp records</Link>
             <Button variant="secondary" onClick={fetchLiveData}>
               <RefreshCw className={"h-3.5 w-3.5 " + (loading ? "animate-spin" : "")} />
-              Sync DB
+              Refresh
             </Button>
             <Button
               variant="destructive"
@@ -207,7 +207,7 @@ export default function AdminDashboardClient({
         <Panel
           title="Priority triage queue"
           description="Live records requiring director or medical clearance."
-          actions={<Badge tone="complete">Supabase connected</Badge>}
+          actions={<Badge tone="complete">Up to date</Badge>}
           bodyClassName="p-0"
         >
           <DataTable
