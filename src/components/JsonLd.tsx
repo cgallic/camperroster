@@ -20,8 +20,8 @@ export default function JsonLd() {
       "Health Lodge Electronic Medication Administration Records (eMAR)",
       "Cashless Canteen Point of Sale (POS)",
 
-      "Express QR Gate Check-In",
-      "Daily Bunk Notes Parent Mail Call Batch Printing",
+      "Opening-Day Gate Check-In",
+      "Daily Bunk Notes Batch Printing",
       "Counselor Mobile Cabin Roster"
     ]
   };

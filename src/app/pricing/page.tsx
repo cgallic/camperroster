@@ -82,7 +82,6 @@ export default function PricingAndRoiPage() {
   const camperrosterSetupFee = 0;
 
   const dollarSavings = competitorAnnualCost - camperrosterAnnualCost;
-  const hoursSaved = Math.round((staffCount * 3 * 15) / 60); // 3 references per staff, 15 min phone tag each = hours saved
 
   return (
     <main className="space-y-16 sm:space-y-24 pb-24">
@@ -98,7 +97,7 @@ export default function PricingAndRoiPage() {
             Pay only when campers register. <span className="text-forest-800">$0/month in winter.</span>
           </h1>
           <p className="text-sm sm:text-xl text-stone-600 font-medium max-w-2xl mx-auto leading-relaxed">
-            Eliminate the $6,000+ annual software tax. Get registration, health lodge eMAR, volunteer reference tracking, and parent bunk notes in one transparent platform.
+            Eliminate the $6,000+ annual software tax. Get registration, health lodge eMAR, volunteer reference tracking, and bunk notes in one transparent platform.
           </p>
         </div>
       </section>
@@ -202,7 +201,7 @@ Our own estimates — adjust the sliders with your real numbers
                   className="w-full accent-amber-600 h-2 bg-stone-200 rounded-lg cursor-pointer"
                 />
                 <span className="text-[11px] text-stone-500 block font-medium">
-                  Requires {staffCount * 3} reference checks (3 per applicant)
+                  Collects {staffCount} reference contacts (1 per applicant)
                 </span>
               </div>
 
@@ -230,11 +229,11 @@ Estimate, not a quote
                 </div>
 
                 <div className="space-y-1">
-                  <span className="text-xs text-stone-300 font-bold block">Staff Hours Reclaimed</span>
+                  <span className="text-xs text-stone-300 font-bold block">References to Review</span>
                   <b className="font-display font-black text-3xl sm:text-4xl text-amber-400 block">
-                    {hoursSaved} hrs
+                    {staffCount}
                   </b>
-                  <span className="text-[11px] text-stone-400 block">Modeled from reference-call time</span>
+                  <span className="text-[11px] text-stone-400 block">One per applicant, reviewed by your director</span>
                 </div>
               </div>
 
@@ -309,7 +308,7 @@ Estimate, not a quote
                 <ul className="space-y-3 pt-4 border-t border-stone-100 text-xs font-bold text-stone-700">
                   <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-600" /> 5-Step Camper Registration Wizard</li>
                   <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-600" /> Shareable Registration Links</li>
-                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-600" /> Flexible Installment Schedules</li>
+                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-600" /> Pay-in-Full, Two-Payment, or Monthly Plans</li>
                   <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-600" /> Director Command Center</li>
                   <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-600" /> Standard 2.5% + $1.50 Card Processing</li>
                 </ul>
@@ -355,9 +354,9 @@ BUILT TO REPLACE ULTRACAMP
                   <li className="flex items-center gap-2"><Check className="w-4 h-4 text-amber-400" /> <b>Volunteer Reference Tracking</b></li>
                   <li className="flex items-center gap-2"><Check className="w-4 h-4 text-sky-400" /> <b>Health Lodge eMAR Dispenser</b></li>
                   <li className="flex items-center gap-2"><Check className="w-4 h-4 text-purple-400" /> <b>Cashless Canteen POS Register</b></li>
-                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> <b>Parent Bunk Notes & Daily Photos</b></li>
-                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> <b>45-Second Express Gate QR Check-In</b></li>
-                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> <b>1-Click UltraCamp Data Migration</b></li>
+                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> <b>Bunk Notes One-Click Printing</b></li>
+                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> <b>Opening-Day Gate Check-In</b></li>
+                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> <b>Help Moving Your Roster Over</b></li>
                 </ul>
               </div>
 
@@ -393,10 +392,8 @@ BUILT TO REPLACE ULTRACAMP
 
                 <ul className="space-y-3 pt-4 border-t border-stone-100 text-xs font-bold text-stone-700">
                   <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-600" /> Everything in Pro</li>
-                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-600" /> Custom Domain & Branding</li>
-                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-600" /> Multi-Tenant Centralized Reporting</li>
-                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-600" /> Dedicated Account Manager & Migration</li>
-                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-600" /> Custom QuickBooks & Accounting Sync</li>
+                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-600" /> Volume Pricing for Each Camp</li>
+                  <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-600" /> Dedicated Account Manager & Migration Help</li>
                 </ul>
               </div>
 
@@ -434,13 +431,13 @@ BUILT TO REPLACE ULTRACAMP
             <div className="p-4 rounded-xl bg-white border border-amber-200 flex items-start gap-3">
               <Check className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
               <div>
-                <b>$0 Data Migration</b>: Send us your UltraCamp or spreadsheet export and we do the import with you at no charge. Check your column mapping first with the roster mapper.
+                <b>$0 Data Migration</b>: Send us your UltraCamp or spreadsheet export and we move your roster over with you at no charge. Automatic imports are not available yet.
               </div>
             </div>
             <div className="p-4 rounded-xl bg-white border border-amber-200 flex items-start gap-3">
               <Check className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
               <div>
-                <b>Reference Checks Handled</b>: We help you work through your volunteer reference list. Automated KaiCalls voice interviews are in development and included when they ship.
+                <b>Volunteer References Organized</b>: Each volunteer application collects one reference, and your director reviews and approves it in the dashboard.
               </div>
             </div>
             <div className="p-4 rounded-xl bg-white border border-amber-200 flex items-start gap-3">

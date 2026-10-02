@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import ProductShot from "@/components/ProductShot";
 import FaqJsonLd from "@/components/FaqJsonLd";
 import { Sparkles, ArrowRight, ChevronDown, CheckCircle2 } from "lucide-react";
 
@@ -23,7 +24,7 @@ export default function DeepSeoLandingPage() {
     },
     {
       q: "How do waivers and consent forms work?",
-      a: "The liability form and emergency treatment waiver are part of registration. Parents sign with a typed-name e-signature, and CamperRoster stores the exact wording they agreed to, so editing a waiver later does not change what an earlier signature covered."
+      a: "The liability form and emergency treatment waiver are part of registration. Parents sign with a typed-name e-signature, and CamperRoster stores that typed signature with the consent boxes they checked at registration."
     },
     {
       q: "Who can see camper medical information?",
@@ -31,7 +32,7 @@ export default function DeepSeoLandingPage() {
     },
     {
       q: "Does the Health Lodge eMAR work without Wi-Fi?",
-      a: "Yes. The eMAR caches locally, so nurses can keep logging medication passes if the health cabin loses its connection."
+      a: "No. The eMAR needs an internet connection. It runs in the browser over camp Wi-Fi or a phone hotspot, so plan for a signal in the health cabin."
     }
   ];
 
@@ -76,13 +77,21 @@ export default function DeepSeoLandingPage() {
           </span>
           <span className="flex items-center gap-1.5 text-stone-800">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>Offline medication logging</span>
+            <span>Doses logged by meal window</span>
           </span>
           <span className="flex items-center gap-1.5 text-stone-800">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
             <span>No extra per-camper medical fee</span>
           </span>
         </div>
+      </section>
+
+      {/* REAL PRODUCT SCREEN */}
+      <section className="max-w-5xl mx-auto space-y-4">
+        <ProductShot name="emar" alt="Medication log in CamperRoster showing scheduled and administered doses for each camper" caption="The Health Lodge medication log, filled with the demo camp. Doses are grouped by meal time and stamped when given." />
+        <p className="text-center text-sm font-bold">
+          <Link href="/demo" className="text-forest-900 underline underline-offset-4 hover:text-forest-700">See every screen in the product tour →</Link>
+        </p>
       </section>
 
       {/* 2. THE PROBLEM */}
@@ -168,7 +177,7 @@ export default function DeepSeoLandingPage() {
           <div className="p-6 rounded-2xl bg-white border-2 border-stone-200 space-y-2">
             <b className="font-display font-black text-lg text-stone-950 block">✍️ Waivers and consent at registration</b>
             <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-              The liability form and emergency treatment waiver are signed with a typed-name e-signature. The exact wording each parent agreed to is stored with their signature.
+              The liability form and emergency treatment waiver are signed with a typed-name e-signature. The typed signature and the consent boxes each parent checked are stored with their registration.
             </p>
           </div>
           <div className="p-6 rounded-2xl bg-white border-2 border-stone-200 space-y-2">
@@ -178,9 +187,9 @@ export default function DeepSeoLandingPage() {
             </p>
           </div>
           <div className="p-6 rounded-2xl bg-white border-2 border-stone-200 space-y-2">
-            <b className="font-display font-black text-lg text-stone-950 block">📶 Offline medication logging</b>
+            <b className="font-display font-black text-lg text-stone-950 block">📎 Immunization and insurance uploads</b>
             <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-              The eMAR caches locally, so medication passes keep getting logged if the health cabin loses Wi-Fi.
+              Parents upload immunization records and insurance card photos during registration, and health staff open them from the camper record.
             </p>
           </div>
           <div className="p-6 rounded-2xl bg-white border-2 border-stone-200 space-y-2">
@@ -229,7 +238,7 @@ export default function DeepSeoLandingPage() {
               <tr>
                 <td className="p-4 sm:p-5 font-bold">Opening-day clearance</td>
                 <td className="p-4 sm:p-5 text-stone-600">Check two screens</td>
-                <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Gate QR scan shows health clearance</td>
+                <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Same camper record from Health Lodge to gate</td>
               </tr>
             </tbody>
           </table>
@@ -262,9 +271,9 @@ export default function DeepSeoLandingPage() {
 
           <div className="p-6 rounded-2xl bg-stone-50 border border-stone-200 space-y-2">
             <span className="font-mono text-xs font-bold text-forest-800 bg-forest-100 px-2.5 py-1 rounded-full">STEP 2</span>
-            <h4 className="font-display font-black text-base text-stone-950 pt-2">Import last year&apos;s roster</h4>
+            <h4 className="font-display font-black text-base text-stone-950 pt-2">Bring over last year&apos;s roster</h4>
             <p className="text-xs text-stone-600 leading-relaxed">
-              Upload a CSV at /admin/import. Family contacts, camper records, and allergy fields are mapped before anything is saved.
+              Automatic imports are not available yet. Send us your export and we help you move your roster over during setup.
             </p>
           </div>
 

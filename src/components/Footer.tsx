@@ -17,7 +17,7 @@ export default function Footer() {
               <span className="font-display font-black text-2xl text-white tracking-tight">CamperRoster</span>
             </div>
             <p className="text-xs sm:text-sm text-stone-400 max-w-sm leading-relaxed">
-              The modern camp registration and operations platform. Built to eliminate parent drop-off, automate staff reference checks with KaiCalls, and get every record complete before opening day.
+              The modern camp registration and operations platform. Built to eliminate parent drop-off, keep volunteer reference checks organized, and get every record complete before opening day.
             </p>
             <div className="flex items-center gap-2 text-xs text-emerald-400 font-semibold pt-1">
               <ShieldCheck className="w-4 h-4 text-emerald-400" />
@@ -52,6 +52,7 @@ export default function Footer() {
               <li><Link href="/campminder-alternative" className="hover:text-white transition-colors">vs CampMinder</Link></li>
               <li><Link href="/campbrain-alternative" className="hover:text-white transition-colors">vs CampBrain</Link></li>
               <li><Link href="/camp-registration-software-vs-google-forms" className="hover:text-white transition-colors">vs Google Forms & Venmo</Link></li>
+              <li><Link href="/demo" className="text-emerald-400 hover:text-emerald-300 font-bold transition-colors">Product Tour</Link></li>
               <li><Link href="/pricing" className="hover:text-white transition-colors">Transparent Pricing</Link></li>
               <li><Link href="/blog" className="hover:text-white transition-colors">Camp Operations Guides</Link></li>
               <li><Link href="/start" className="text-emerald-400 hover:text-emerald-300 font-bold transition-colors">Launch Your Camp ($0 Setup)</Link></li>

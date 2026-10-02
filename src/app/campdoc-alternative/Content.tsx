@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import ProductShot from "@/components/ProductShot";
 import FaqJsonLd from "@/components/FaqJsonLd";
 import {
   Sparkles,
@@ -31,8 +32,8 @@ export default function DeepSeoLandingPage() {
 
   const faqs = [
   {
-    "q": "Is CamperRoster HIPAA and ACA compliant for camp health records?",
-    "a": "Yes. Medical records are encrypted with PostgreSQL Row-Level Security, ensuring that only authenticated Health Lodge medical staff have access to confidential health files."
+    "q": "Who can see camper health records in CamperRoster?",
+    "a": "Only the Health Lodge staff you assign. Row-level security in the database keeps medical files away from counselors, canteen staff, and other camps."
   },
   {
     "q": "How much does a camp save by replacing CampDoc?",
@@ -43,8 +44,8 @@ export default function DeepSeoLandingPage() {
     "a": "Yes. Parents can upload PDFs or snap photos from their phone camera directly in the 5-step registration wizard."
   },
   {
-    "q": "Does the Health Lodge eMAR work offline in rural camp areas?",
-    "a": "Yes. CamperRoster's eMAR uses local offline caching, allowing nurses to log medication dispensing even if the health cabin loses Wi-Fi connection."
+    "q": "Does the Health Lodge eMAR work without an internet connection?",
+    "a": "No. The eMAR needs an internet connection. It works over camp Wi-Fi or a phone hotspot, so make sure the health cabin has a signal."
   }
 ];
 
@@ -63,7 +64,7 @@ export default function DeepSeoLandingPage() {
         </h1>
         
         <p className="text-base sm:text-xl text-stone-600 font-medium max-w-3xl mx-auto leading-relaxed">
-          CampDoc charges $6–$12 per camper, forces parents to create a second account, and pushes travel insurance ads. CamperRoster includes native ACA & HIPAA eMAR built directly into your registration.
+          CampDoc charges $6–$12 per camper, forces parents to create a second account, and pushes travel insurance ads. CamperRoster includes a Health Lodge eMAR built directly into your registration.
         </p>
 
         <div className="pt-2 flex flex-col sm:flex-row justify-center items-center gap-3.5">
@@ -93,9 +94,17 @@ export default function DeepSeoLandingPage() {
           </span>
           <span className="flex items-center gap-1.5 text-stone-800">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>Native ACA & HIPAA Health Lodge eMAR</span>
+            <span>Built-In Health Lodge eMAR</span>
           </span>
         </div>
+      </section>
+
+      {/* REAL PRODUCT SCREEN */}
+      <section className="max-w-5xl mx-auto space-y-4">
+        <ProductShot name="emar" alt="CamperRoster Health Lodge medication log with doses by meal time" caption="The built-in Health Lodge medication log, filled with the demo camp." />
+        <p className="text-center text-sm font-bold">
+          <Link href="/demo" className="text-forest-900 underline underline-offset-4 hover:text-forest-700">See every screen in the product tour →</Link>
+        </p>
       </section>
 
       {/* 2. THE 4 CORE PAIN POINTS OF THE OLD WAY */}
@@ -203,7 +212,7 @@ export default function DeepSeoLandingPage() {
       <tr>
         <td className="p-4 sm:p-5 font-bold">Sunday Opening Gate Sync</td>
         <td className="p-4 sm:p-5 text-stone-600">Manual Spreadsheet Export Required</td>
-        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Instant Live Sync on Gate QR Scanner</td>
+        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Same Records on the Gate Check-In Screen</td>
       </tr>
             </tbody>
           </table>
@@ -215,7 +224,7 @@ export default function DeepSeoLandingPage() {
         <div className="text-center max-w-3xl mx-auto space-y-2">
           <span className="font-mono text-xs font-bold uppercase text-forest-800 tracking-wider">ALL-IN-ONE ARCHITECTURE</span>
           <h2 className="font-display font-black text-2xl sm:text-4xl text-stone-950">
-            ACA & HIPAA Compliant Health Lodge Operations
+            Health Lodge Operations, Health Staff Only
           </h2>
           <p className="text-xs sm:text-sm text-stone-600 font-medium">
             Built specifically for camp registered nurses, first aiders, and health directors.
@@ -226,7 +235,7 @@ export default function DeepSeoLandingPage() {
           <div className="p-6 rounded-2xl bg-white border-2 border-stone-200 space-y-2">
         <b className="font-display font-black text-lg text-stone-950 block">💊 Tablet eMAR Medication Dispenser</b>
         <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-          Camp nurses schedule and dispense medications by meal time (Breakfast, Lunch, Dinner, Bedtime) with timestamped audit logs.
+          Camp nurses add scheduled doses, see them by meal window (Breakfast, Lunch, Dinner, Bedtime), and record who gave each one and when.
         </p>
       </div>
       <div className="p-6 rounded-2xl bg-white border-2 border-stone-200 space-y-2">
@@ -242,9 +251,9 @@ export default function DeepSeoLandingPage() {
         </p>
       </div>
       <div className="p-6 rounded-2xl bg-white border-2 border-stone-200 space-y-2">
-        <b className="font-display font-black text-lg text-stone-950 block">⚡ Instant Gate RN Clearance Badges</b>
+        <b className="font-display font-black text-lg text-stone-950 block">⚡ One System From Health Lodge to Gate</b>
         <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-          When parents arrive on Sunday, gate staff scan their boarding pass QR to instantly confirm the nurse has cleared their health record.
+          Health forms, the nurse&apos;s medication log, and gate check-in share one camper record, so nothing is re-typed between the Health Lodge and the front gate.
         </p>
       </div>
         </div>
@@ -275,9 +284,9 @@ export default function DeepSeoLandingPage() {
 
           <div className="p-6 rounded-2xl bg-stone-50 border border-stone-200 space-y-2">
             <span className="font-mono text-xs font-bold text-forest-800 bg-forest-100 px-2.5 py-1 rounded-full">STEP 2</span>
-            <h4 className="font-display font-black text-base text-stone-950 pt-2">Import Past Rosters (Optional)</h4>
+            <h4 className="font-display font-black text-base text-stone-950 pt-2">Bring Over Past Rosters (Optional)</h4>
             <p className="text-xs text-stone-600 leading-relaxed">
-              Upload past CSV spreadsheets or UltraCamp exports into the 1-Click Importer. All family and medical profiles map in 60 seconds.
+              Automatic imports are not available yet. Send us your past spreadsheet or UltraCamp export and we help you move it over during setup.
             </p>
           </div>
 
@@ -341,7 +350,7 @@ export default function DeepSeoLandingPage() {
           Launch your camp portal in 3 minutes.
         </h2>
         <p className="text-sm sm:text-base text-stone-300 max-w-xl mx-auto leading-relaxed">
-          $0 setup, $0 off-season retainers, and free 1-click roster migration. Join the modern standard for summer camp operations.
+          $0 setup, $0 off-season retainers, and free help moving your roster over. Join the modern standard for summer camp operations.
         </p>
         <div className="pt-2 flex flex-col sm:flex-row justify-center gap-3">
           <Link

@@ -2,6 +2,8 @@ import { getMembership } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { navigationForRole } from "@/lib/staff-navigation";
 import SignOutButton from "./SignOutButton";
+import Link from "next/link";
+import { isDemoEmail } from "@/lib/demo/constants";
 import StaffNavigation from "./StaffNavigation";
 
 /**
@@ -21,6 +23,12 @@ export default async function StaffHeader() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-stone-200 bg-white/95 shadow-[0_1px_0_rgba(28,59,47,0.04)] backdrop-blur-md">
+      {isDemoEmail(user.email) && (
+        <div className="bg-amber-100 px-4 py-2 text-center text-xs font-bold text-amber-950 sm:text-sm">
+          You&apos;re exploring a demo camp with made-up campers. Look around freely; changes are switched off.{" "}
+          <Link href="/start" className="underline underline-offset-2">Create your own camp ($0 setup) →</Link>
+        </div>
+      )}
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="flex items-center justify-between gap-3 border-b border-stone-100 py-2">
           <div className="flex min-w-0 items-center gap-2">

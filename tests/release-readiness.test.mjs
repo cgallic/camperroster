@@ -11,7 +11,12 @@ test("Vercel invokes the authenticated mail dispatcher every five minutes", () =
   const config = JSON.parse(readFileSync(join(root, "vercel.json"), "utf8"));
   assert.deepEqual(config.crons, [
     { path: "/api/mail/dispatch", schedule: "*/5 * * * *" },
+    { path: "/api/demo/reset", schedule: "0 8 * * *" },
   ]);
+
+  const demoReset = readFileSync(join(root, "src/app/api/demo/reset/route.ts"), "utf8");
+  assert.match(demoReset, /process\.env\.CRON_SECRET/);
+  assert.match(demoReset, /timingSafeEqual/);
 
   const route = readFileSync(join(root, "src/app/api/mail/dispatch/route.ts"), "utf8");
   assert.match(route, /export async function GET/);

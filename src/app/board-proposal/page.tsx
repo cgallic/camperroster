@@ -115,8 +115,8 @@ An example evaluation of moving a camp off fragmented legacy tools (UltraCamp, s
                 <tr>
                   <td className="p-3.5 font-bold">Staff Volunteer Reference Calling</td>
                   <td className="p-3.5 text-stone-600">40 hrs staff labor (~$1,000)</td>
-                  <td className="p-3.5 bg-emerald-50/50 font-bold text-emerald-900">Included (manual workflow)</td>
-                  <td className="p-3.5 font-black text-emerald-700">Save 40 Hours</td>
+                  <td className="p-3.5 bg-emerald-50/50 font-bold text-emerald-900">40 hrs staff labor (~$1,000), records kept with applicant</td>
+                  <td className="p-3.5 text-stone-500">$0 (calls still made by staff)</td>
                 </tr>
                 <tr>
                   <td className="p-3.5 font-bold">Medical eMAR & Health Records</td>
@@ -125,7 +125,7 @@ An example evaluation of moving a camp off fragmented legacy tools (UltraCamp, s
                   <td className="p-3.5 font-black text-emerald-700">Save $1,200</td>
                 </tr>
                 <tr>
-                  <td className="p-3.5 font-bold">Parent Daily Bunk Notes Mail</td>
+                  <td className="p-3.5 font-bold">Daily Bunk Notes Printing</td>
                   <td className="p-3.5 text-stone-600">$800/yr (Bunk1 add-on)</td>
                   <td className="p-3.5 bg-emerald-50/50 font-bold text-emerald-900">Included Native</td>
                   <td className="p-3.5 font-black text-emerald-700">Save $800</td>
@@ -133,8 +133,8 @@ An example evaluation of moving a camp off fragmented legacy tools (UltraCamp, s
                 <tr className="bg-stone-50 font-black text-sm">
                   <td className="p-3.5">TOTAL ESTIMATED ANNUAL COST</td>
                   <td className="p-3.5 text-rose-800">$8,250 / year</td>
-                  <td className="p-3.5 bg-emerald-100 text-emerald-950 font-black">$2,100 / year</td>
-                  <td className="p-3.5 text-emerald-800 font-black">SAVE $6,150 / YR (74%)</td>
+                  <td className="p-3.5 bg-emerald-100 text-emerald-950 font-black">$3,100 / year</td>
+                  <td className="p-3.5 text-emerald-800 font-black">SAVE $5,150 / YR (62%)</td>
                 </tr>
               </tbody>
             </table>
@@ -149,21 +149,21 @@ An example evaluation of moving a camp off fragmented legacy tools (UltraCamp, s
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
             <div className="p-4 rounded-xl border border-stone-200 space-y-1">
-              <b className="text-stone-950 block">⚡ 45-Second Express Gate Check-In</b>
+              <b className="text-stone-950 block">⚡ Fast Gate Check-In</b>
               <p className="text-stone-600 leading-relaxed">
-                Parents present an SVG Boarding Pass QR on their phone. Gate staff scan to instantly verify RN health clearance, assigned cabin (*Cabin 4 • Timber Lodge*), and hand out canteen wristbands.
+                Gate staff search each camper by name on a phone or tablet, see their assigned cabin and counselor, and confirm arrival with one tap.
               </p>
             </div>
             <div className="p-4 rounded-xl border border-stone-200 space-y-1">
-              <b className="text-stone-950 block">🎙️ Planned KaiCalls Voice References</b>
+              <b className="text-stone-950 block">🎙️ Volunteer Reference Review</b>
               <p className="text-stone-600 leading-relaxed">
-In development: the voice assistant dials mentors and pastors, runs a 2-minute structured interview, and files the recording and transcript against the applicant. Until it ships, references are reviewed by hand in the director dashboard.
+Each volunteer application records one reference&apos;s name, phone, and email. The director reviews it by hand in the director dashboard and makes the call.
               </p>
             </div>
             <div className="p-4 rounded-xl border border-stone-200 space-y-1">
               <b className="text-stone-950 block">💊 Health Lodge Tablet eMAR</b>
               <p className="text-stone-600 leading-relaxed">
-                Camp nurses log prescription dosages (Breakfast, Lunch, Dinner, Bedtime) with timestamped records compliant with ACA and HIPAA guidelines.
+                Camp nurses log prescription dosages (Breakfast, Lunch, Dinner, Bedtime) with timestamped records, visible only to health staff.
               </p>
             </div>
             <div className="p-4 rounded-xl border border-stone-200 space-y-1">
@@ -182,7 +182,7 @@ In development: no more forgotten parent passwords &mdash; a one-tap link to fin
             <span className="font-mono text-xs font-bold bg-white/10 px-3 py-1 rounded-full text-stone-200">$0 Setup & Migration</span>
           </div>
           <p className="text-xs text-stone-300 leading-relaxed">
-On these example figures, a camp this size would save roughly <b>$6,150 a year</b> and reclaim <b>40+ hours of director time</b>, while giving families a registration flow that works on a phone. Run the numbers for your own camp on the pricing page before you present this.
+On these example figures, a camp this size would save roughly <b>$5,150 a year</b>, while giving families a registration flow that works on a phone. Run the numbers for your own camp on the pricing page before you present this.
           </p>
         </div>
 
