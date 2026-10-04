@@ -431,7 +431,7 @@ BUILT TO REPLACE ULTRACAMP
             <div className="p-4 rounded-xl bg-white border border-amber-200 flex items-start gap-3">
               <Check className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
               <div>
-                <b>$0 Data Migration</b>: Send us your UltraCamp or spreadsheet export and we move your roster over with you at no charge. Automatic imports are not available yet.
+                <b>$0 Data Migration</b>: Upload your UltraCamp, CampMinder, CampBrain or spreadsheet export and map the columns yourself, or send it to us and we&apos;ll help at no charge.
               </div>
             </div>
             <div className="p-4 rounded-xl bg-white border border-amber-200 flex items-start gap-3">

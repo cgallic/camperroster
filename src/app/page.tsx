@@ -36,7 +36,7 @@ export default function B2BSaasHomePage() {
     },
     {
       q: "How do we migrate our existing roster data from UltraCamp or spreadsheets?",
-      a: "There is no automatic import yet. Send us your UltraCamp, CampBrain, or spreadsheet export and we help you move your roster over during setup. Families who register through your CamperRoster portal are added directly."
+      a: "Upload a CSV or Excel export from UltraCamp, CampMinder, CampBrain, or a spreadsheet, then match its columns to camper, guardian, and health fields. You see a preview with any problem rows before anything is saved, and families already on file are matched rather than duplicated. Families who register through your CamperRoster portal are added directly."
     },
     {
       q: "Who can see campers' medical records?",
@@ -364,10 +364,10 @@ export default function B2BSaasHomePage() {
               MIGRATION MADE SIMPLE
             </span>
             <h3 className="font-display font-black text-2xl sm:text-4xl text-stone-950">
-              We help you move your roster over during setup.
+              Upload last year&apos;s roster and map the columns yourself.
             </h3>
             <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-              Automatic imports are not available yet. Send us your existing roster export and we work through it with you while you set up your camp, at no extra charge. New families register through your portal directly.
+              Upload a CSV or Excel export, match its columns to ours, and check the preview before you import. If you&apos;d rather have a hand, we&apos;ll walk through it with you at no extra charge. New families register through your portal directly.
             </p>
           </div>
 
