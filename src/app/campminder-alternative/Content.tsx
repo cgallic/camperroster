@@ -24,7 +24,7 @@ export default function DeepSeoLandingPage() {
     },
     {
       q: "Can we move our camper roster from our current system into CamperRoster?",
-      a: "Yes, with our help. There is no automatic import yet, so send us your families and campers as a spreadsheet export and we help you move your roster over during setup."
+      a: "Yes. Export your families and campers from CampMinder as a CSV or Excel file, upload it, and match the columns to ours. You check a preview before anything is saved."
     },
     {
       q: "Does CamperRoster include health records and a nurse eMAR?",
@@ -260,7 +260,7 @@ export default function DeepSeoLandingPage() {
             How to move your camp to CamperRoster
           </h3>
           <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-            Send us a spreadsheet export of your families and campers and we help you move them over. No setup fee.
+            Upload a spreadsheet export of your families and campers and map the columns yourself. No setup fee.
           </p>
         </div>
 
@@ -275,9 +275,9 @@ export default function DeepSeoLandingPage() {
 
           <div className="p-6 rounded-2xl bg-stone-50 border border-stone-200 space-y-2">
             <span className="font-mono text-xs font-bold text-forest-800 bg-forest-100 px-2.5 py-1 rounded-full">STEP 2</span>
-            <h4 className="font-display font-black text-base text-stone-950 pt-2">Send it to us</h4>
+            <h4 className="font-display font-black text-base text-stone-950 pt-2">Upload and map it</h4>
             <p className="text-xs text-stone-600 leading-relaxed">
-              Automatic imports are not available yet. We help you move your roster over during setup, at no charge.
+              Upload the file, match its columns to camper, guardian and health fields, and check the preview before importing. We can still help at no charge.
             </p>
           </div>
 

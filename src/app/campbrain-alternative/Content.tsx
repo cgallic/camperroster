@@ -37,7 +37,7 @@ export default function DeepSeoLandingPage() {
   },
   {
     "q": "Can we bring over our existing CampBrain records?",
-    "a": "There is no automatic import yet. Export your camper and guardian records from CampBrain and we help you move your roster over during setup."
+    "a": "Yes. Export your camper and guardian records from CampBrain as a CSV or Excel file, upload it, and match the columns to ours. You check a preview before anything is saved."
   },
   {
     "q": "Does CamperRoster require multi-year contracts like CampBrain?",
@@ -286,7 +286,7 @@ export default function DeepSeoLandingPage() {
             <span className="font-mono text-xs font-bold text-forest-800 bg-forest-100 px-2.5 py-1 rounded-full">STEP 2</span>
             <h4 className="font-display font-black text-base text-stone-950 pt-2">Bring Over Past Rosters (Optional)</h4>
             <p className="text-xs text-stone-600 leading-relaxed">
-              Automatic imports are not available yet. Send us your past spreadsheet or UltraCamp export and we help you move it over during setup.
+              Upload a CSV or Excel export from UltraCamp, CampMinder, CampBrain or a Google Form, match its columns to ours, and check a preview before anything is saved.
             </p>
           </div>
 
