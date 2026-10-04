@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import ProductShot from "@/components/ProductShot";
 import FaqJsonLd from "@/components/FaqJsonLd";
 import {
   Sparkles,
@@ -31,12 +32,12 @@ export default function DeepSeoLandingPage() {
 
   const faqs = [
   {
-    "q": "Can multiple churches register under one camp session?",
-    "a": "Yes! CamperRoster allows church group leaders to register blocks of youth and track individual church balances seamlessly."
+    "q": "Can families from several churches register for one camp session?",
+    "a": "Yes. Each family registers through the same session link and gets its own balance. There are no church group blocks or per-church balances, but admins can set a custom total for a family by hand."
   },
   {
     "q": "How does CamperRoster help youth pastors review volunteer references?",
-    "a": "CamperRoster collects pastoral and mentor reference details with each volunteer application and keeps the director's manual review attached to the applicant. Automated KaiCalls interviews are still in development."
+    "a": "CamperRoster collects pastoral and mentor reference details with each volunteer application and keeps the director's manual review attached to the applicant. The director makes the calls."
   },
   {
     "q": "Does CamperRoster charge off-season retainer fees?",
@@ -44,7 +45,7 @@ export default function DeepSeoLandingPage() {
   },
   {
     "q": "Can parents pay in monthly installments?",
-    "a": "Yes! Parents can pay a deposit and configure automated monthly installment schedules via card or bank ACH."
+    "a": "Yes. Families choose pay in full, two payments, or monthly at registration. Each installment gets a due date, and parents pay it by card through Stripe Checkout from the parent portal."
   }
 ];
 
@@ -63,7 +64,7 @@ export default function DeepSeoLandingPage() {
         </h1>
         
         <p className="text-base sm:text-xl text-stone-600 font-medium max-w-3xl mx-auto leading-relaxed">
-          Open a session, share one link, and let youth group families finish registration on a phone. Church group blocks, split church-and-parent billing, sponsor codes, mutual cabin buddy requests, and ACH deposit plans are all handled inside the form.
+          Open a session, share one link, and let youth group families finish registration on a phone. Health forms, typed e-signatures, cabin buddy requests, and card payment plans are all handled inside the form.
         </p>
 
         <div className="pt-2 flex flex-col sm:flex-row justify-center items-center gap-3.5">
@@ -93,9 +94,17 @@ export default function DeepSeoLandingPage() {
           </span>
           <span className="flex items-center gap-1.5 text-stone-800">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>Church Group Billing & Sponsor Codes</span>
+            <span>Card Payment Plans</span>
           </span>
         </div>
+      </section>
+
+      {/* REAL PRODUCT SCREEN */}
+      <section className="max-w-5xl mx-auto space-y-4">
+        <ProductShot name="cabins" alt="Cabin board placing church campers by grade and gender with spots remaining" caption="The cabin board in the demo camp, with buddy-friendly placement and spots left per cabin." />
+        <p className="text-center text-sm font-bold">
+          <Link href="/demo" className="text-forest-900 underline underline-offset-4 hover:text-forest-700">See every screen in the product tour →</Link>
+        </p>
       </section>
 
       {/* 2. THE 4 CORE PAIN POINTS OF THE OLD WAY */}
@@ -106,7 +115,7 @@ export default function DeepSeoLandingPage() {
             Where Church Camp Registration Breaks Down on Generic Forms
           </h2>
           <p className="text-xs sm:text-sm text-stone-600 font-medium">
-            Generic event tools don't understand church group billing, roommate pairing, or pastoral volunteer vetting.
+            Generic event tools don't understand health forms, cabin buddy requests, or pastoral volunteer references.
           </p>
         </div>
 
@@ -114,10 +123,10 @@ export default function DeepSeoLandingPage() {
           <div className="bg-white p-6 rounded-2xl border-2 border-stone-200 space-y-3">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-800 flex items-center justify-center font-black">1</div>
-          <h3 className="font-display font-black text-lg text-stone-950">Church Youth Group Split Payment Chaos</h3>
+          <h3 className="font-display font-black text-lg text-stone-950">Medical Forms Chased by Email</h3>
         </div>
         <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-          Churches paying 50% of the cost while parents pay the remainder creates massive manual accounting headaches on generic tools.
+          Youth leaders chase immunization records and insurance cards by email the week before camp, and some never arrive.
         </p>
       </div>
 
@@ -191,14 +200,14 @@ export default function DeepSeoLandingPage() {
         <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Shareable Registration Links</td>
       </tr>
       <tr>
-        <td className="p-4 sm:p-5 font-bold">Church Group Subsidy Codes</td>
+        <td className="p-4 sm:p-5 font-bold">Family Balances</td>
         <td className="p-4 sm:p-5 text-stone-600">Manual Workarounds</td>
-        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Native Church Group Invoicing & Promo Subsidies</td>
+        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Per-Family Balances, With Custom Totals Set by Hand</td>
       </tr>
       <tr>
         <td className="p-4 sm:p-5 font-bold">Mutual Cabin Buddy Matching</td>
         <td className="p-4 sm:p-5 text-stone-600">Manual Spreadsheet Sorting</td>
-        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Automated 2-Way Buddy Pairing Engine</td>
+        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Buddy Requests Captured at Registration</td>
       </tr>
             </tbody>
           </table>
@@ -225,21 +234,21 @@ export default function DeepSeoLandingPage() {
         </p>
       </div>
       <div className="p-6 rounded-2xl bg-white border-2 border-stone-200 space-y-2">
-        <b className="font-display font-black text-lg text-stone-950 block">⛪ Church Group & Family Installments</b>
+        <b className="font-display font-black text-lg text-stone-950 block">⛪ Family Payment Plans</b>
         <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-          Support church group rosters, pastor discounts, scholarship allocations, and automated monthly deposit installment plans.
+          Families pick pay in full, two payments, or monthly. Admins can set a custom total for a family by hand when a church helps cover the cost.
         </p>
       </div>
       <div className="p-6 rounded-2xl bg-white border-2 border-stone-200 space-y-2">
-        <b className="font-display font-black text-lg text-stone-950 block">⚡ 45-Second Express Gate Drop-Off</b>
+        <b className="font-display font-black text-lg text-stone-950 block">⚡ Fast Gate Drop-Off</b>
         <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-          Parents present an SVG boarding pass QR; gate staff scan to instantly verify RN medical clearance and cabin placement.
+          Gate staff search the camper by name, see their cabin and counselor, and confirm arrival with one tap.
         </p>
       </div>
       <div className="p-6 rounded-2xl bg-white border-2 border-stone-200 space-y-2">
         <b className="font-display font-black text-lg text-stone-950 block">💌 Daily Bunk Notes Mail Call</b>
         <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-          Parents send daily encouraging notes online, printed in 1 click for daily cabin mail call.
+          Staff enter bunk notes for campers and print the day&apos;s notes in one click for mail call.
         </p>
       </div>
         </div>
@@ -262,9 +271,9 @@ export default function DeepSeoLandingPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="p-6 rounded-2xl bg-stone-50 border border-stone-200 space-y-2">
             <span className="font-mono text-xs font-bold text-forest-800 bg-forest-100 px-2.5 py-1 rounded-full">STEP 1</span>
-            <h4 className="font-display font-black text-base text-stone-950 pt-2">Open the Session &amp; Set Church Pricing</h4>
+            <h4 className="font-display font-black text-base text-stone-950 pt-2">Open the Session &amp; Set Pricing</h4>
             <p className="text-xs text-stone-600 leading-relaxed">
-              Set session dates and grade tiers at /start, then add church group subsidy codes and the deposit amount families pay up front.
+              Set session dates, grade tiers, and pricing at /start. Families choose their payment plan when they register.
             </p>
           </div>
 
@@ -280,7 +289,7 @@ export default function DeepSeoLandingPage() {
             <span className="font-mono text-xs font-bold text-forest-800 bg-forest-100 px-2.5 py-1 rounded-full">STEP 3</span>
             <h4 className="font-display font-black text-base text-stone-950 pt-2">Track Balances and Missing Forms</h4>
             <p className="text-xs text-stone-600 leading-relaxed">
-              Watch each church's balance and each camper's outstanding medical uploads in one view while card and ACH installments run automatically.
+              Watch each family's balance and each camper's outstanding medical uploads. Parents pay each dated installment by card from the portal.
             </p>
           </div>
         </div>
@@ -336,7 +345,7 @@ export default function DeepSeoLandingPage() {
           Launch your camp portal in 3 minutes.
         </h2>
         <p className="text-sm sm:text-base text-stone-300 max-w-xl mx-auto leading-relaxed">
-          $0 setup, $0 off-season retainers, and free 1-click roster migration. Join the modern standard for summer camp operations.
+          $0 setup, $0 off-season retainers, and free help moving your roster over. Join the modern standard for summer camp operations.
         </p>
         <div className="pt-2 flex flex-col sm:flex-row justify-center gap-3">
           <Link

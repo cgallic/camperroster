@@ -76,8 +76,8 @@ const article: Article = {
     },
     {
       type: "cta",
-      title: "An eMAR built for a building with bad wifi",
-      text: "CamperRoster's health lodge eMAR logs doses offline and syncs when the signal returns, keeps allergy flags on the administration screen, and does not charge a separate per-camper health fee.",
+      title: "What CamperRoster's eMAR does today",
+      text: "CamperRoster's health lodge eMAR needs an internet connection, so it runs over camp Wi-Fi or a phone hotspot. Nurses add scheduled doses, see them by meal window, and record who gave each one and when. There is no separate per-camper health fee.",
       href: "/campdoc-alternative",
       label: "See the health lodge eMAR"
     },

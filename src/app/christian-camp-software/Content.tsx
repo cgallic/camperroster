@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import ProductShot from "@/components/ProductShot";
 import FaqJsonLd from "@/components/FaqJsonLd";
 import {
   Sparkles,
@@ -32,19 +33,19 @@ export default function DeepSeoLandingPage() {
   const faqs = [
   {
     "q": "Can we use our church camp's own reference questions?",
-    "a": "Yes. Camp leaders can use their own doctrinal, character, and safety questions while recording the review against the volunteer application."
+    "a": "Yes. The director calls the reference and asks your camp's own doctrinal, character, and safety questions. CamperRoster keeps the reference's details and the approval with the volunteer application."
   },
   {
-    "q": "Does CamperRoster support church scholarship and sponsorship codes?",
-    "a": "Yes. Directors can create custom promo codes, partial church subsidies, and flexible payment plans with one click."
+    "q": "Can we lower the cost for a family our church is helping?",
+    "a": "Yes. Admins can set a custom total for a family by hand on the finance screen. There are no promo or sponsor codes."
   },
   {
-    "q": "Can parents send daily encouraging letters to campers?",
-    "a": "Yes. CamperRoster includes a native Bunk Notes system allowing parents to send daily letters from the portal, which directors print in one click for daily 11:00 AM cabin mail call."
+    "q": "Does CamperRoster handle bunk notes for campers?",
+    "a": "Yes. Staff enter bunk notes for campers, and directors print them in one click for daily mail call. Parents cannot send notes from the portal yet."
   },
   {
     "q": "How does CamperRoster help non-profit Christian camp budgets?",
-    "a": "By eliminating the $275\u2013$975/mo winter retainer tax and bundling registration, medical eMAR, and parent mail into one platform, camps save $4,000 to $8,000 every year."
+    "a": "By eliminating the $275\u2013$975/mo winter retainer tax and bundling registration, medical eMAR, and bunk notes into one platform, camps save $4,000 to $8,000 every year."
   }
 ];
 
@@ -93,9 +94,17 @@ export default function DeepSeoLandingPage() {
           </span>
           <span className="flex items-center gap-1.5 text-stone-800">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>Church Group & Family Invoicing</span>
+            <span>Family Payment Plans</span>
           </span>
         </div>
+      </section>
+
+      {/* REAL PRODUCT SCREEN */}
+      <section className="max-w-5xl mx-auto space-y-4">
+        <ProductShot name="bunk-notes" alt="Bunk notes from parents ready to print for cabin mail call" caption="Bunk notes in the demo camp, ready to print for mail call." />
+        <p className="text-center text-sm font-bold">
+          <Link href="/demo" className="text-forest-900 underline underline-offset-4 hover:text-forest-700">See every screen in the product tour →</Link>
+        </p>
       </section>
 
       {/* 2. THE 4 CORE PAIN POINTS OF THE OLD WAY */}
@@ -134,10 +143,10 @@ export default function DeepSeoLandingPage() {
       <div className="bg-white p-6 rounded-2xl border-2 border-stone-200 space-y-3">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-800 flex items-center justify-center font-black">3</div>
-          <h3 className="font-display font-black text-lg text-stone-950">Church Youth Group Split Billing Friction</h3>
+          <h3 className="font-display font-black text-lg text-stone-950">Medical Forms Chased by Email</h3>
         </div>
         <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-          Churches sending 30+ youth group kids struggle with split church subsidies, parent deposits, and mutual cabin buddy pairing.
+          Youth leaders chase immunization records and insurance cards by email the week before camp, and some never arrive.
         </p>
       </div>
 
@@ -186,19 +195,19 @@ export default function DeepSeoLandingPage() {
         <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">$0.00 / month (100% Free Off-Season)</td>
       </tr>
       <tr>
-        <td className="p-4 sm:p-5 font-bold">Church Group & Scholarship Billing</td>
+        <td className="p-4 sm:p-5 font-bold">Family Billing</td>
         <td className="p-4 sm:p-5 text-stone-600">Manual Invoicing & Spreadsheet Tracking</td>
-        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Built-in Church Promo Codes & Scholarship Subsidies</td>
+        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Per-Family Balances, With Custom Totals Set by Hand</td>
       </tr>
       <tr>
         <td className="p-4 sm:p-5 font-bold">Mutual Cabin Buddy Matching</td>
         <td className="p-4 sm:p-5 text-stone-600">Manual Spreadsheet Cross-Referencing</td>
-        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Automated 2-Way Buddy Pairing Algorithm</td>
+        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Buddy Requests Captured at Registration</td>
       </tr>
       <tr>
-        <td className="p-4 sm:p-5 font-bold">Parent Daily Bunk Notes Mail Call</td>
+        <td className="p-4 sm:p-5 font-bold">Daily Bunk Notes Mail Call</td>
         <td className="p-4 sm:p-5 text-stone-600">Requires Expensive Third-Party Subscriptions</td>
-        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Native Bunk Notes + 1-Click 11:00 AM Batch Printer</td>
+        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Staff-Entered Bunk Notes + One-Click Printing</td>
       </tr>
             </tbody>
           </table>
@@ -225,21 +234,21 @@ export default function DeepSeoLandingPage() {
         </p>
       </div>
       <div className="p-6 rounded-2xl bg-white border-2 border-stone-200 space-y-2">
-        <b className="font-display font-black text-lg text-stone-950 block">⛪ Church Group & Family Installments</b>
+        <b className="font-display font-black text-lg text-stone-950 block">⛪ Family Payment Plans</b>
         <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-          Support church group rosters, pastor discounts, scholarship allocations, and automated monthly deposit installment plans.
+          Families pick pay in full, two payments, or monthly. Admins can set a custom total for a family by hand when a church helps cover the cost.
         </p>
       </div>
       <div className="p-6 rounded-2xl bg-white border-2 border-stone-200 space-y-2">
-        <b className="font-display font-black text-lg text-stone-950 block">⚡ 45-Second Express Gate Drop-Off</b>
+        <b className="font-display font-black text-lg text-stone-950 block">⚡ Fast Gate Drop-Off</b>
         <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-          Parents present an SVG boarding pass QR; gate staff scan to instantly verify RN medical clearance and cabin placement.
+          Gate staff search the camper by name, see their cabin and counselor, and confirm arrival with one tap.
         </p>
       </div>
       <div className="p-6 rounded-2xl bg-white border-2 border-stone-200 space-y-2">
         <b className="font-display font-black text-lg text-stone-950 block">🛒 Cashless Canteen Store POS</b>
         <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-          Campers buy snacks and merchandise with digital wristbands. Parents reload balances online from the portal with zero cash lost in the lake.
+          Campers buy snacks from a prepaid canteen wallet. Staff find them by name, charge the sale, and every purchase is logged, with zero cash lost in the lake.
         </p>
       </div>
         </div>
@@ -270,9 +279,9 @@ export default function DeepSeoLandingPage() {
 
           <div className="p-6 rounded-2xl bg-stone-50 border border-stone-200 space-y-2">
             <span className="font-mono text-xs font-bold text-forest-800 bg-forest-100 px-2.5 py-1 rounded-full">STEP 2</span>
-            <h4 className="font-display font-black text-base text-stone-950 pt-2">Import Past Rosters (Optional)</h4>
+            <h4 className="font-display font-black text-base text-stone-950 pt-2">Bring Over Past Rosters (Optional)</h4>
             <p className="text-xs text-stone-600 leading-relaxed">
-              Upload past CSV spreadsheets or UltraCamp exports into the 1-Click Importer. All family and medical profiles map in 60 seconds.
+              Automatic imports are not available yet. Send us your past spreadsheet or UltraCamp export and we help you move it over during setup.
             </p>
           </div>
 
@@ -336,7 +345,7 @@ export default function DeepSeoLandingPage() {
           Launch your camp portal in 3 minutes.
         </h2>
         <p className="text-sm sm:text-base text-stone-300 max-w-xl mx-auto leading-relaxed">
-          $0 setup, $0 off-season retainers, and free 1-click roster migration. Join the modern standard for summer camp operations.
+          $0 setup, $0 off-season retainers, and free help moving your roster over. Join the modern standard for summer camp operations.
         </p>
         <div className="pt-2 flex flex-col sm:flex-row justify-center gap-3">
           <Link

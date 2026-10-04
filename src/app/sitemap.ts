@@ -8,6 +8,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const routes = [
     "",
     "/pricing",
+    "/demo",
     "/blog",
     "/ultracamp-alternative",
     "/campbrain-alternative",

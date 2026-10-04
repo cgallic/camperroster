@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import ProductShot from "@/components/ProductShot";
 import FaqJsonLd from "@/components/FaqJsonLd";
 import {
   Sparkles,
@@ -32,19 +33,19 @@ export default function DeepSeoLandingPage() {
   const faqs = [
   {
     "q": "How are volunteer references handled today?",
-    "a": "CamperRoster collects reference contact details and keeps the director's review attached to the volunteer application. Camp staff place reference calls today; automated KaiCalls interviews are still in development."
+    "a": "The volunteer application collects one reference's name, phone, and email. The camp director reviews it by hand, makes the call, and marks the reference approved in the director dashboard."
   },
   {
     "q": "What happens if a reference doesn't answer the phone call?",
-    "a": "Camp staff decide how to follow up when a reference does not answer. Automated voicemail, retry, and SMS callback scheduling are not enabled today."
+    "a": "Camp staff decide how to follow up when a reference does not answer. CamperRoster does not place calls, leave voicemails, or send texts to references."
   },
   {
-    "q": "Can camp directors listen to the actual call recording?",
-    "a": "Yes! Every completed reference check includes the full audio recording with interactive waveform playback and a timestamped text transcript."
+    "q": "Does CamperRoster record reference calls?",
+    "a": "No. Calls are made by camp staff from their own phones, so there is no recording or transcript in CamperRoster. The reference details and the approval stay with the application."
   },
   {
     "q": "Is volunteer reference tracking included in CamperRoster's platform pricing?",
-    "a": "Volunteer reference tracking is included. Automated KaiCalls reference interviews are in development and are not active today."
+    "a": "Yes. Volunteer applications and reference review are included in the per-camper price at no extra charge."
   }
 ];
 
@@ -59,11 +60,11 @@ export default function DeepSeoLandingPage() {
         </span>
         
         <h1 className="font-display font-black text-3xl sm:text-5xl lg:text-6xl text-stone-950 tracking-tight leading-[1.1]">
-          Cut 40+ Hours of Camp Staff & Volunteer Phone Tag to 0 Minutes.
+          Keep Every Volunteer Reference With the Application.
         </h1>
         
         <p className="text-base sm:text-xl text-stone-600 font-medium max-w-3xl mx-auto leading-relaxed">
-          The only camp management software with built-in Voice AI. Automatically call references, conduct 2-minute safety interviews, and receive verified transcripts and character scores.
+          Each volunteer application records a reference's name, phone, and email. The camp director reviews it by hand and approves it in the same dashboard as medical holds.
         </p>
 
         <div className="pt-2 flex flex-col sm:flex-row justify-center items-center gap-3.5">
@@ -85,17 +86,25 @@ export default function DeepSeoLandingPage() {
         <div className="pt-4 flex flex-wrap justify-center items-center gap-6 text-xs font-bold text-stone-500">
           <span className="flex items-center gap-1.5 text-stone-800">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>Automated Real Voice Phone Calls</span>
+            <span>One Reference Per Application</span>
           </span>
           <span className="flex items-center gap-1.5 text-stone-800">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>Full Audio Playback & Verified Transcripts</span>
+            <span>Director Review in the Dashboard</span>
           </span>
           <span className="flex items-center gap-1.5 text-stone-800">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>Standardized Child Safety & Risk Scoring</span>
+            <span>Included at No Extra Charge</span>
           </span>
         </div>
+      </section>
+
+      {/* REAL PRODUCT SCREEN */}
+      <section className="max-w-5xl mx-auto space-y-4">
+        <ProductShot name="admin" alt="Director dashboard with volunteer references waiting for review" caption="The director dashboard in the demo camp. Reference notes wait in the same queue as medical holds." />
+        <p className="text-center text-sm font-bold">
+          <Link href="/demo" className="text-forest-900 underline underline-offset-4 hover:text-forest-700">See every screen in the product tour →</Link>
+        </p>
       </section>
 
       {/* 2. THE 4 CORE PAIN POINTS OF THE OLD WAY */}
@@ -161,7 +170,7 @@ export default function DeepSeoLandingPage() {
             Manual reference calling, organized in one place
           </h2>
           <p className="text-xs sm:text-sm text-stone-600 font-medium">
-            See how automated telephony transforms seasonal staff onboarding.
+            See what changes when reference details live in one system.
           </p>
         </div>
 
@@ -170,30 +179,30 @@ export default function DeepSeoLandingPage() {
             <thead className="bg-stone-100 text-stone-900 font-black border-b-2 border-stone-200">
               <tr>
                 <th className="p-4 sm:p-5">Feature & Operational Dimension</th>
-                <th className="p-4 sm:p-5 text-stone-600">Manual Phone Calling</th>
+                <th className="p-4 sm:p-5 text-stone-600">Spreadsheet and Email</th>
                 <th className="p-4 sm:p-5 bg-emerald-50 text-emerald-950 font-black">CamperRoster Standard</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-200 text-stone-800">
               <tr>
-        <td className="p-4 sm:p-5 font-bold">Time Required to Complete 90 References</td>
-        <td className="p-4 sm:p-5 text-rose-700 font-bold">40–60 Hours of Director Labor</td>
-        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">0 Minutes (Fully Automated in the Background)</td>
+        <td className="p-4 sm:p-5 font-bold">Collecting Reference Contacts</td>
+        <td className="p-4 sm:p-5 text-rose-700 font-bold">Emails and Spreadsheets</td>
+        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Captured on the Volunteer Application</td>
       </tr>
       <tr>
         <td className="p-4 sm:p-5 font-bold">Interview Delivery Method</td>
         <td className="p-4 sm:p-5 text-stone-600">Manual Dialing & Voicemails</td>
-        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Automated 2-Minute Conversational Voice AI Phone Call</td>
+        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Director Calls Using the Number on File</td>
       </tr>
       <tr>
-        <td className="p-4 sm:p-5 font-bold">Audit Records & Verification</td>
-        <td className="p-4 sm:p-5 text-stone-600">Subjective Hand-Written Notes</td>
-        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Timestamped Audio Recording + Full Written Transcript</td>
+        <td className="p-4 sm:p-5 font-bold">Where the Record Lives</td>
+        <td className="p-4 sm:p-5 text-stone-600">Hand-Written Notes in a Folder</td>
+        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Attached to the Applicant&apos;s Record</td>
       </tr>
       <tr>
-        <td className="p-4 sm:p-5 font-bold">Standardized Safety Scoring</td>
-        <td className="p-4 sm:p-5 text-stone-600">None (Director Guesswork)</td>
-        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Structured AI Character, Reliability & Safety Rating</td>
+        <td className="p-4 sm:p-5 font-bold">Approval Status</td>
+        <td className="p-4 sm:p-5 text-stone-600">Remembered or Lost</td>
+        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Marked Approved by the Director</td>
       </tr>
       <tr>
         <td className="p-4 sm:p-5 font-bold">Retry & Follow-up Status</td>
@@ -213,13 +222,13 @@ export default function DeepSeoLandingPage() {
             How Volunteer Reference Tracking Works
           </h2>
           <p className="text-xs sm:text-sm text-stone-600 font-medium">
-            A complete, compliant, and friendly telephone interview experience.
+            A simple record of who vouched for each volunteer.
           </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div className="p-6 rounded-2xl bg-white border-2 border-stone-200 space-y-2">
-        <b className="font-display font-black text-lg text-stone-950 block">🎙️ Real Conversational AI Voice</b>
+        <b className="font-display font-black text-lg text-stone-950 block">🎙️ Reference on the Application</b>
         <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
           The application captures a reference contact so a camp leader can ask consistent questions about reliability, character with children, and work ethic.
         </p>
@@ -227,19 +236,19 @@ export default function DeepSeoLandingPage() {
       <div className="p-6 rounded-2xl bg-white border-2 border-stone-200 space-y-2">
         <b className="font-display font-black text-lg text-stone-950 block">📋 Director Command Dashboard</b>
         <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-          Review completed reference checks in real time. Listen to recorded audio snippets and approve volunteer applications in one click.
+          References waiting on review show up in the director dashboard next to medical holds. The director approves each one after the call.
         </p>
       </div>
       <div className="p-6 rounded-2xl bg-white border-2 border-stone-200 space-y-2">
         <b className="font-display font-black text-lg text-stone-950 block">📱 Follow-up Tracking</b>
         <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-          If a reference does not answer, the camp team records the follow-up and chooses when to try again. Automated SMS scheduling is not enabled.
+          If a reference does not answer, the camp team decides when to try again. The reference stays waiting for review until the director approves it.
         </p>
       </div>
       <div className="p-6 rounded-2xl bg-white border-2 border-stone-200 space-y-2">
-        <b className="font-display font-black text-lg text-stone-950 block">🔒 Two-Party Consent Compliance</b>
+        <b className="font-display font-black text-lg text-stone-950 block">🔒 Medical Data Stays Separate</b>
         <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-          Includes standard recording consent disclosures at the start of every call, compliant with all 50 state recording regulations.
+          Volunteer records sit in the same system as campers, but camper medical data stays visible only to the health staff you assign.
         </p>
       </div>
         </div>
@@ -270,9 +279,9 @@ export default function DeepSeoLandingPage() {
 
           <div className="p-6 rounded-2xl bg-stone-50 border border-stone-200 space-y-2">
             <span className="font-mono text-xs font-bold text-forest-800 bg-forest-100 px-2.5 py-1 rounded-full">STEP 2</span>
-            <h4 className="font-display font-black text-base text-stone-950 pt-2">Import Past Rosters (Optional)</h4>
+            <h4 className="font-display font-black text-base text-stone-950 pt-2">Bring Over Past Rosters (Optional)</h4>
             <p className="text-xs text-stone-600 leading-relaxed">
-              Upload past CSV spreadsheets or UltraCamp exports into the 1-Click Importer. All family and medical profiles map in 60 seconds.
+              Automatic imports are not available yet. Send us your past spreadsheet or UltraCamp export and we help you move it over during setup.
             </p>
           </div>
 
@@ -336,7 +345,7 @@ export default function DeepSeoLandingPage() {
           Launch your camp portal in 3 minutes.
         </h2>
         <p className="text-sm sm:text-base text-stone-300 max-w-xl mx-auto leading-relaxed">
-          $0 setup, $0 off-season retainers, and free 1-click roster migration. Join the modern standard for summer camp operations.
+          $0 setup, $0 off-season retainers, and free help moving your roster over. Join the modern standard for summer camp operations.
         </p>
         <div className="pt-2 flex flex-col sm:flex-row justify-center gap-3">
           <Link

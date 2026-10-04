@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Pricing - Pay Per Camper, $0 Off-Season",
-  description: "Pay only when campers register and nothing through the winter. Includes automated voice reference checks, health lodge eMAR, and parent bunk notes.",
+  description: "Pay only when campers register and nothing through the winter. Includes volunteer reference tracking, health lodge eMAR, and bunk notes printing.",
   alternates: { canonical: "/pricing" },
   openGraph: {
     title: "Pricing - Pay Per Camper, $0 Off-Season",
-    description: "Pay only when campers register and nothing through the winter. Includes automated voice reference checks, health lodge eMAR, and parent bunk notes.",
+    description: "Pay only when campers register and nothing through the winter. Includes volunteer reference tracking, health lodge eMAR, and bunk notes printing.",
     url: "/pricing",
     type: "website"
   }

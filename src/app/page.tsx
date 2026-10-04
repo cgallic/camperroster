@@ -31,16 +31,16 @@ export default function B2BSaasHomePage() {
       a: "Unlike legacy systems like UltraCamp that bill camps $275 to $975 every month year-round, CamperRoster charges $0/month during your 7 to 9 off-season months. You only pay a flat $4 to $6 per registered camper during active registration seasons."
     },
     {
-      q: "How does the automated volunteer reference check work?",
-      a: "CamperRoster collects the applicant's reference details and keeps the review with the volunteer record. Calls are handled by camp staff today; automated KaiCalls interviews are still in development."
+      q: "How does the volunteer reference check work?",
+      a: "The volunteer application collects one reference's name, phone, and email. The camp director reviews it by hand and makes the call. CamperRoster does not place reference calls for you."
     },
     {
       q: "How do we migrate our existing roster data from UltraCamp or spreadsheets?",
-      a: "Start with the roster column mapper (/admin/import). Drop in your UltraCamp, CampBrain, or Google Sheets CSV and it parses the file in your browser and shows you exactly how your columns map to family contacts, camper records, and allergy fields — no account and no upload required. When you create your camp, we run the migration for you from that same file so nobody re-types a roster by hand."
+      a: "There is no automatic import yet. Send us your UltraCamp, CampBrain, or spreadsheet export and we help you move your roster over during setup. Families who register through your CamperRoster portal are added directly."
     },
     {
-      q: "Is CamperRoster HIPAA and ACA safety compliant?",
-      a: "Yes. All medical disclosures, EpiPen care plans, and health insurance card uploads are encrypted with Row-Level Security (RLS) in PostgreSQL, isolating confidential medical records exclusively to licensed Health Lodge staff in compliance with ACA and HIPAA standards."
+      q: "Who can see campers' medical records?",
+      a: "Only the health staff you assign. Medical disclosures, EpiPen care plans, and insurance card uploads are protected by row-level security in the database, so counselors, canteen staff, and other camps cannot read them."
     }
   ];
 
@@ -97,10 +97,10 @@ export default function B2BSaasHomePage() {
                 <ArrowRight className="w-4 h-4 stroke-[3]" />
               </Link>
               <Link
-                href="/c/camphope"
+                href="/demo"
                 className="px-6 py-4 rounded-xl bg-stone-900/90 hover:bg-stone-900 text-white font-bold text-xs sm:text-sm border border-stone-700 flex items-center justify-center gap-2 backdrop-blur-xs"
               >
-                <span>Open the Camp Hope portal →</span>
+                <span>Take the product tour →</span>
               </Link>
             </div>
 
@@ -112,7 +112,7 @@ export default function B2BSaasHomePage() {
               </span>
               <span className="flex items-center gap-1.5 text-stone-200">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                <span>Automated Pastoral Phone Checks</span>
+                <span>Volunteer Reference Tracking</span>
               </span>
               <span className="flex items-center gap-1.5 text-stone-200">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400" />
@@ -120,7 +120,7 @@ export default function B2BSaasHomePage() {
               </span>
               <span className="flex items-center gap-1.5 text-stone-200">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                <span>ACA & HIPAA Compliant</span>
+                <span>Health Records Locked to Health Staff</span>
               </span>
             </div>
 
@@ -162,16 +162,16 @@ export default function B2BSaasHomePage() {
                   <span className="text-[10px] font-bold bg-emerald-100 text-emerald-900 px-2.5 py-0.5 rounded-full">NO ZOOM BUGS</span>
                 </div>
                 <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-                  Frictionless registration wizard with 16px touch inputs (no iOS zoom bugs), multi-camper household discounts, camera insurance uploads, and deposit schedules.
+                  Frictionless registration wizard with 16px touch inputs (no iOS zoom bugs), insurance card and immunization uploads, and pay-in-full, two-payment, or monthly plans.
                 </p>
               </div>
-              <Link href="/register" className="text-xs font-black text-forest-900 flex items-center gap-1 hover:underline pt-3">
-                <span>Test Registration Flow →</span>
+              <Link href="/c/camphope" className="text-xs font-black text-forest-900 flex items-center gap-1 hover:underline pt-3">
+                <span>See the sample camp portal →</span>
               </Link>
             </div>
           </div>
 
-          {/* TOOL 2: KAICALLS VOICE AI REFERENCES */}
+          {/* TOOL 2: VOLUNTEER REFERENCES */}
           <div className="bg-white rounded-3xl overflow-hidden border-2 border-amber-300 shadow-md hover:border-amber-500 transition-all flex flex-col justify-between">
             <div className="relative h-48 w-full bg-stone-100">
               <Image
@@ -185,14 +185,14 @@ export default function B2BSaasHomePage() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <h3 className="font-display font-black text-xl text-stone-950">Volunteer Reference Tracking</h3>
-                  <span className="text-[10px] font-bold bg-amber-400 text-stone-950 px-2.5 py-0.5 rounded-full">AUTOMATED CALLING</span>
+                  <span className="text-[10px] font-bold bg-amber-400 text-stone-950 px-2.5 py-0.5 rounded-full">DIRECTOR REVIEW</span>
                 </div>
                 <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-                  Collect reference details with each application and keep the director&apos;s review attached to the applicant. Automated KaiCalls interviews are in development; today, a person places the call.
+                  Each volunteer application records one reference&apos;s name, phone, and email. The director reviews it by hand and decides who to call.
                 </p>
               </div>
-              <Link href="/volunteer" className="text-xs font-black text-amber-900 flex items-center gap-1 hover:underline pt-3">
-                <span>See Volunteer Voice Demo →</span>
+              <Link href="/camp-volunteer-reference-check-software" className="text-xs font-black text-amber-900 flex items-center gap-1 hover:underline pt-3">
+                <span>How reference checks work →</span>
               </Link>
             </div>
           </div>
@@ -201,24 +201,24 @@ export default function B2BSaasHomePage() {
           <div className="bg-white rounded-3xl overflow-hidden border-2 border-stone-200 shadow-md hover:border-forest-800 transition-all flex flex-col justify-between">
             <div className="relative h-48 w-full bg-stone-100">
               <Image
-                src="/images/camp_counselor_tablet.jpg"
-                alt="Health Lodge Nurse Tablet eMAR"
+                src="/screenshots/emar.png"
+                alt="CamperRoster medication log showing doses by meal time"
                 fill
-                className="object-cover"
+                className="object-cover object-left-top"
               />
             </div>
             <div className="p-6 space-y-3 flex-1 flex flex-col justify-between">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <h3 className="font-display font-black text-xl text-stone-950">Health Lodge Tablet eMAR</h3>
-                  <span className="text-[10px] font-bold bg-emerald-100 text-emerald-900 px-2.5 py-0.5 rounded-full">ACA & HIPAA</span>
+                  <span className="text-[10px] font-bold bg-emerald-100 text-emerald-900 px-2.5 py-0.5 rounded-full">Health staff only</span>
                 </div>
                 <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-                  Tablet medication dispenser for camp nurses. Schedule and log Breakfast, Lunch, Dinner, and Bedtime doses with timestamped records compliant with ACA and HIPAA.
+                  Tablet medication dispenser for camp nurses. Schedule and log Breakfast, Lunch, Dinner, and Bedtime doses with timestamped records only health staff can see.
                 </p>
               </div>
-              <Link href="/nurse/emar" className="text-xs font-black text-emerald-900 flex items-center gap-1 hover:underline pt-3">
-                <span>View Nurse Tablet eMAR →</span>
+              <Link href="/demo#emar" className="text-xs font-black text-emerald-900 flex items-center gap-1 hover:underline pt-3">
+                <span>See the medication log →</span>
               </Link>
             </div>
           </div>
@@ -227,24 +227,24 @@ export default function B2BSaasHomePage() {
           <div className="bg-white rounded-3xl overflow-hidden border-2 border-stone-200 shadow-md hover:border-forest-800 transition-all flex flex-col justify-between">
             <div className="relative h-48 w-full bg-stone-100">
               <Image
-                src="/images/camp_opening_checkin.jpg"
-                alt="Sunday Opening Day Gate Check-in"
+                src="/screenshots/checkin.png"
+                alt="CamperRoster check-in screen listing campers and cabins"
                 fill
-                className="object-cover"
+                className="object-cover object-left-top"
               />
             </div>
             <div className="p-6 space-y-3 flex-1 flex flex-col justify-between">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <h3 className="font-display font-black text-xl text-stone-950">45-Second Express Gate QR Check-In</h3>
+                  <h3 className="font-display font-black text-xl text-stone-950">Fast Gate Check-In</h3>
                   <span className="text-[10px] font-bold bg-purple-100 text-purple-900 px-2.5 py-0.5 rounded-full">ZERO TRAFFIC</span>
                 </div>
                 <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-                  Eliminate Sunday vehicle drop-off traffic. Parents show their digital boarding pass QR; gate counselors scan to verify RN medical clearance and cabin placement instantly.
+                  Cut Sunday drop-off lines. Gate staff search the camper by name, see their cabin and counselor, and confirm arrival with one tap.
                 </p>
               </div>
-              <Link href="/admin/checkin" className="text-xs font-black text-purple-900 flex items-center gap-1 hover:underline pt-3">
-                <span>Test Express Gate Scanner →</span>
+              <Link href="/demo#checkin" className="text-xs font-black text-purple-900 flex items-center gap-1 hover:underline pt-3">
+                <span>See check-in day →</span>
               </Link>
             </div>
           </div>
@@ -253,24 +253,24 @@ export default function B2BSaasHomePage() {
           <div className="bg-white rounded-3xl overflow-hidden border-2 border-stone-200 shadow-md hover:border-forest-800 transition-all flex flex-col justify-between">
             <div className="relative h-48 w-full bg-stone-100">
               <Image
-                src="/images/camp_canteen_wristband.jpg"
-                alt="Camp Canteen Wristband POS"
+                src="/screenshots/pos.png"
+                alt="CamperRoster canteen register charging a camper wallet"
                 fill
-                className="object-cover"
+                className="object-cover object-left-top"
               />
             </div>
             <div className="p-6 space-y-3 flex-1 flex flex-col justify-between">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <h3 className="font-display font-black text-xl text-stone-950">Cashless Canteen Store POS</h3>
-                  <span className="text-[10px] font-bold bg-sky-100 text-sky-900 px-2.5 py-0.5 rounded-full">WRISTBAND POS</span>
+                  <span className="text-[10px] font-bold bg-sky-100 text-sky-900 px-2.5 py-0.5 rounded-full">CANTEEN POS</span>
                 </div>
                 <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-                  Campers buy snacks and merchandise with digital wristbands. Parents reload balances online from the portal with zero cash lost in the lake or cabin.
+                  Campers buy snacks from a prepaid canteen wallet. Staff find them by name, charge the sale, and every purchase is logged, with zero cash lost in the lake.
                 </p>
               </div>
-              <Link href="/canteen/pos" className="text-xs font-black text-sky-900 flex items-center gap-1 hover:underline pt-3">
-                <span>View Canteen POS Register →</span>
+              <Link href="/demo#pos" className="text-xs font-black text-sky-900 flex items-center gap-1 hover:underline pt-3">
+                <span>See the canteen register →</span>
               </Link>
             </div>
           </div>
@@ -285,15 +285,15 @@ export default function B2BSaasHomePage() {
             <div className="p-6 space-y-3 flex-1 flex flex-col justify-between">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <h3 className="font-display font-black text-xl text-stone-950">Daily Bunk Notes 11:00 AM Mail Call</h3>
+                  <h3 className="font-display font-black text-xl text-stone-950">Daily Bunk Notes Mail Call</h3>
                   <span className="text-[10px] font-bold bg-rose-100 text-rose-900 px-2.5 py-0.5 rounded-full">1-CLICK PRINT</span>
                 </div>
                 <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-                  Parents submit daily letters online. Directors click 1 button to print sorted, formatted 8.5x11 sheets grouped by cabin for daily counselor mail call.
+                  Staff enter bunk notes for campers, and directors print the day&apos;s notes in one click for counselor mail call. Parents cannot send notes from the portal yet.
                 </p>
               </div>
-              <Link href="/admin/bunk-notes" className="text-xs font-black text-rose-900 flex items-center gap-1 hover:underline pt-3">
-                <span>View Bunk Notes Batch Sheet →</span>
+              <Link href="/demo#bunk-notes" className="text-xs font-black text-rose-900 flex items-center gap-1 hover:underline pt-3">
+                <span>See bunk notes →</span>
               </Link>
             </div>
           </div>
@@ -311,10 +311,10 @@ export default function B2BSaasHomePage() {
                 LIVE CAMP PORTAL
               </span>
               <h3 className="font-display font-black text-2xl sm:text-4xl text-white">
-                See Camp Hope&apos;s live public registration portal.
+                See what your camp&apos;s registration page looks like.
               </h3>
               <p className="text-xs sm:text-sm text-stone-400 leading-relaxed pt-2 max-w-2xl">
-                Camp Hope&apos;s portal uses its real published session and pricing. Private camper, volunteer, health, and operations records remain protected behind staff sign-in.
+                Camp Hope is a sample camp, so its sessions and prices are made up. It shows the branded page your families would register from. Staff screens stay behind sign-in; see them in the product tour.
               </p>
             </div>
             <Link
@@ -364,18 +364,18 @@ export default function B2BSaasHomePage() {
               MIGRATION MADE SIMPLE
             </span>
             <h3 className="font-display font-black text-2xl sm:text-4xl text-stone-950">
-              See exactly how your roster maps before you switch.
+              We help you move your roster over during setup.
             </h3>
             <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-              Export your existing roster CSV and drop it into the column mapper. It reads the file in your browser and shows you, row by row, which parent contacts, camper records, and allergy fields line up with CamperRoster &mdash; so you know what a migration looks like before you commit to one.
+              Automatic imports are not available yet. Send us your existing roster export and we work through it with you while you set up your camp, at no extra charge. New families register through your portal directly.
             </p>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4">
-            <Link href="/admin/import" className="btn-primary-agency text-xs sm:text-sm py-4 px-8">
+            <a href="mailto:director@camperroster.com?subject=Roster%20Setup%20Help" className="btn-primary-agency text-xs sm:text-sm py-4 px-8">
               <FileSpreadsheet className="w-4 h-4" />
-              <span>Try the Roster Column Mapper</span>
-            </Link>
+              <span>Ask About Roster Setup</span>
+            </a>
             <Link href="/pricing" className="px-6 py-4 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-800 font-bold text-xs sm:text-sm text-center">
               Calculate Your Camp&apos;s Savings →
             </Link>
@@ -425,7 +425,7 @@ export default function B2BSaasHomePage() {
             Launch your camp portal in 3 minutes.
           </h2>
           <p className="text-sm sm:text-base text-stone-300 max-w-xl mx-auto leading-relaxed">
-            $0 setup, $0 off-season retainers, and free 1-click roster migration. Join the modern standard for camp management.
+            $0 setup, $0 off-season retainers, and free help moving your roster over. Join the modern standard for camp management.
           </p>
           <div className="pt-2 flex flex-col sm:flex-row justify-center gap-3">
             <Link

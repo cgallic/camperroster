@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import ProductShot from "@/components/ProductShot";
 import FaqJsonLd from "@/components/FaqJsonLd";
 import {
   Sparkles,
@@ -35,8 +36,8 @@ export default function DeepSeoLandingPage() {
     "a": "CampBrain charges $2,000\u2013$5,000 in upfront setup fees plus $3,000\u2013$8,000 in annual retainers. CamperRoster has $0 setup fees, $0 off-season retainers, and charges a simple $4 to $6 per registered camper, saving mid-sized camps over $5,000 every year."
   },
   {
-    "q": "Can we import our existing CampBrain historical records?",
-    "a": "Yes! Export your camper, guardian, and medical history from CampBrain to a CSV file and drop it into our 1-Click Importer (/admin/import). All data transfers in under 60 seconds with zero manual data entry."
+    "q": "Can we bring over our existing CampBrain records?",
+    "a": "There is no automatic import yet. Export your camper and guardian records from CampBrain and we help you move your roster over during setup."
   },
   {
     "q": "Does CamperRoster require multi-year contracts like CampBrain?",
@@ -44,7 +45,7 @@ export default function DeepSeoLandingPage() {
   },
   {
     "q": "Is CamperRoster easy for seasonal college counselors to use?",
-    "a": "Yes. The counselor cabin roster (/counselor) is built like a native smartphone app with 1-tap parent phone dialing and cabin attendance tracking that requires zero staff training."
+    "a": "Yes. The counselor roster (/counselor) works on a phone and shows each cabin's campers, their counselor, arrival status, and buddy requests from current registrations."
   }
 ];
 
@@ -98,6 +99,14 @@ export default function DeepSeoLandingPage() {
         </div>
       </section>
 
+      {/* REAL PRODUCT SCREEN */}
+      <section className="max-w-5xl mx-auto space-y-4">
+        <ProductShot name="admin" alt="CamperRoster director dashboard with registrations, volunteers and review queue" caption="The director dashboard in the demo camp." />
+        <p className="text-center text-sm font-bold">
+          <Link href="/demo" className="text-forest-900 underline underline-offset-4 hover:text-forest-700">See every screen in the product tour →</Link>
+        </p>
+      </section>
+
       {/* 2. THE 4 CORE PAIN POINTS OF THE OLD WAY */}
       <section className="bg-stone-100 rounded-3xl p-6 sm:p-12 border border-stone-200 space-y-8">
         <div className="text-center max-w-2xl mx-auto space-y-2">
@@ -144,10 +153,10 @@ export default function DeepSeoLandingPage() {
       <div className="bg-white p-6 rounded-2xl border-2 border-stone-200 space-y-3">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-800 flex items-center justify-center font-black">4</div>
-          <h3 className="font-display font-black text-lg text-stone-950">Zero Automated Voice Reference Checks</h3>
+          <h3 className="font-display font-black text-lg text-stone-950">Volunteer References Scattered Everywhere</h3>
         </div>
         <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-          Staff must manually call and chase dozens of pastoral and mentor references for volunteer staff during busy spring hiring.
+          Pastoral and mentor reference details live in emails and notebooks instead of with each volunteer application.
         </p>
       </div>
         </div>
@@ -161,7 +170,7 @@ export default function DeepSeoLandingPage() {
             CampBrain vs CamperRoster Comparison
           </h2>
           <p className="text-xs sm:text-sm text-stone-600 font-medium">
-            Compare total cost of ownership, mobile responsiveness, and automation moats.
+            Compare total cost of ownership, mobile responsiveness, and day-to-day tools.
           </p>
         </div>
 
@@ -198,12 +207,12 @@ export default function DeepSeoLandingPage() {
       <tr>
         <td className="p-4 sm:p-5 font-bold">Opening-Day Gate Drop-Off</td>
         <td className="p-4 sm:p-5 text-stone-600">Manual Paper Rosters</td>
-        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">45-Second Express QR Gate Scanner</td>
+        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Name Search Check-In on Any Phone</td>
       </tr>
       <tr>
-        <td className="p-4 sm:p-5 font-bold">1-Click CSV Roster Migration</td>
+        <td className="p-4 sm:p-5 font-bold">Roster Migration</td>
         <td className="p-4 sm:p-5 text-stone-600">Paid Implementation Required</td>
-        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">Instant 60-Second Auto-Mapper (/admin/import)</td>
+        <td className="p-4 sm:p-5 bg-emerald-50/50 text-emerald-900 font-black">We Help You Move It Over During Setup, No Charge</td>
       </tr>
             </tbody>
           </table>
@@ -238,13 +247,13 @@ export default function DeepSeoLandingPage() {
       <div className="p-6 rounded-2xl bg-white border-2 border-stone-200 space-y-2">
         <b className="font-display font-black text-lg text-stone-950 block">💊 Health Lodge Nurse Tablet eMAR</b>
         <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-          Timestamped medication dispenser for nurses compliant with ACA and HIPAA guidelines, eliminating paper medical logs.
+          Timestamped medication logging for nurses, replacing paper medical logs.
         </p>
       </div>
       <div className="p-6 rounded-2xl bg-white border-2 border-stone-200 space-y-2">
-        <b className="font-display font-black text-lg text-stone-950 block">⚡ 45-Second Express Gate Check-In</b>
+        <b className="font-display font-black text-lg text-stone-950 block">⚡ Fast Gate Check-In</b>
         <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-          Parents present their digital QR pass at the entrance gate; staff scan to confirm medical clearance and cabin placement in 45 seconds.
+          Gate staff search the camper by name, see their cabin and counselor, and confirm arrival with one tap.
         </p>
       </div>
         </div>
@@ -275,9 +284,9 @@ export default function DeepSeoLandingPage() {
 
           <div className="p-6 rounded-2xl bg-stone-50 border border-stone-200 space-y-2">
             <span className="font-mono text-xs font-bold text-forest-800 bg-forest-100 px-2.5 py-1 rounded-full">STEP 2</span>
-            <h4 className="font-display font-black text-base text-stone-950 pt-2">Import Past Rosters (Optional)</h4>
+            <h4 className="font-display font-black text-base text-stone-950 pt-2">Bring Over Past Rosters (Optional)</h4>
             <p className="text-xs text-stone-600 leading-relaxed">
-              Upload past CSV spreadsheets or UltraCamp exports into the 1-Click Importer. All family and medical profiles map in 60 seconds.
+              Automatic imports are not available yet. Send us your past spreadsheet or UltraCamp export and we help you move it over during setup.
             </p>
           </div>
 
@@ -341,7 +350,7 @@ export default function DeepSeoLandingPage() {
           Launch your camp portal in 3 minutes.
         </h2>
         <p className="text-sm sm:text-base text-stone-300 max-w-xl mx-auto leading-relaxed">
-          $0 setup, $0 off-season retainers, and free 1-click roster migration. Join the modern standard for summer camp operations.
+          $0 setup, $0 off-season retainers, and free help moving your roster over. Join the modern standard for summer camp operations.
         </p>
         <div className="pt-2 flex flex-col sm:flex-row justify-center gap-3">
           <Link

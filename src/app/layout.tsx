@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans, Space_Grotesk, JetBrains_Mono } from "next/font/goog
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import MarketingOnly from "@/components/MarketingOnly";
 import JsonLd from "@/components/JsonLd";
 import PwaInstallPrompt from "@/components/PwaInstallPrompt";
 
@@ -92,7 +93,7 @@ export const metadata: Metadata = {
     url: "./",
     siteName: "CamperRoster",
     title: "CamperRoster | Camp OS & Camp Registration Software",
-    description: "Camp registration, paperwork tracking, health records, cabin assignments, and express QR gate check-in.",
+    description: "Camp registration, paperwork tracking, health records, cabin assignments, gate check-in, and a cashless canteen.",
     images: [
       {
         url: "/images/camp_hero.jpg",
@@ -128,11 +129,15 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
       </head>
       <body className="min-h-[100dvh] flex flex-col font-sans bg-stone-50 text-stone-900 antialiased selection:bg-forest-800 selection:text-white">
-        <Navbar />
+        <MarketingOnly>
+          <Navbar />
+        </MarketingOnly>
         <div className="flex-1">
           {children}
         </div>
-        <Footer />
+        <MarketingOnly>
+          <Footer />
+        </MarketingOnly>
         <PwaInstallPrompt />
       </body>
     </html>

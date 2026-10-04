@@ -37,6 +37,9 @@ export const STAFF_NAVIGATION: readonly StaffNavigationItem[] = [
   { href: "/billing", label: "Billing", roles: DIRECTOR },
 ] as const;
 
+/** Routes that render inside the signed-in staff app rather than the public site. */
+export const STAFF_PREFIXES = ["/admin", "/nurse", "/counselor", "/canteen", "/billing", "/staff", "/demo-preview"] as const;
+
 export function navigationForRole(role: Role): StaffNavigationItem[] {
   return STAFF_NAVIGATION.filter((item) => item.roles.includes(role));
 }

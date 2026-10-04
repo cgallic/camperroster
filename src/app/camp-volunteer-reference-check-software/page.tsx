@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Content from "./Content";
 
-const title = "Camp Volunteer Reference Check Software | Voice AI";
+const title = "Camp Volunteer Reference Check Software | CamperRoster";
 const description =
-  "Collect volunteer reference details, keep reviews attached to each application, and track the camp director's follow-up in one place.";
+  "Collect a reference with every volunteer application and keep the camp director's review attached to the applicant in one place.";
 const url = "https://camperroster.com/camp-volunteer-reference-check-software";
 
 export const metadata: Metadata = {

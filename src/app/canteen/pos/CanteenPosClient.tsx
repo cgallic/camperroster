@@ -91,7 +91,7 @@ export default function CanteenPosPage() {
         </header>
 
         <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-950 text-xs">
-          Product inventory is not configured in CamperRoster. Enter the actual sale total and a receipt note; this screen will not invent a catalog or stock count.
+          Type the sale total and what was bought. Every charge is saved to the camper's wallet history, and a wallet can't go below zero.
         </div>
         {error && <div role="alert" className="p-4 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-900 font-semibold text-sm flex items-center gap-2"><AlertTriangle className="w-5 h-5 shrink-0" />{error}</div>}
         {success && <div role="status" className="p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-200 text-emerald-950 font-semibold text-sm flex items-center gap-2"><CheckCircle2 className="w-5 h-5 shrink-0" />{success}</div>}
