@@ -2,6 +2,7 @@ import Link from "next/link";
 import StaffHeader from "@/components/StaffHeader";
 import { PageHeader, PageShell, StatCard, StatStrip } from "@/components/ui";
 import { requireArea } from "@/lib/auth";
+import { answerLabel } from "@/lib/form-family-intake";
 import { humanizeIntakeValue, type CustomIntakeRow, type RegistrationIntakeRow, type VolunteerIntakeRow } from "@/lib/intake";
 import { createClient } from "@/lib/supabase/server";
 import IntakeClient from "./IntakeClient";
@@ -146,7 +147,7 @@ export default async function AdminIntakePage() {
     const labels = labelsByForm.get(formId) ?? new Map<string, string>();
     const answers = row.answers && typeof row.answers === "object" && !Array.isArray(row.answers)
       ? Object.entries(row.answers as Record<string, unknown>).map(([key, value]) => ({
-          label: labels.get(key) ?? key.replace(/_/g, " "),
+          label: answerLabel(labels, key),
           value: humanizeIntakeValue(value),
         }))
       : [];

@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/server";
 import {
   canViewPeriod,
   checkAudienceAge,
+  normalizeOptions,
   pickKnownAnswers,
   validateSubmission,
   type FormAnswers,
@@ -10,12 +11,20 @@ import {
   type FormField,
   type RegistrationPeriod,
 } from "@/lib/forms";
+import { buildFamilyIntake, formSupportsFamilyIntake, isFamilyAudience } from "@/lib/form-family-intake";
+import { priceFamilyInvoice } from "@/lib/invoicing";
+import { issueIntakeToken } from "@/lib/signed-payload";
 
 /**
  * Public intake for admin-built forms. There is no session here by definition,
  * so this runs on the service client — which means every check the browser did
  * gets done again: the form must be published, the window open (or the token
  * right), and the answers must pass the same validator.
+ *
+ * A family form that asks the household questions (see FAMILY_INTAKE_KEYS)
+ * goes further: it creates the family, one camper and registration per
+ * repeated camper block, and the household invoice priced from the camp's
+ * tiers. Anything else is stored as a form response, as before.
  */
 export async function POST(req: Request) {
   let body: { form_id?: string; token?: string | null; answers?: FormAnswers };
@@ -59,7 +68,7 @@ export async function POST(req: Request) {
 
   const fields = ((fieldRows as FormField[] | null) ?? []).map((f) => ({
     ...f,
-    options: Array.isArray(f.options) ? f.options : [],
+    options: normalizeOptions(f.options),
   }));
 
   const answers = pickKnownAnswers(fields, (body.answers ?? {}) as FormAnswers);
@@ -86,6 +95,10 @@ export async function POST(req: Request) {
     );
   }
 
+  if (isFamilyAudience(period.audience as FormAudience) && formSupportsFamilyIntake(fields)) {
+    return createHousehold(req, supabase, definition, answers, fields);
+  }
+
   const { data: inserted, error } = await supabase
     .from("form_submissions")
     .insert({
@@ -102,4 +115,85 @@ export async function POST(req: Request) {
   }
 
   return NextResponse.json({ ok: true, submission_id: inserted.id });
+}
+
+type Db = ReturnType<typeof createAdminClient>;
+
+async function createHousehold(
+  req: Request,
+  supabase: Db,
+  definition: { id: string; camp_id: string },
+  answers: FormAnswers,
+  fields: FormField[]
+) {
+  const intake = buildFamilyIntake(fields, answers);
+  if (!intake.ok) {
+    return NextResponse.json({ error: "Some answers need attention.", errors: intake.errors }, { status: 422 });
+  }
+
+  const idempotencyKey = (req.headers.get("idempotency-key") ?? "").trim();
+  if (idempotencyKey.length < 8 || idempotencyKey.length > 200) {
+    return NextResponse.json({ error: "Please reload the page and submit again. Nothing was saved." }, { status: 400 });
+  }
+
+  const { data: result, error } = await supabase.rpc("create_form_family_intake", {
+    p_camp_id: definition.camp_id,
+    p_form_id: definition.id,
+    p_idempotency_key: idempotencyKey,
+    p_payload: { ...intake.payload, answers },
+  });
+
+  if (error || !result) {
+    if (error?.code === "40001") {
+      return NextResponse.json({ error: "That registration is already being saved. Please wait a moment." }, { status: 409 });
+    }
+    if (error?.code === "23503") {
+      return NextResponse.json(
+        { error: "Registration is not set up yet: the camp has no active session. Nothing was saved." },
+        { status: 503 }
+      );
+    }
+    console.error("Family form intake failed:", error);
+    return NextResponse.json({ error: "We could not save that registration. Nothing was saved." }, { status: 500 });
+  }
+
+  const created = result as {
+    family_id: string;
+    season_id: string;
+    camper_ids: string[];
+    registration_ids: string[];
+    submission_id: string;
+  };
+
+  // Household pricing reads pricing_tiers through family_tuition_cents, so two
+  // or more campers get the camp's family rate without any code. A pricing
+  // failure must not undo a saved registration; the office can re-price.
+  let billing: { invoiceId: string; totalDueCents: number; uploadToken: string | null; camperCount: number } | null = null;
+  try {
+    const { invoice } = await priceFamilyInvoice(supabase, {
+      campId: definition.camp_id,
+      seasonId: created.season_id,
+      familyId: created.family_id,
+    });
+    billing = {
+      invoiceId: invoice.id,
+      totalDueCents: invoice.total_due_cents,
+      camperCount: invoice.camper_count,
+      uploadToken: issueIntakeToken({
+        campId: definition.camp_id,
+        registrationId: created.registration_ids[0],
+        camperId: created.camper_ids[0],
+        invoiceId: invoice.id,
+      }),
+    };
+  } catch (pricingError) {
+    console.error("Family form intake saved but could not be priced:", pricingError);
+  }
+
+  return NextResponse.json({
+    ok: true,
+    submission_id: created.submission_id,
+    registration_ids: created.registration_ids,
+    billing,
+  });
 }

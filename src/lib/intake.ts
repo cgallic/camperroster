@@ -36,6 +36,8 @@ export function humanizeIntakeValue(value: unknown): string {
   if (typeof value === "boolean") return value ? "Yes" : "No";
   if (Array.isArray(value)) return value.map(humanizeIntakeValue).join(", ");
   if (typeof value === "object") return JSON.stringify(value);
+  // A drawn signature is stored as an image; its base64 is not something to read.
+  if (typeof value === "string" && value.startsWith("data:image/")) return "Signed (drawn signature)";
   return String(value);
 }
 
