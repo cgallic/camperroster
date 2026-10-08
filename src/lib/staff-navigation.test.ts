@@ -46,3 +46,13 @@ test("specialist roles only see destinations admitted by their area guards", () 
   assert.deepEqual(hrefs("red_shirt"), ["/counselor"]);
   assert.deepEqual(hrefs("staff"), ["/admin/checkin", "/counselor", "/canteen/pos"]);
 });
+
+test("every role lands on a page it can open", async () => {
+  const { homeForRole } = await import("./staff-navigation.ts");
+  assert.equal(homeForRole("director"), "/admin");
+  assert.equal(homeForRole("registrar"), "/admin");
+  assert.equal(homeForRole("nurse"), "/nurse/emar");
+  assert.equal(homeForRole("staff"), "/admin/checkin");
+  assert.equal(homeForRole("counselor"), "/counselor");
+  assert.equal(homeForRole("red_shirt"), "/counselor");
+});

@@ -1,9 +1,11 @@
 import { createHash, randomBytes } from "node:crypto";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 
 import { resolveCampWithRolesOrRespond } from "@/lib/auth";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
+import { SUPABASE_ANON_KEY, SUPABASE_URL } from "@/lib/supabase/env";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -37,32 +39,36 @@ export async function GET() {
   return NextResponse.json({ invitations: data ?? [] });
 }
 
+/**
+ * Sends the invitation email through Supabase Auth. Both links come back through
+ * /auth/callback with the session in the URL fragment, which the callback hands
+ * on to the acceptance page. The implicit flow is deliberate: these emails are requested from the
+ * server, so there is no browser holding a PKCE verifier to exchange a code.
+ */
+async function emailInvitation(email: string, redirectTo: string): Promise<boolean> {
+  const admin = createAdminClient();
+  const { error: inviteError } = await admin.auth.admin.inviteUserByEmail(email, { redirectTo });
+  if (!inviteError) return true;
+  // Existing accounts cannot be invited again; email them a sign-in link instead.
+  const mailer = createSupabaseClient(SUPABASE_URL(), SUPABASE_ANON_KEY(), { auth: { flowType: "implicit", persistSession: false, autoRefreshToken: false } });
+  const { error: otpError } = await mailer.auth.signInWithOtp({ email, options: { emailRedirectTo: redirectTo, shouldCreateUser: false } });
+  return !otpError;
+}
+
 export async function POST(req: Request) {
   const context = await directorContext();
   if ("response" in context) return context.response;
   const parsed = InviteSchema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "A valid email and role are required." }, { status: 400 });
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
-  if (!siteUrl || !/^https?:\/\//.test(siteUrl)) {
-    return NextResponse.json({ error: "Staff invitations are not configured (NEXT_PUBLIC_SITE_URL)." }, { status: 503 });
-  }
+  const configured = process.env.NEXT_PUBLIC_SITE_URL;
+  const siteUrl = configured && /^https?:\/\//.test(configured) ? configured : new URL(req.url).origin;
   const token = randomBytes(32).toString("base64url");
   const tokenHash = createHash("sha256").update(token, "utf8").digest("hex");
+  const origin = siteUrl.replace(/\/$/, "");
   const acceptancePath = `/staff/invite?token=${encodeURIComponent(token)}`;
-  const redirectTo = `${siteUrl.replace(/\/$/, "")}/auth/callback?next=${encodeURIComponent(acceptancePath)}`;
+  const acceptUrl = `${origin}${acceptancePath}`;
   const admin = createAdminClient();
-
-  const { error: inviteError } = await admin.auth.admin.inviteUserByEmail(parsed.data.email, { redirectTo });
-  if (inviteError) {
-    // Existing accounts cannot be invited again; email a sign-in link that
-    // lands on the same one-time invitation acceptance screen.
-    const { error: otpError } = await admin.auth.signInWithOtp({
-      email: parsed.data.email,
-      options: { emailRedirectTo: redirectTo, shouldCreateUser: false },
-    });
-    if (otpError) return NextResponse.json({ error: "Supabase could not deliver the invitation email." }, { status: 502 });
-  }
 
   await (admin as any).from("staff_invitations")
     .update({ status: "revoked", revoked_at: new Date().toISOString() })
@@ -82,7 +88,11 @@ export async function POST(req: Request) {
     .select("id,email,role,status,invited_at,expires_at")
     .single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ invitation: data }, { status: 201 });
+
+  // The invitation stands even when the email does not go out: the director
+  // gets the link back and can text or email it themselves.
+  const emailSent = await emailInvitation(parsed.data.email, `${origin}/auth/callback?next=${encodeURIComponent(acceptancePath)}`);
+  return NextResponse.json({ invitation: data, acceptUrl, emailSent }, { status: 201 });
 }
 
 export async function DELETE(req: Request) {

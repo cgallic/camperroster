@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { requireArea } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { getMembership, requireArea, rolesForArea } from "@/lib/auth";
+import { homeForRole } from "@/lib/staff-navigation";
 import { createClient } from "@/lib/supabase/server";
 import StaffHeader from "@/components/StaffHeader";
 import AdminDashboardClient from "./AdminDashboardClient";
@@ -13,6 +15,10 @@ import {
 } from "./triage";
 
 export default async function AdminDashboardPage() {
+  // Sign-in lands everyone here; send nurses, counselors and staff to their own
+  // workspace instead of a "no access" page.
+  const membership = await getMembership();
+  if (membership && !rolesForArea("admin").includes(membership.role)) redirect(homeForRole(membership.role));
   await requireArea("admin", "/admin");
 
   const supabase = await createClient();

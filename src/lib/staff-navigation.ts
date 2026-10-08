@@ -43,3 +43,8 @@ export const STAFF_PREFIXES = ["/admin", "/nurse", "/counselor", "/canteen", "/b
 export function navigationForRole(role: Role): StaffNavigationItem[] {
   return STAFF_NAVIGATION.filter((item) => item.roles.includes(role));
 }
+
+/** Where a role lands after signing in: the first page its navigation offers. */
+export function homeForRole(role: Role): string {
+  return navigationForRole(role)[0]?.href ?? "/no-access";
+}
