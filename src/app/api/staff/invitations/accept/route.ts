@@ -34,6 +34,20 @@ export async function POST(req: Request) {
   }
 
   if (!user) return NextResponse.json({ error: "Sign in with the invited email first." }, { status: 401 });
+
+  // One account, one camp: most pages rely on RLS alone, so an account in two
+  // camps would see both camps' records mixed together.
+  const admin = createAdminClient();
+  const tokenHash = createHash("sha256").update(parsed.data.token, "utf8").digest("hex");
+  const { data: target } = await (admin as any).from("staff_invitations").select("camp_id").eq("token_sha256", tokenHash).maybeSingle();
+  if (target) {
+    const { data: other } = await admin.from("camp_members").select("camp_id, camps(name)").eq("user_id", user.id).neq("camp_id", target.camp_id).limit(1).maybeSingle();
+    if (other) {
+      const otherCamp = Array.isArray(other.camps) ? other.camps[0] : other.camps;
+      return NextResponse.json({ error: `This account already belongs to ${otherCamp?.name ?? "another camp"}. Accept with a different email address.` }, { status: 409 });
+    }
+  }
+
   const { data, error } = await (db as any).rpc("accept_staff_invitation", { p_token: parsed.data.token });
   if (error) {
     const status = error.code === "42501" ? 403 : 400;

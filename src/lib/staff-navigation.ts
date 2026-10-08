@@ -40,6 +40,7 @@ export const STAFF_NAVIGATION: readonly StaffNavigationItem[] = [
   { href: "/admin/staff", label: "Team access", shortLabel: "Team", group: "Camp admin", roles: DIRECTOR, description: "Who can sign in and what each person can see." },
   { href: "/admin/activity", label: "Activity history", shortLabel: "Activity", group: "Camp admin", roles: DIRECTOR, description: "Who changed what, and when." },
   { href: "/admin/settings", label: "Camp settings", shortLabel: "Settings", group: "Camp admin", roles: DIRECTOR, description: "Camp details, seasons, sessions and family pricing." },
+  { href: "/admin/camps/new", label: "Set up a customer camp", shortLabel: "New camp", group: "Camp admin", roles: DIRECTOR, description: "Create a camp for a new customer and invite their director." },
   { href: "/billing", label: "Billing", group: "Camp admin", roles: DIRECTOR, description: "Your camp's Camper Roster subscription." },
 ] as const;
 

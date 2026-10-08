@@ -26,6 +26,7 @@ test("directors can discover every signed-in operational module", () => {
     "/admin/staff",
     "/admin/activity",
     "/admin/settings",
+    "/admin/camps/new",
     "/billing",
   ]);
 });
