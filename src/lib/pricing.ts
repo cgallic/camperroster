@@ -89,6 +89,27 @@ export function tierPriceCents(
   return rateInForce(asOf, earlyRateEndsOn) === "early" ? tier.early_cents : tier.regular_cents;
 }
 
+export type PricingTier = { camper_count: number; early_cents: number; regular_cents: number };
+
+/**
+ * Household tuition for `camperCount` campers. Mirrors `family_tuition_cents`
+ * exactly: the largest published tier at or below the count, at the rate in
+ * force. A family larger than every tier pays the largest tier (the invoice's
+ * custom total covers anything else); no tiers at all is null, "not priced".
+ */
+export function householdTuitionCents(
+  tiers: readonly PricingTier[],
+  camperCount: number,
+  asOf: IsoDate,
+  earlyRateEndsOn: IsoDate | null,
+): number | null {
+  const n = Math.max(1, camperCount);
+  const tier = [...tiers]
+    .filter((t) => t.camper_count <= n)
+    .sort((a, b) => b.camper_count - a.camper_count)[0];
+  return tier ? tierPriceCents(tier, asOf, earlyRateEndsOn) : null;
+}
+
 // Processing fees ------------------------------------------------------------------
 
 /**

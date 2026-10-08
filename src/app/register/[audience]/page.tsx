@@ -6,6 +6,7 @@ import {
   AUDIENCE_LABELS,
   FORM_AUDIENCES,
   canViewPeriod,
+  normalizeOptions,
   type FormAudience,
   type FormField,
   type RegistrationPeriod,
@@ -64,7 +65,7 @@ export default async function PublicRegistrationFormPage({
 
   const { data: definition } = await supabase
     .from("form_definitions")
-    .select("id, title, intro_text, version")
+    .select("id, title, intro_text, success_text, version")
     .eq("camp_id", campLookup.camp.id)
     .eq("period_id", period.id)
     .not("published_at", "is", null)
@@ -81,7 +82,7 @@ export default async function PublicRegistrationFormPage({
 
   const fields = ((fieldRows as FormField[] | null) ?? []).map((f) => ({
     ...f,
-    options: Array.isArray(f.options) ? f.options : [],
+    options: normalizeOptions(f.options),
   }));
 
   return (
@@ -91,7 +92,7 @@ export default async function PublicRegistrationFormPage({
           {campLookup.camp.name} &bull; {label}
         </span>
         <h1 className="font-display font-black text-3xl sm:text-4xl text-stone-900 mt-3">{definition.title}</h1>
-        {definition.intro_text && <p className="text-stone-600 mt-2">{definition.intro_text}</p>}
+        {definition.intro_text && <p className="text-stone-600 mt-2 whitespace-pre-line">{definition.intro_text}</p>}
       </div>
 
       <PublicFormClient
@@ -99,6 +100,7 @@ export default async function PublicRegistrationFormPage({
         audience={audience as FormAudience}
         token={token ?? null}
         fields={fields}
+        successText={definition.success_text}
       />
     </main>
   );
