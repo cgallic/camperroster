@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { track } from "@vercel/analytics";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AlertTriangle, ArrowRight, CheckCircle2, Loader2 } from "lucide-react";
 import type { CampSignupPayload, CampSignupResponse } from "@/lib/formContracts";
@@ -58,6 +59,7 @@ export default function CampSignupForm() {
       const data: CampSignupResponse = await res.json().catch(() => ({ success: false }));
 
       if (res.ok && data.success) {
+        track("camp_signup", { next });
         setCreated({ slug: data.slug || payload.slug, signedIn: Boolean(data.signedIn) });
         if (data.signedIn) {
           router.refresh();

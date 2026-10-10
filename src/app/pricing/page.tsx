@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { track } from "@vercel/analytics";
+import WalkthroughForm from "@/components/WalkthroughForm";
 import {
   Check,
   ArrowRight,
@@ -22,10 +24,11 @@ export default function PricingAndRoiPage() {
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   async function startCheckout(plan: CheckoutPlan) {
+    track("checkout_clicked", { plan, source: "pricing" });
     setCheckoutError(null);
     setCheckoutPending(plan);
     try {
-      const res = await fetch("/api/stripe/checkout", {
+      const res = await fetch("/api/billing/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ plan }),
@@ -397,7 +400,7 @@ BUILT TO REPLACE ULTRACAMP
                 </ul>
               </div>
 
-              <a href="mailto:director@camperroster.com?subject=Enterprise%20Multi-Camp%20Inquiry" className="w-full py-3.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-900 font-extrabold text-xs text-center">
+              <a href="#walkthrough" className="w-full py-3.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-900 font-extrabold text-xs text-center">
                 Contact Sales →
               </a>
             </div>
@@ -463,6 +466,16 @@ BUILT TO REPLACE ULTRACAMP
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
+        </div>
+      </section>
+
+      <section id="walkthrough" className="px-3 sm:px-6 lg:px-8 scroll-mt-24">
+        <div className="max-w-3xl mx-auto bg-forest-950 rounded-3xl p-6 sm:p-12 space-y-5 text-center border-2 border-emerald-400 shadow-2xl">
+          <h2 className="font-display font-black text-2xl sm:text-4xl text-white">Want to see it with your own camp in mind?</h2>
+          <p className="text-sm text-stone-300 max-w-xl mx-auto">
+            Tell us a little about your camp and we will walk you through registration, forms, health records and cabins in 20 minutes.
+          </p>
+          <WalkthroughForm source="pricing" tone="dark" />
         </div>
       </section>
 

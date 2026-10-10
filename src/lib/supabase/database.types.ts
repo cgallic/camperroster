@@ -2169,6 +2169,48 @@ export type Database = {
           },
         ]
       }
+      sales_leads: {
+        Row: {
+          camp_name: string | null
+          camper_count: string | null
+          created_at: string
+          current_tool: string | null
+          email: string
+          id: string
+          message: string | null
+          name: string
+          source_path: string | null
+          status: string
+          utm: Json | null
+        }
+        Insert: {
+          camp_name?: string | null
+          camper_count?: string | null
+          created_at?: string
+          current_tool?: string | null
+          email: string
+          id?: string
+          message?: string | null
+          name: string
+          source_path?: string | null
+          status?: string
+          utm?: Json | null
+        }
+        Update: {
+          camp_name?: string | null
+          camper_count?: string | null
+          created_at?: string
+          current_tool?: string | null
+          email?: string
+          id?: string
+          message?: string | null
+          name?: string
+          source_path?: string | null
+          status?: string
+          utm?: Json | null
+        }
+        Relationships: []
+      }
       seasons: {
         Row: {
           camp_id: string
