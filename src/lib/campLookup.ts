@@ -121,3 +121,54 @@ export async function getPublicCampConfiguration(campId: string): Promise<Public
       : null,
   };
 }
+
+export interface PublicRegistrationPeriod {
+  audience: string;
+  name: string;
+  opensAt: string | null;
+  closesAt: string | null;
+  visibility: string;
+}
+
+/**
+ * The active season's registration periods (one per audience), for the camp
+ * page's buttons and for turning legacy /register and /volunteer links away.
+ * A camp with any period here takes registrations through /register/<audience>,
+ * which enforces the window; the legacy generic forms must not bypass it.
+ * Never selects access_token: link_only tokens are the whole secret.
+ */
+export async function getPublicRegistrationPeriods(campId: string): Promise<PublicRegistrationPeriod[]> {
+  const { data: season, error: seasonError } = await supabaseAdmin
+    .from("seasons")
+    .select("id")
+    .eq("camp_id", campId)
+    .eq("is_active", true)
+    .limit(1)
+    .maybeSingle();
+  if (seasonError) throw seasonError;
+  if (!season) return [];
+
+  const { data, error } = await supabaseAdmin
+    .from("registration_periods")
+    .select("audience, name, opens_at, closes_at, visibility")
+    .eq("camp_id", campId)
+    .eq("season_id", season.id);
+  if (error) throw error;
+
+  return (data ?? []).map((row) => ({
+    audience: row.audience,
+    name: row.name,
+    opensAt: row.opens_at,
+    closesAt: row.closes_at,
+    visibility: row.visibility,
+  }));
+}
+
+/** Whether a camp's public registration goes through period forms. Fails open to the legacy forms. */
+export async function campUsesPeriodForms(campId: string): Promise<boolean> {
+  try {
+    return (await getPublicRegistrationPeriods(campId)).length > 0;
+  } catch {
+    return false;
+  }
+}

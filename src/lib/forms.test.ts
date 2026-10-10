@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  checkAudienceAge,
   expandRepeats,
   normalizeOptions,
   optionsToText,
@@ -148,4 +149,15 @@ test("options round-trip through the editor's text form and the jsonb column", (
   assert.equal(text, "Yes\nYes, I consent | I consent to photographs, video or other media");
   assert.deepEqual(parseOptionsText(text), options);
   assert.deepEqual(normalizeOptions([1, "a", { value: "b", label: "b" }, { label: "no value" }, null]), ["1", "a", "b"]);
+});
+
+test("volunteer age is measured on the first day of camp, not the day registration opens", () => {
+  // Turns 18 in May: still 17 when registration opens in February.
+  const dob = "2008-05-20";
+  assert.equal(checkAudienceAge("new_adult", dob, "2026-02-01T00:00:00Z").ok, false);
+  // By the first day of camp in June they are an adult volunteer.
+  assert.deepEqual(checkAudienceAge("new_adult", dob, "2026-06-14"), { ok: true });
+  const teen = checkAudienceAge("teen_volunteer", dob, "2026-06-14");
+  assert.equal(teen.ok, false);
+  assert.equal(!teen.ok && teen.suggestedAudience, "new_adult");
 });

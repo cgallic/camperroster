@@ -12,7 +12,7 @@ import {
   type RegistrationPeriod,
 } from "@/lib/forms";
 import { buildFamilyIntake, formSupportsFamilyIntake, isFamilyAudience } from "@/lib/form-family-intake";
-import { priceFamilyInvoice } from "@/lib/invoicing";
+import { campStartsOn, priceFamilyInvoice } from "@/lib/invoicing";
 import { issueIntakeToken } from "@/lib/signed-payload";
 
 /**
@@ -79,10 +79,14 @@ export async function POST(req: Request) {
   }
 
   // Someone who is still a teen at camp time does not belong on the adult form,
-  // whatever the client let them pick.
+  // whatever the client let them pick. Age is measured on the first day of
+  // camp (the earliest active session, the same week intake and invoicing use),
+  // not the day registration opens; the window date is only a fallback for a
+  // camp with no session set up yet.
   const dobKey = fields.find((f) => f.field_type === "date" && /birth|dob/i.test(f.field_key))?.field_key;
   const dob = dobKey ? answers[dobKey] : null;
-  const campStart = period.opens_at ?? new Date().toISOString();
+  const firstDay = dob ? await campStartsOn(supabase, definition.camp_id) : null;
+  const campStart = firstDay ?? period.opens_at ?? new Date().toISOString();
   const ageGuard = checkAudienceAge(period.audience as FormAudience, dob ? String(dob) : null, campStart);
   if (!ageGuard.ok) {
     return NextResponse.json(
