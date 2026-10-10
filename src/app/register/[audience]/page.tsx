@@ -60,7 +60,14 @@ export default async function PublicRegistrationFormPage({
   const label = AUDIENCE_LABELS[audience as FormAudience];
 
   if (!period || !canViewPeriod(period, token ?? null)) {
-    return <ClosedNotice label={label} name={period?.name ?? label} />;
+    // A public period that hasn't opened yet tells the family when to come back.
+    const opensAt =
+      period && period.visibility === "public" && period.opens_at && new Date(period.opens_at) > new Date()
+        ? period.opens_at
+        : null;
+    return (
+      <ClosedNotice label={label} name={period?.name ?? label} opensAt={opensAt} campSlug={campLookup.camp.slug} />
+    );
   }
 
   const { data: definition } = await supabase
@@ -71,7 +78,7 @@ export default async function PublicRegistrationFormPage({
     .not("published_at", "is", null)
     .maybeSingle();
 
-  if (!definition) return <ClosedNotice label={label} name={period.name} noForm />;
+  if (!definition) return <ClosedNotice label={label} name={period.name} noForm campSlug={campLookup.camp.slug} />;
 
   const { data: fieldRows } = await supabase
     .from("form_fields")
@@ -106,7 +113,21 @@ export default async function PublicRegistrationFormPage({
   );
 }
 
-function ClosedNotice({ label, name, noForm, noCamp }: { label?: string; name: string; noForm?: boolean; noCamp?: boolean }) {
+function ClosedNotice({
+  label,
+  name,
+  noForm,
+  noCamp,
+  opensAt,
+  campSlug,
+}: {
+  label?: string;
+  name: string;
+  noForm?: boolean;
+  noCamp?: boolean;
+  opensAt?: string | null;
+  campSlug?: string;
+}) {
   return (
     <main className="max-w-2xl mx-auto px-4 py-16 sm:py-24 text-center space-y-5">
       <div className="w-16 h-16 bg-stone-100 text-stone-600 rounded-full flex items-center justify-center mx-auto">
@@ -120,11 +141,29 @@ function ClosedNotice({ label, name, noForm, noCamp }: { label?: string; name: s
           ? "This form was opened without a valid camp. Return to the link your camp sent you so your submission reaches the right office."
           : noForm
           ? "The camp office is still putting this year's questions together. Please check back soon."
+          : opensAt
+          ? `This form opens ${formatOpensAt(opensAt)}. Please come back then.`
           : "This form is not accepting responses right now. If the office sent you a private link, open that link directly — it carries the access token."}
       </p>
-      <Link href="/" className="inline-block px-5 py-2.5 rounded-full bg-forest-800 text-white font-bold text-sm hover:bg-forest-900">
-        Back to home
+      <Link
+        href={campSlug ? `/c/${encodeURIComponent(campSlug)}` : "/"}
+        className="inline-block px-5 py-2.5 rounded-full bg-forest-800 text-white font-bold text-sm hover:bg-forest-900"
+      >
+        {campSlug ? "Back to camp page" : "Back to home"}
       </Link>
     </main>
   );
+}
+
+/** Same wording as the camp page; camps have no timezone setting yet. */
+function formatOpensAt(iso: string): string {
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    timeZone: "America/New_York",
+    timeZoneName: "short",
+  }).format(new Date(iso));
 }
