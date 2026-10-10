@@ -3,9 +3,17 @@ import Image from "next/image";
 import { AlertTriangle, ArrowRight, Calendar, CheckCircle2, HeartHandshake } from "lucide-react";
 import {
   getPublicCampConfiguration,
+  getPublicRegistrationPeriods,
   lookupCampBySlug,
   type PublicCampSession,
+  type PublicRegistrationPeriod,
 } from "@/lib/campLookup";
+import {
+  FAMILY_AUDIENCES,
+  VOLUNTEER_AUDIENCES,
+  periodFormLinks,
+  type PeriodFormLink,
+} from "@/lib/public-registration";
 
 /**
  * A camp's public page.
@@ -84,12 +92,19 @@ export default async function CampSlugPage({ params }: { params: Promise<{ slug:
       // The identity is still real. Configuration failures must not fall back
       // to made-up sample sessions or another camp.
     }
+    // Period forms enforce each audience's window. If they can't be read, the
+    // page keeps the legacy links rather than showing no way to register.
+    let periods: PublicRegistrationPeriod[] = [];
+    try {
+      periods = await getPublicRegistrationPeriods(lookup.camp.id);
+    } catch {}
     return (
       <RealCampPortal
         slug={lookup.camp.slug}
         name={lookup.camp.name}
         directorName={lookup.camp.directorName}
         sessions={sessions}
+        periods={periods}
       />
     );
   }
@@ -109,12 +124,19 @@ function RealCampPortal({
   name,
   directorName,
   sessions,
+  periods,
 }: {
   slug: string;
   name: string;
   directorName: string | null;
   sessions: PublicCampSession[];
+  periods: PublicRegistrationPeriod[];
 }) {
+  // A camp with registration periods takes sign-ups only through
+  // /register/<audience>; the legacy generic forms skip its windows and prices.
+  const usesPeriodForms = periods.length > 0;
+  const familyLinks = periodFormLinks(slug, periods, FAMILY_AUDIENCES);
+  const volunteerLinks = periodFormLinks(slug, periods, VOLUNTEER_AUDIENCES);
   return (
     <main className="space-y-10 sm:space-y-14 pb-20">
       <section className="px-3 sm:px-6 lg:px-8 pt-6 sm:pt-10">
@@ -141,6 +163,12 @@ function RealCampPortal({
               <p className="text-sm sm:text-base text-stone-300 font-medium">Camp director: {directorName}</p>
             )}
 
+            {usesPeriodForms ? (
+              <div className="pt-4 space-y-4">
+                <PeriodButtonRow title="Register a camper" links={familyLinks} primary />
+                <PeriodButtonRow title="Volunteer" links={volunteerLinks} />
+              </div>
+            ) : (
             <div className="pt-4 flex flex-col sm:flex-row gap-3">
               <Link
                 href={`/register?camp=${encodeURIComponent(slug)}`}
@@ -157,6 +185,7 @@ function RealCampPortal({
                 <span>Apply to volunteer</span>
               </Link>
             </div>
+            )}
           </div>
         </div>
       </section>
@@ -182,12 +211,14 @@ function RealCampPortal({
                       <span className="bg-amber-100 text-amber-900 rounded-full px-3 py-1">{formatMoney(session.depositCents)} deposit</span>
                     )}
                   </div>
-                  <Link
-                    href={`/register?camp=${encodeURIComponent(slug)}&session=${encodeURIComponent(session.id)}`}
-                    className="inline-flex items-center gap-2 text-sm font-black text-forest-900 underline underline-offset-4"
-                  >
-                    Register for this session <ArrowRight className="w-4 h-4" />
-                  </Link>
+                  {!usesPeriodForms && (
+                    <Link
+                      href={`/register?camp=${encodeURIComponent(slug)}&session=${encodeURIComponent(session.id)}`}
+                      className="inline-flex items-center gap-2 text-sm font-black text-forest-900 underline underline-offset-4"
+                    >
+                      Register for this session <ArrowRight className="w-4 h-4" />
+                    </Link>
+                  )}
                 </article>
               ))}
             </div>
@@ -203,6 +234,52 @@ function RealCampPortal({
       </section>
     </main>
   );
+}
+
+function PeriodButtonRow({ title, links, primary }: { title: string; links: PeriodFormLink[]; primary?: boolean }) {
+  return (
+    <div className="space-y-2">
+      <p className="text-xs font-bold uppercase tracking-widest text-stone-300">{title}</p>
+      {links.length ? (
+        <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3">
+          {links.map((link) => (
+            <Link
+              key={link.audience}
+              href={link.href}
+              className={
+                primary
+                  ? "px-6 py-4 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-stone-950 font-black text-sm flex flex-col items-center justify-center shadow-xl active:scale-98 transition-transform"
+                  : "px-6 py-4 rounded-xl bg-stone-900/90 hover:bg-stone-900 text-white font-bold text-xs sm:text-sm border border-stone-700 flex flex-col items-center justify-center backdrop-blur-xs"
+              }
+            >
+              <span className="flex items-center gap-2">
+                {!primary && <HeartHandshake className="w-4 h-4" />}
+                <span>{link.label}</span>
+                {primary && <ArrowRight className="w-4 h-4 stroke-[3]" />}
+              </span>
+              {link.opensAt && (
+                <span className="text-[11px] font-semibold opacity-80">Opens {formatDateTime(link.opensAt)}</span>
+              )}
+            </Link>
+          ))}
+        </div>
+      ) : (
+        <p className="text-sm text-stone-300">Not open right now.</p>
+      )}
+    </div>
+  );
+}
+
+function formatDateTime(iso: string): string {
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    timeZone: "America/New_York",
+    timeZoneName: "short",
+  }).format(new Date(iso));
 }
 
 function formatMoney(cents: number): string {
