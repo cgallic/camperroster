@@ -8,7 +8,8 @@
  *   node --experimental-strip-types scripts/record-demo-videos.ts http://127.0.0.1:3200 <out-dir> [only-video-name]
  *
  * Every /api call is answered here from src/lib/demo/fixtures.ts; writes
- * (record a dose, charge a wallet, check in, walkthrough form) get a fake
+ * (record a dose, charge a wallet, check in, walkthrough form, invite staff,
+ * change a role) get a fake
  * success so nothing touches a database or sends anything.
  */
 import { chromium } from "/opt/node22/lib/node_modules/playwright/index.mjs";
@@ -16,7 +17,8 @@ import { execFileSync } from "node:child_process";
 import { copyFileSync, mkdirSync, mkdtempSync, rmSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { demoBunkNotes, demoCampers, demoMedications } from "../src/lib/demo/fixtures.ts";
+import { demoBunkNotes, demoCampers, demoMedications, demoTeam } from "../src/lib/demo/fixtures.ts";
+import { lastDirectorProblem } from "../src/lib/team.ts";
 
 const base = process.argv[2] ?? "http://127.0.0.1:3200";
 const outDir = process.argv[3] ?? "videos";
@@ -33,6 +35,7 @@ function makeApi() {
   const balances = new Map(demoCampers.map((c) => [c.registrationId, c.balance]));
   // Arrivals confirmed at the gate show up on the counselor roster too.
   const arrived = new Set(demoCampers.filter((c) => c.checkedIn).map((c) => c.registrationId));
+  const team = demoTeam.map((m) => ({ userId: m.userId, role: m.role }));
   const get: Record<string, () => unknown> = {
     "/api/nurse/emar": () => ({ success: true, camp, medications: demoMedications(day) }),
     "/api/canteen/roster": () => ({ success: true, camp, registrations: demoCampers.map((c) => ({ id: c.registrationId, name: c.legalName, balanceCents: balances.get(c.registrationId) })) }),
@@ -59,6 +62,20 @@ function makeApi() {
       return { success: true, registration: { checked_in_at: new Date().toISOString() } };
     },
     "/api/leads": () => ({ success: true }),
+    "/api/admin/staff/invitations": (b) => ({
+      invitation: { id: crypto.randomUUID(), email: String(b.email).trim().toLowerCase(), role: b.role, status: "pending", invited_at: new Date().toISOString(), expires_at: new Date(Date.now() + 7 * 864e5).toISOString() },
+      acceptUrl: `https://camperroster.com/staff/invite?token=${crypto.randomUUID().replace(/-/g, "")}`,
+      emailSent: true,
+    }),
+  };
+  // Same rule the real PATCH /api/admin/staff/members applies before it writes.
+  const patch: Record<string, (body: any) => { status?: number; json: unknown }> = {
+    "/api/admin/staff/members": (b) => {
+      const problem = lastDirectorProblem(team, b.userId, b.role);
+      if (problem) return { status: 409, json: { error: problem } };
+      team.find((m) => m.userId === b.userId)!.role = b.role;
+      return { json: { ok: true, userId: b.userId, role: b.role } };
+    },
   };
   return async (route: any) => {
     const req = route.request();
@@ -67,6 +84,10 @@ function makeApi() {
     if (req.method() === "POST" && post[path]) {
       await new Promise((r) => setTimeout(r, 450)); // let the spinner show briefly
       return route.fulfill({ json: post[path](req.postDataJSON()) });
+    }
+    if (req.method() === "PATCH" && patch[path]) {
+      await new Promise((r) => setTimeout(r, 450));
+      return route.fulfill(patch[path](req.postDataJSON()));
     }
     console.warn(`  unhandled ${req.method()} ${path}`);
     return route.fulfill({ status: 403, json: { success: false, error: "demo_read_only" } });
@@ -118,7 +139,7 @@ const overlayInit = () => {
     const map: Record<string, string> = {
       "/admin": "/demo-preview/admin", "/admin/cabins": "/demo-preview/cabins", "/nurse/emar": "/demo-preview/emar",
       "/canteen/pos": "/demo-preview/pos", "/counselor": "/demo-preview/counselor", "/admin/checkin": "/demo-preview/checkin",
-      "/admin/bunk-notes": "/demo-preview/bunk-notes",
+      "/admin/bunk-notes": "/demo-preview/bunk-notes", "/admin/staff": "/demo-preview/team",
     };
     document.addEventListener("click", (e) => {
       const a = (e.target as HTMLElement).closest?.("a");
@@ -368,6 +389,99 @@ async function scenePricingAndForm(page: any) {
   await pause(1500);
 }
 
+/** Pick an option from a native <select> (its popup isn't drawn in the recording): glide over, then choose. */
+async function choose(page: any, loc: any, label: string) {
+  await click(page, loc);
+  await pause(500);
+  await loc.selectOption({ label });
+}
+
+async function sceneTeamRoles(page: any, mark: (l: string) => void) {
+  await go(page, "/demo-preview/team", "Team access: everyone who can sign in to your camp, and their role");
+  mark("team");
+  await pause(1000);
+  await hover(page, vis(page.getByText("maria.chen@example.com")), { frac: 0.3 });
+  await pause(700);
+  await hover(page, vis(page.getByText("taylor.simmons@example.com")));
+  await pause(900);
+
+  await caption(page, "Invite staff by email and pick their role");
+  const form = page.locator("form").first();
+  await type(page, form.locator('input[type="email"]'), "casey.nolan@example.com", 55);
+  await pause(600);
+  const rolePicker = form.locator("select");
+  await choose(page, rolePicker, "Registrar");
+  await caption(page, "Each role comes with a plain description of what it can see");
+  await hover(page, vis(form.getByText(/Sees insurance, not health records/)), { dx: 120 });
+  await pause(1300);
+  await choose(page, rolePicker, "Nurse");
+  await hover(page, vis(form.getByText(/Health profiles, medications/)), { dx: 120 });
+  await pause(1300);
+  await hover(page, form.getByRole("button", { name: "Invite" }));
+  await caption(page, "The invite is emailed, with a one-time link that works for 7 days");
+  await click(page, form.getByRole("button", { name: "Invite" }));
+  await vis(page.getByText(/Invitation emailed to casey.nolan@example.com/)).waitFor();
+  await hover(page, vis(page.getByText(/Invitation emailed to/)), { steps: 14 });
+  await pause(900);
+  await hover(page, vis(page.getByText(/works once, for 7 days/)));
+  await pause(1200);
+
+  mark("change-role");
+  await caption(page, "Change someone's role; it applies on their next page load");
+  const taylor = page.getByLabel("Role for taylor.simmons@example.com");
+  await choose(page, taylor, "Counselor");
+  await vis(page.getByText(/taylor.simmons@example.com is now Counselor/)).waitFor();
+  await hover(page, vis(page.getByText(/is now Counselor/)), { steps: 14 });
+  await pause(1400);
+
+  mark("last-director");
+  await caption(page, "A camp always keeps at least one director");
+  await choose(page, page.getByLabel("Role for demo@camperroster.com"), "Registrar");
+  await vis(page.getByText(/A camp must keep at least one director/)).waitFor();
+  await hover(page, vis(page.getByText(/A camp must keep at least one director/)), { steps: 14 });
+  await pause(1600);
+
+  mark("role-list");
+  await caption(page, "What each of the six roles can do, spelled out on the page");
+  // The list ends the page; pad below it so it can scroll clear of the caption bar.
+  await page.evaluate(() => {
+    document.body.style.paddingBottom = "140px";
+    window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+  });
+  await pause(1000);
+  await hover(page, vis(page.getByText("What each role can do")));
+  await pause(900);
+  await hover(page, vis(page.locator("section p").filter({ hasText: "Red shirt:" })), { dx: 160 });
+  await pause(1500);
+
+  mark("nurse-view");
+  await go(page, "/demo-preview/emar?as=nurse", "Nurses see health records and the medication log");
+  await pause(800);
+  await hover(page, page.locator("header nav"), { dx: 60 });
+  await pause(700);
+  await hover(page, vis(page.locator("header").getByRole("link", { name: "Medication log" })));
+  await pause(1500);
+
+  mark("registrar-view");
+  await go(page, "/demo-preview/cabins?as=registrar", "Registrars see registrations, cabins and finance; insurance, not health records");
+  await pause(800);
+  await hover(page, vis(page.locator("header").getByRole("link", { name: "Finance" })));
+  await pause(900);
+  await hover(page, vis(page.locator("header").getByRole("button", { name: "Registration" })));
+  await pause(1500);
+
+  mark("counselor-view");
+  await go(page, "/demo-preview/counselor?as=counselor", "Counselors get their cabin roster and the canteen");
+  await pause(800);
+  await hover(page, vis(page.locator("header").getByRole("link", { name: "Counselor roster" })));
+  await pause(800);
+  await hover(page, vis(page.locator("header").getByRole("link", { name: "Canteen" })));
+  await pause(1200);
+  await caption(page, "Each role sees only the screens its job needs");
+  await hover(page, vis(page.getByText("Buddy request:")), { frac: 0.5 });
+  await pause(2000);
+}
+
 // ---------- recording ----------
 type Marker = { t: number; label: string };
 
@@ -449,6 +563,10 @@ const videos: Record<string, { run: (page: any, mark: (l: string) => void) => Pr
       await go(page, "/demo-preview/emar", "Health lodge eMAR: today's scheduled doses by camper");
       await play(mark, "emar", sceneEmar(page, true));
     },
+  },
+  "camperroster-team-roles": {
+    poster: 20.5,
+    run: sceneTeamRoles,
   },
   "camperroster-pos": {
     poster: 12,

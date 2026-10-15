@@ -172,3 +172,23 @@ export function demoBunkNotes(day: string) {
     printed: i > 2,
   }));
 }
+
+/**
+ * The demo camp's Team access page: who can sign in and with which role.
+ * Only the screenshot harness and the demo video use these; the shared demo
+ * login (DEMO_USER_ID, demo@camperroster.com) is the camp's one director.
+ */
+export const demoTeam = [
+  { userId: "00000000-0000-4000-8000-009900000001", email: "demo@camperroster.com", role: "director", createdAt: "2027-01-08T15:00:00Z" },
+  { userId: id(23, 1), email: "maria.chen@example.com", role: "registrar", createdAt: "2027-01-12T15:00:00Z" },
+  { userId: id(23, 2), email: "nurse.kelly@example.com", role: "nurse", createdAt: "2027-02-03T15:00:00Z" },
+  { userId: id(23, 3), email: "sam.brooks@example.com", role: "red_shirt", createdAt: "2027-02-20T15:00:00Z" },
+  { userId: id(23, 4), email: "jordan.reyes@example.com", role: "counselor", createdAt: "2027-04-02T15:00:00Z" },
+  { userId: id(23, 5), email: "taylor.simmons@example.com", role: "staff", createdAt: "2027-04-09T15:00:00Z" },
+];
+
+export function demoTeamInvitations(now: Date) {
+  const invited = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000);
+  const expires = new Date(invited.getTime() + 7 * 24 * 60 * 60 * 1000);
+  return [{ id: id(24, 1), email: "riley.morgan@example.com", role: "staff", invited_at: invited.toISOString(), expires_at: expires.toISOString() }];
+}
