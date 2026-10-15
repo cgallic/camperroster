@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
+import { CABIN_PLACEMENT_SELECT, placementOf } from "@/lib/cabin-placement";
 import { isSetupIncompleteError, resolveCampWithRolesOrRespond, setupIncompleteResponse } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
@@ -18,10 +19,10 @@ export async function GET() {
     const { data, error } = await supabase
       .from("registrations")
       .select(
-        "id, cabin_id, cabin_name, counselor_name, buddy_requests, checked_in, campers(legal_first_name, legal_last_name, preferred_name, birth_date, grade_entering)"
+        "id, cabin_id, cabin_name, counselor_name, buddy_requests, checked_in, campers(legal_first_name, legal_last_name, preferred_name, birth_date, grade_entering), " +
+          CABIN_PLACEMENT_SELECT
       )
-      .eq("camp_id", camp.campId)
-      .order("cabin_name", { ascending: true });
+      .eq("camp_id", camp.campId);
 
     if (error) {
       if (isSetupIncompleteError(error)) return setupIncompleteResponse(error);
@@ -31,6 +32,7 @@ export async function GET() {
     const registrations = (data ?? []).map((row: any) => {
       const camper = Array.isArray(row.campers) ? row.campers[0] : row.campers;
       const legalName = [camper?.legal_first_name, camper?.legal_last_name].filter(Boolean).join(" ").trim();
+      const placement = placementOf(row);
       return {
         id: row.id,
         name: camper?.preferred_name || legalName || `Registration ${String(row.id).slice(0, 8)}`,
@@ -39,11 +41,14 @@ export async function GET() {
         grade: camper?.grade_entering ?? null,
         buddyRequests: row.buddy_requests ?? [],
         checkedIn: Boolean(row.checked_in),
-        cabinId: row.cabin_id ?? null,
-        cabin: row.cabin_name ?? null,
-        counselor: row.counselor_name ?? null,
+        cabinId: placement.cabinId,
+        cabin: placement.cabinName,
+        counselor: placement.counselorName,
       };
     });
+    // Grouped by cabin, unplaced campers last. The cabin now comes from the
+    // embedded assignment, which the database cannot order the parent rows by.
+    registrations.sort((a, b) => (a.cabin === null ? 1 : 0) - (b.cabin === null ? 1 : 0) || (a.cabin ?? "").localeCompare(b.cabin ?? ""));
 
     return NextResponse.json({
       success: true,

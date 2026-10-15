@@ -148,7 +148,9 @@ async function dryRun(
   rows: NormalizedRow[],
 ) {
   const db = supabase as any;
-  const canWriteHealth = role === "director" || role === "nurse";
+  // Registrars import health details too; a registrar who cannot read existing
+  // profiles under RLS just sees those rows previewed as fills.
+  const canWriteHealth = role === "director" || role === "nurse" || role === "registrar";
 
   const guardians = await readAll<any>((from, to) =>
     db

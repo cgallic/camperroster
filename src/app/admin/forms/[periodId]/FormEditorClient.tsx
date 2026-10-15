@@ -17,11 +17,18 @@ import {
 import {
   CONDITION_OPS,
   FIELD_TYPES,
+  OPTION_FIELD_TYPES,
   OP_LABELS,
   UNARY_OPS,
   VISIBILITIES,
+  normalizeOptions,
+  optionLabel,
+  optionValue,
+  optionsToText,
+  parseOptionsText,
   slugifyKey,
   type ConditionOp,
+  type FieldOption,
   type FieldType,
   type FormField,
   type PeriodVisibility,
@@ -36,7 +43,9 @@ type EditorField = FieldDraft & { uid: string; open: boolean };
 let uidSeq = 0;
 const nextUid = () => `f${Date.now().toString(36)}_${uidSeq++}`;
 
-const OPTION_TYPES: FieldType[] = ["select", "multiselect"];
+const OPTION_TYPES: FieldType[] = OPTION_FIELD_TYPES;
+/** Answers a repeat count can be read from. */
+const COUNT_TYPES: FieldType[] = ["number", "select", "radio"];
 
 function toLocalInput(iso: string | null): string {
   if (!iso) return "";
@@ -62,6 +71,7 @@ export default function FormEditorClient({
   workingVersion,
   initialTitle,
   initialIntro,
+  initialSuccess,
   initialFields,
 }: {
   period: RegistrationPeriod;
@@ -69,6 +79,7 @@ export default function FormEditorClient({
   workingVersion: { id: string; version: number; isDraft: boolean } | null;
   initialTitle: string;
   initialIntro: string;
+  initialSuccess: string;
   initialFields: FormField[];
 }) {
   const router = useRouter();
@@ -77,6 +88,7 @@ export default function FormEditorClient({
 
   const [title, setTitle] = useState(initialTitle);
   const [intro, setIntro] = useState(initialIntro ?? "");
+  const [success, setSuccess] = useState(initialSuccess ?? "");
   const [fields, setFields] = useState<EditorField[]>(() =>
     initialFields.map((f) => ({
       uid: nextUid(),
@@ -86,9 +98,10 @@ export default function FormEditorClient({
       help_text: f.help_text,
       field_type: f.field_type,
       required: f.required,
-      options: Array.isArray(f.options) ? (f.options as string[]) : [],
+      options: normalizeOptions(f.options),
       visible_when: (f.visible_when as VisibleWhen | null) ?? null,
       section: f.section,
+      repeat_count_field: f.repeat_count_field ?? null,
     }))
   );
 
@@ -130,6 +143,7 @@ export default function FormEditorClient({
         options: [],
         visible_when: null,
         section: prev[prev.length - 1]?.section ?? null,
+        repeat_count_field: null,
       },
     ]);
 
@@ -144,11 +158,13 @@ export default function FormEditorClient({
         options: f.options,
         visible_when: f.visible_when,
         section: f.section,
+        repeat_count_field: f.repeat_count_field,
       }));
       const result = await saveForm({
         periodId: period.id,
         title,
         introText: intro,
+        successText: success,
         fields: payload,
         publish,
       });
@@ -283,7 +299,17 @@ export default function FormEditorClient({
           </div>
           <div>
             <label className={labelClass}>Intro text</label>
-            <input value={intro} onChange={(e) => setIntro(e.target.value)} className={inputClass} />
+            <textarea rows={3} value={intro} onChange={(e) => setIntro(e.target.value)} className={inputClass} />
+          </div>
+          <div className="sm:col-span-2">
+            <label className={labelClass}>Message after submitting</label>
+            <textarea
+              rows={3}
+              value={success}
+              onChange={(e) => setSuccess(e.target.value)}
+              placeholder="The camp office has your answers. Watch your email for the next step."
+              className={inputClass}
+            />
           </div>
         </div>
         </div>
@@ -371,10 +397,13 @@ function FieldCard({
         </button>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="font-bold text-stone-900 truncate">{field.label || "Untitled question"}</span>
+            <span className="font-bold text-stone-900 truncate">
+              {field.label || (field.field_type === "section_heading" ? "Text block" : "Untitled question")}
+            </span>
             <Badge>{field.field_type}</Badge>
             {field.required && <Badge tone="overdue">required</Badge>}
             {field.visible_when && <Badge tone="pending">conditional</Badge>}
+            {field.repeat_count_field && <Badge tone="pending">repeats</Badge>}
           </div>
           <p className="text-[11px] font-mono text-stone-500 mt-0.5 truncate">
             {field.field_key || "no key yet"}
@@ -441,7 +470,8 @@ function FieldCard({
             </div>
             <div className="sm:col-span-2">
               <label className={labelClass}>Help text</label>
-              <input
+              <textarea
+                rows={field.field_type === "section_heading" ? 4 : 2}
                 value={field.help_text ?? ""}
                 onChange={(e) => onPatch({ help_text: e.target.value || null })}
                 className={inputClass}
@@ -463,16 +493,17 @@ function FieldCard({
 
           {showOptions && (
             <div>
-              <label className={labelClass}>Options (one per line)</label>
-              <textarea
-                rows={4}
-                value={field.options.join("\n")}
-                onChange={(e) =>
-                  onPatch({ options: e.target.value.split("\n").map((s) => s.trim()).filter(Boolean) })
-                }
-                className={inputClass}
-              />
+              <label className={labelClass}>Options (one per line; &quot;stored value | wording&quot; when they differ)</label>
+              <OptionsInput options={field.options} onChange={(options) => onPatch({ options })} />
             </div>
+          )}
+
+          {field.field_type !== "section_heading" && (
+            <RepeatEditor
+              value={field.repeat_count_field}
+              earlier={earlier}
+              onChange={(repeat_count_field) => onPatch({ repeat_count_field })}
+            />
           )}
 
           <ConditionEditor
@@ -564,8 +595,8 @@ function ConditionEditor({
               >
                 <option value="">— choose —</option>
                 {target.options.map((o) => (
-                  <option key={o} value={o}>
-                    {o}
+                  <option key={optionValue(o)} value={optionValue(o)}>
+                    {optionLabel(o)}
                   </option>
                 ))}
               </select>
@@ -587,6 +618,57 @@ function ConditionEditor({
             ))}
         </div>
       )}
+    </div>
+  );
+}
+
+/**
+ * Edits options as text without re-parsing on every keystroke, so a line can
+ * hold a half-typed "value | " while the admin is still writing it.
+ */
+function OptionsInput({ options, onChange }: { options: FieldOption[]; onChange: (options: FieldOption[]) => void }) {
+  const [text, setText] = useState(() => optionsToText(options));
+  return (
+    <textarea
+      rows={4}
+      value={text}
+      onChange={(e) => {
+        setText(e.target.value);
+        onChange(parseOptionsText(e.target.value));
+      }}
+      className={inputClass}
+    />
+  );
+}
+
+/**
+ * "Ask this once per …": the question is repeated for each unit of an earlier
+ * count answer, e.g. once per camper. Consecutive questions repeating off the
+ * same count are laid out together (all of camper 1, then all of camper 2).
+ */
+function RepeatEditor({
+  value,
+  earlier,
+  onChange,
+}: {
+  value: string | null;
+  earlier: EditorField[];
+  onChange: (value: string | null) => void;
+}) {
+  const candidates = earlier.filter((f) => COUNT_TYPES.includes(f.field_type) && f.field_key && !f.repeat_count_field);
+  if (!candidates.length && !value) return null;
+  return (
+    <div className="rounded-xl border border-stone-200 bg-stone-50 p-3">
+      <label className={labelClass}>Ask once per answer to</label>
+      <select value={value ?? ""} onChange={(e) => onChange(e.target.value || null)} className={inputClass}>
+        <option value="">— ask once —</option>
+        {candidates.map((f) => (
+          <option key={f.uid} value={f.field_key}>
+            {f.label || f.field_key}
+          </option>
+        ))}
+        {value && !candidates.some((f) => f.field_key === value) && <option value={value}>{value}</option>}
+      </select>
     </div>
   );
 }

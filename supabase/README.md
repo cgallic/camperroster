@@ -9,6 +9,7 @@ Migrations live in `supabase/migrations/` and are applied **in filename order**.
 | `20260916034301`-`20260916163453` | The 19 remaining migrations already recorded in the hosted production ledger: billing, roles, camp operations, documents, payments, communications, placement, and hardening. | Apply in filename order. |
 | `20260921120000_historical_imports.sql` | Creates the director-only historical source table. It never overwrites or deletes imported rows. | Membership helpers. |
 | `20260921121000_security_backend.sql` | Adds transactional/idempotent intake, staff invitations, wallet integrity, medical review provenance, and tightened role policies. | Everything through historical imports. |
+| `20261008120000_form_repeats_and_family_intake.sql` | Lets admin-built forms repeat a block per camper (`form_fields.repeat_count_field`), carry thank-you copy (`form_definitions.success_text`) and use `radio` questions, and adds `create_form_family_intake()` so a family form creates the household, campers and registrations in one transaction. | Security backend (reuses `public_intake_requests`). |
 
 > `20260916034301_billing.sql` depends on tenancy/auth having been applied (it
 > needs `camps`, `camp_members` and `public.is_camp_member(uuid)`). Never run it

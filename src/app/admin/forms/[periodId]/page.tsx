@@ -27,7 +27,7 @@ export default async function AdminFormEditorPage({
 
   const { data: definitions } = await supabase
     .from("form_definitions")
-    .select("id, camp_id, period_id, version, title, intro_text, published_at")
+    .select("id, camp_id, period_id, version, title, intro_text, success_text, published_at")
     .eq("period_id", periodId)
     .order("version", { ascending: false });
 
@@ -74,6 +74,7 @@ export default async function AdminFormEditorPage({
           workingVersion={working ? { id: working.id, version: working.version, isDraft: !working.published_at } : null}
           initialTitle={working?.title ?? typedPeriod.name}
           initialIntro={working?.intro_text ?? ""}
+          initialSuccess={working?.success_text ?? ""}
           initialFields={fields}
         />
       </PageShell>

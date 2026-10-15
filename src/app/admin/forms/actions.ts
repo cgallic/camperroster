@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireArea } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { serializeVisibleWhen } from "@/lib/forms";
-import type { FieldType, PeriodVisibility, VisibleWhen } from "@/lib/forms";
+import type { FieldOption, FieldType, PeriodVisibility, VisibleWhen } from "@/lib/forms";
 
 export type FieldDraft = {
   field_key: string;
@@ -12,9 +12,10 @@ export type FieldDraft = {
   help_text: string | null;
   field_type: FieldType;
   required: boolean;
-  options: string[];
+  options: FieldOption[];
   visible_when: VisibleWhen | null;
   section: string | null;
+  repeat_count_field: string | null;
 };
 
 export type ActionResult = { ok: true; message: string } | { ok: false; message: string };
@@ -101,6 +102,7 @@ export async function saveForm(input: {
   periodId: string;
   title: string;
   introText: string | null;
+  successText: string | null;
   fields: FieldDraft[];
   publish: boolean;
 }): Promise<ActionResult> {
@@ -111,6 +113,12 @@ export async function saveForm(input: {
   if (keys.some((k) => !k.trim())) return { ok: false, message: "Every question needs a key." };
   if (new Set(keys).size !== keys.length) return { ok: false, message: "Question keys must be unique." };
   if (!input.title.trim()) return { ok: false, message: "The form needs a title." };
+  const badRepeat = input.fields.find(
+    (f, i) => f.repeat_count_field && !input.fields.slice(0, i).some((e) => e.field_key === f.repeat_count_field)
+  );
+  if (badRepeat) {
+    return { ok: false, message: `"${badRepeat.label || badRepeat.field_key}" repeats off a question that is not above it.` };
+  }
 
   const { data: period, error: periodError } = await supabase
     .from("registration_periods")
@@ -137,7 +145,7 @@ export async function saveForm(input: {
     targetId = draft.id;
     const { error } = await supabase
       .from("form_definitions")
-      .update({ title: input.title.trim(), intro_text: input.introText || null })
+      .update({ title: input.title.trim(), intro_text: input.introText || null, success_text: input.successText || null })
       .eq("id", draft.id);
     if (error) return { ok: false, message: error.message };
   } else {
@@ -150,6 +158,7 @@ export async function saveForm(input: {
         version: nextVersion,
         title: input.title.trim(),
         intro_text: input.introText || null,
+        success_text: input.successText || null,
         published_at: null,
       })
       .select("id")
@@ -168,13 +177,15 @@ export async function saveForm(input: {
       camp_id: campId,
       form_id: targetId,
       field_key: f.field_key.trim(),
-      label: f.label.trim() || f.field_key.trim(),
+      // A text block (section_heading with only help text) may have no title.
+      label: f.field_type === "section_heading" ? f.label.trim() : f.label.trim() || f.field_key.trim(),
       help_text: f.help_text || null,
       field_type: f.field_type,
       required: f.field_type === "section_heading" ? false : f.required,
       options: f.options ?? [],
       visible_when: serializeVisibleWhen(f.visible_when ?? null),
       section: f.section?.trim() || null,
+      repeat_count_field: f.repeat_count_field?.trim() || null,
       display_order: index,
     }));
     const { error: insertError } = await supabase.from("form_fields").insert(rows);

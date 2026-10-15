@@ -140,3 +140,23 @@ export const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 export function isValidEmail(raw: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(raw.trim());
 }
+
+/** Slugs that must never be handed out as a camp namespace. */
+export const RESERVED_SLUGS = new Set([
+  "admin",
+  "api",
+  "billing",
+  "c",
+  "canteen",
+  "counselor",
+  "login",
+  "logout",
+  "nurse",
+  "portal",
+  "pricing",
+  "register",
+  "signup",
+  "start",
+  "volunteer",
+  "www",
+]);

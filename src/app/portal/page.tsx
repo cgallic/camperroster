@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
 import ParentPortalClient from "./ParentPortalClient";
+import { CABIN_PLACEMENT_SELECT, placementOf } from "@/lib/cabin-placement";
 
 export const dynamic = "force-dynamic";
 
@@ -47,7 +48,7 @@ export default async function ParentPortalRoute() {
 
   const [{ data: registrations }, { data: documents }, { data: schedules }] = await Promise.all([
     camperIds.length
-      ? db.from("registrations").select("id, camp_id, camper_id, session_id, status, checked_in, cabin_name, counselor_name, canteen_balance_cents, created_at").in("camper_id", camperIds).order("created_at", { ascending: false })
+      ? db.from("registrations").select(`id, camp_id, camper_id, session_id, status, checked_in, cabin_name, counselor_name, canteen_balance_cents, created_at, ${CABIN_PLACEMENT_SELECT}`).in("camper_id", camperIds).order("created_at", { ascending: false })
       : Promise.resolve({ data: [] }),
     camperIds.length
       ? db.from("document_records").select("id, camper_id, status, document_types(name)").in("camper_id", camperIds)
@@ -57,6 +58,14 @@ export default async function ParentPortalRoute() {
       : Promise.resolve({ data: [] }),
   ]);
 
+  // Cabin and counselor come from the cabin board's assignment, not the
+  // legacy registration columns nothing writes any more.
+  const placedRegistrations = (registrations ?? []).map((row: any) => {
+    const { cabin_assignments: _embedded, ...rest } = row;
+    const placement = placementOf(row);
+    return { ...rest, cabin_name: placement.cabinName, counselor_name: placement.counselorName };
+  });
+
   const campIds = [...new Set(guardianRows.map((row) => row.camp_id).filter((id): id is string => Boolean(id)))];
   const sessionIds = [...new Set((registrations ?? []).map((row) => row.session_id).filter((id): id is string => Boolean(id)))];
   const [{ data: camps }, { data: sessions }] = await Promise.all([
@@ -64,5 +73,5 @@ export default async function ParentPortalRoute() {
     sessionIds.length ? db.from("camp_sessions").select("id, name, start_date, end_date").in("id", sessionIds) : Promise.resolve({ data: [] }),
   ]);
 
-  return <ParentPortalClient email={user.email} campers={campers} registrations={registrations ?? []} camps={camps ?? []} sessions={sessions ?? []} invoices={invoices.map((invoice) => ({ ...invoice, total_due_cents: invoice.total_due_cents ?? 0 }))} schedules={schedules ?? []} documents={(documents ?? []).map((row) => ({ id: row.id, camper_id: row.camper_id, status: row.status, name: Array.isArray(row.document_types) ? row.document_types[0]?.name ?? "Document" : row.document_types?.name ?? "Document" }))} />;
+  return <ParentPortalClient email={user.email} campers={campers} registrations={placedRegistrations} camps={camps ?? []} sessions={sessions ?? []} invoices={invoices.map((invoice) => ({ ...invoice, total_due_cents: invoice.total_due_cents ?? 0 }))} schedules={schedules ?? []} documents={(documents ?? []).map((row) => ({ id: row.id, camper_id: row.camper_id, status: row.status, name: Array.isArray(row.document_types) ? row.document_types[0]?.name ?? "Document" : row.document_types?.name ?? "Document" }))} />;
 }

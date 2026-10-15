@@ -5,7 +5,7 @@ import { isSetupIncompleteError, setupIncompleteResponse } from "@/lib/auth";
 import { getPublicCampConfiguration, lookupCampBySlug } from "@/lib/campLookup";
 import { notifyInbound } from "@/lib/notify";
 import type { CampSignupPayload } from "@/lib/formContracts";
-import { isValidEmail, MIN_PASSWORD_LENGTH, normalizeSlug, SLUG_PATTERN } from "@/lib/formContracts";
+import { isValidEmail, MIN_PASSWORD_LENGTH, normalizeSlug, RESERVED_SLUGS, SLUG_PATTERN } from "@/lib/formContracts";
 
 /**
  * Camp-director signup — the single provisioning path.
@@ -31,25 +31,6 @@ function str(v: unknown): string {
   return typeof v === "string" ? v.trim() : "";
 }
 
-/** Slugs that must never be handed out as a camp namespace. */
-const RESERVED_SLUGS = new Set([
-  "admin",
-  "api",
-  "billing",
-  "c",
-  "canteen",
-  "counselor",
-  "login",
-  "logout",
-  "nurse",
-  "portal",
-  "pricing",
-  "register",
-  "signup",
-  "start",
-  "volunteer",
-  "www",
-]);
 
 export async function POST(req: Request) {
   let body: Partial<CampSignupPayload>;

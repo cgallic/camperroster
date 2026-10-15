@@ -1051,6 +1051,7 @@ export type Database = {
           intro_text: string | null
           period_id: string
           published_at: string | null
+          success_text: string | null
           title: string
           version: number
         }
@@ -1061,6 +1062,7 @@ export type Database = {
           intro_text?: string | null
           period_id: string
           published_at?: string | null
+          success_text?: string | null
           title: string
           version?: number
         }
@@ -1071,6 +1073,7 @@ export type Database = {
           intro_text?: string | null
           period_id?: string
           published_at?: string | null
+          success_text?: string | null
           title?: string
           version?: number
         }
@@ -1103,6 +1106,7 @@ export type Database = {
           id: string
           label: string
           options: Json
+          repeat_count_field: string | null
           required: boolean
           section: string | null
           visible_when: Json | null
@@ -1118,6 +1122,7 @@ export type Database = {
           id?: string
           label: string
           options?: Json
+          repeat_count_field?: string | null
           required?: boolean
           section?: string | null
           visible_when?: Json | null
@@ -1133,6 +1138,7 @@ export type Database = {
           id?: string
           label?: string
           options?: Json
+          repeat_count_field?: string | null
           required?: boolean
           section?: string | null
           visible_when?: Json | null
@@ -2163,6 +2169,48 @@ export type Database = {
           },
         ]
       }
+      sales_leads: {
+        Row: {
+          camp_name: string | null
+          camper_count: string | null
+          created_at: string
+          current_tool: string | null
+          email: string
+          id: string
+          message: string | null
+          name: string
+          source_path: string | null
+          status: string
+          utm: Json | null
+        }
+        Insert: {
+          camp_name?: string | null
+          camper_count?: string | null
+          created_at?: string
+          current_tool?: string | null
+          email: string
+          id?: string
+          message?: string | null
+          name: string
+          source_path?: string | null
+          status?: string
+          utm?: Json | null
+        }
+        Update: {
+          camp_name?: string | null
+          camper_count?: string | null
+          created_at?: string
+          current_tool?: string | null
+          email?: string
+          id?: string
+          message?: string | null
+          name?: string
+          source_path?: string | null
+          status?: string
+          utm?: Json | null
+        }
+        Relationships: []
+      }
       seasons: {
         Row: {
           camp_id: string
@@ -2903,6 +2951,15 @@ export type Database = {
       }
       cabin_camper_count: { Args: { p_cabin_id: string }; Returns: number }
       current_user_camp_ids: { Args: never; Returns: string[] }
+      create_form_family_intake: {
+        Args: {
+          p_camp_id: string
+          p_form_id: string
+          p_idempotency_key: string
+          p_payload: Json
+        }
+        Returns: Json
+      }
       family_tuition_cents: {
         Args: { p_as_of?: string; p_camper_count: number; p_season_id: string }
         Returns: number

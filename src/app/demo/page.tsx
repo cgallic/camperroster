@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import WalkthroughForm from "@/components/WalkthroughForm";
 import ProductShot, { type ShotName } from "@/components/ProductShot";
 
 const title = "Camp Software Demo: Tour Every Screen | CamperRoster";
@@ -91,6 +92,16 @@ export default function DemoTour() {
         <div className="flex flex-col sm:flex-row justify-center gap-3 pt-2">
           <Link href="/start" className="px-10 py-4 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-stone-950 font-black text-sm shadow-xl">Create your camp ($0 setup) →</Link>
           <Link href="/pricing" className="px-8 py-4 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-sm">See pricing</Link>
+        </div>
+      </section>
+
+      <section id="walkthrough" className="scroll-mt-24">
+        <div className="max-w-3xl mx-auto bg-forest-950 rounded-3xl p-6 sm:p-12 space-y-5 text-center border-2 border-emerald-400 shadow-2xl">
+          <h2 className="font-display font-black text-2xl sm:text-4xl text-white">Want to see it with your own camp in mind?</h2>
+          <p className="text-sm text-stone-300 max-w-xl mx-auto">
+            Tell us a little about your camp and we will walk you through registration, forms, health records and cabins in 20 minutes.
+          </p>
+          <WalkthroughForm source="demo" tone="dark" />
         </div>
       </section>
     </main>

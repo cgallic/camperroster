@@ -34,6 +34,7 @@ export const FIELD_TYPES = [
   "number",
   "date",
   "select",
+  "radio",
   "multiselect",
   "checkbox",
   "file",
@@ -93,6 +94,67 @@ export function serializeVisibleWhen(rule: VisibleWhen | null): Json | null {
   return rule ? ({ ...rule } as Json) : null;
 }
 
+/**
+ * One choice on a select / radio / multiselect. A bare string is both what the
+ * person sees and what is stored. The object form lets the stored value differ
+ * from the wording, so a long consent sentence can be answered as "Yes, I
+ * consent" in the data while the person reads the whole sentence.
+ */
+export type FieldOption = string | { value: string; label: string };
+
+export function optionValue(option: FieldOption): string {
+  return typeof option === "string" ? option : option.value;
+}
+
+export function optionLabel(option: FieldOption): string {
+  return typeof option === "string" ? option : option.label;
+}
+
+/** Reads the options jsonb defensively: anything that is not a usable option is dropped. */
+export function normalizeOptions(raw: unknown): FieldOption[] {
+  if (!Array.isArray(raw)) return [];
+  const out: FieldOption[] = [];
+  for (const item of raw) {
+    if (typeof item === "string") out.push(item);
+    else if (typeof item === "number") out.push(String(item));
+    else if (item && typeof item === "object") {
+      const { value, label } = item as { value?: unknown; label?: unknown };
+      if (typeof value === "string" && value.trim()) {
+        out.push(typeof label === "string" && label.trim() && label !== value ? { value, label } : value);
+      }
+    }
+  }
+  return out;
+}
+
+/**
+ * Options as the admin editor shows them: one per line, and
+ * "stored value | label" where the stored value differs from the wording.
+ */
+export function optionsToText(options: FieldOption[]): string {
+  return options.map((o) => (typeof o === "string" ? o : `${o.value} | ${o.label}`)).join("\n");
+}
+
+export function parseOptionsText(text: string): FieldOption[] {
+  const out: FieldOption[] = [];
+  for (const line of text.split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    const bar = trimmed.indexOf(" | ");
+    if (bar === -1) {
+      out.push(trimmed);
+      continue;
+    }
+    const value = trimmed.slice(0, bar).trim();
+    const label = trimmed.slice(bar + 3).trim();
+    out.push(!value ? label : !label || label === value ? value : { value, label });
+  }
+  return out;
+}
+
+/** Field types whose answer must be one of `options`. */
+export const OPTION_FIELD_TYPES: FieldType[] = ["select", "radio", "multiselect"];
+
 export type RegistrationPeriod = {
   id: string;
   camp_id: string;
@@ -113,6 +175,8 @@ export type FormDefinition = {
   version: number;
   title: string;
   intro_text: string | null;
+  /** Shown in place of the form once it is submitted. Null uses the default thanks. */
+  success_text?: string | null;
   published_at: string | null;
   created_at?: string;
 };
@@ -126,10 +190,16 @@ export type FormField = {
   help_text: string | null;
   field_type: FieldType;
   required: boolean;
-  options: string[];
+  options: FieldOption[];
   visible_when: VisibleWhen | null;
   section: string | null;
   display_order: number;
+  /**
+   * Key of an earlier number/select question. When set, this question is asked
+   * once per unit of that answer ("Number of Campers" = 3 asks it three times).
+   * Each copy stores its answer under `${field_key}__${n}`, n counting from 1.
+   */
+  repeat_count_field?: string | null;
 };
 
 export type FormSubmission = {
@@ -249,12 +319,96 @@ export function isFieldVisible(
   }
 }
 
-/** The subset of fields a person filling this form should currently see. */
+/**
+ * The subset of fields a person filling this form should currently see. A
+ * question whose condition watches a hidden question is hidden too, so a stale
+ * answer behind a hidden question ("Are you a practicing Christian?" = No, left
+ * over after switching "Catholic?" to Yes) cannot reveal, or require, anything.
+ */
 export function visibleFields(fields: FormField[], answers: FormAnswers): FormField[] {
-  return fields.filter((f) => isFieldVisible(f, answers));
+  const hidden = new Set<string>();
+  for (const f of [...fields].sort((a, b) => a.display_order - b.display_order)) {
+    const watchesHidden = Boolean(f.visible_when?.field && hidden.has(f.visible_when.field));
+    if (watchesHidden || !isFieldVisible(f, answers)) hidden.add(f.field_key);
+  }
+  return fields.filter((f) => !hidden.has(f.field_key));
 }
 
 const PHONE_DIGITS_RE = /\d/g;
+
+const SIGNATURE_IMAGE_RE = /^data:image\/png;base64,[A-Za-z0-9+/]+=*$/;
+/** A drawn signature is a few KB; this only stops someone posting a photo. */
+export const MAX_SIGNATURE_IMAGE_CHARS = 300_000;
+
+// Repeating questions ------------------------------------------------------------
+
+/** Hard ceiling on copies, whatever the count question allows. */
+export const MAX_REPEATS = 10;
+
+const REPEAT_SUFFIX_RE = /^(.*)__(\d+)$/;
+
+/** Where copy `n` (1-based) of a repeated question keeps its answer. */
+export function repeatKey(fieldKey: string, n: number): string {
+  return `${fieldKey}__${n}`;
+}
+
+/** Splits `camper_first_name__2` into its base key and copy number. */
+export function parseRepeatKey(key: string): { base: string; index: number } | null {
+  const match = REPEAT_SUFFIX_RE.exec(key);
+  if (!match) return null;
+  const index = Number(match[2]);
+  return index >= 1 ? { base: match[1], index } : null;
+}
+
+/** How many copies the count question currently asks for, clamped to 0..MAX_REPEATS. */
+export function repeatCount(countKey: string, answers: FormAnswers): number {
+  const n = toNumber(answers[countKey]);
+  if (n === null || n < 1) return 0;
+  return Math.min(MAX_REPEATS, Math.floor(n));
+}
+
+/**
+ * The form as the person currently sees it: each run of consecutive questions
+ * repeated off the same count is laid out once per copy (all of camper 1, then
+ * all of camper 2), keyed `${key}__${n}` and sectioned "<section> <n>". A
+ * condition pointing at another question in the same run is re-pointed at the
+ * same copy, so "show B when A" inside camper 2 reads camper 2's A.
+ * Questions that do not repeat pass through unchanged.
+ */
+export function expandRepeats(fields: FormField[], answers: FormAnswers): FormField[] {
+  const ordered = [...fields].sort((a, b) => a.display_order - b.display_order);
+  if (!ordered.some((f) => f.repeat_count_field)) return ordered;
+
+  const out: FormField[] = [];
+  let i = 0;
+  while (i < ordered.length) {
+    const countKey = ordered[i].repeat_count_field;
+    if (!countKey) {
+      out.push(ordered[i]);
+      i += 1;
+      continue;
+    }
+    let j = i;
+    while (j < ordered.length && ordered[j].repeat_count_field === countKey) j += 1;
+    const run = ordered.slice(i, j);
+    const runKeys = new Set(run.map((f) => f.field_key));
+    const copies = repeatCount(countKey, answers);
+    for (let n = 1; n <= copies; n += 1) {
+      for (const field of run) {
+        const cond = field.visible_when;
+        out.push({
+          ...field,
+          id: `${field.id}__${n}`,
+          field_key: repeatKey(field.field_key, n),
+          section: `${field.section?.trim() || "Entry"} ${n}`,
+          visible_when: cond && runKeys.has(cond.field) ? { ...cond, field: repeatKey(cond.field, n) } : cond,
+        });
+      }
+    }
+    i = j;
+  }
+  return out.map((f, index) => ({ ...f, display_order: index }));
+}
 
 /**
  * Checks required-ness and per-type shape, but only for fields the conditions
@@ -264,9 +418,11 @@ const PHONE_DIGITS_RE = /\d/g;
 export function validateSubmission(fields: FormField[], answers: FormAnswers): ValidationResult {
   const errors: Record<string, string> = {};
 
-  for (const field of fields) {
+  // Repeated questions are validated per copy, and only for the copies the
+  // count currently asks for; a fourth camper left over from changing "4" to
+  // "2" is neither required nor checked.
+  for (const field of visibleFields(expandRepeats(fields, answers), answers)) {
     if (PRESENTATIONAL_TYPES.includes(field.field_type)) continue;
-    if (!isFieldVisible(field, answers)) continue;
 
     const value = answers[field.field_key];
     const blank = isBlank(value);
@@ -300,15 +456,29 @@ export function validateSubmission(fields: FormField[], answers: FormAnswers): V
         break;
       }
       case "select":
-        if (field.options.length && !field.options.some((o) => looseEquals(o, value))) {
+      case "radio":
+        if (field.options.length && !field.options.some((o) => looseEquals(optionValue(o), value))) {
           errors[field.field_key] = "Choose one of the listed options.";
         }
         break;
       case "multiselect": {
         const chosen = toList(value);
         if (field.options.length) {
-          const bad = chosen.find((c) => !field.options.some((o) => looseEquals(o, c)));
+          const bad = chosen.find((c) => !field.options.some((o) => looseEquals(optionValue(o), c)));
           if (bad !== undefined) errors[field.field_key] = "Choose from the listed options.";
+        }
+        break;
+      }
+      case "signature": {
+        // Either a typed name or the PNG the drawing pad produced. Anything else
+        // claiming to be an image is refused rather than stored.
+        const raw = String(value);
+        if (raw.startsWith("data:")) {
+          if (!SIGNATURE_IMAGE_RE.test(raw) || raw.length > MAX_SIGNATURE_IMAGE_CHARS) {
+            errors[field.field_key] = "Draw your signature again.";
+          }
+        } else if (raw.trim().length < 2) {
+          errors[field.field_key] = `${field.label} is required.`;
         }
         break;
       }
@@ -422,15 +592,22 @@ export function emptyAnswers(fields: FormField[]): FormAnswers {
   const answers: FormAnswers = {};
   for (const f of fields) {
     if (PRESENTATIONAL_TYPES.includes(f.field_type)) continue;
+    // Copies of a repeated question are created on demand by expandRepeats.
+    if (f.repeat_count_field) continue;
     answers[f.field_key] = f.field_type === "checkbox" ? false : f.field_type === "multiselect" ? [] : "";
   }
   return answers;
 }
 
-/** Drops answers to fields the form does not define, so stray keys never land in the DB. */
+/**
+ * Drops answers to fields the form does not define, so stray keys never land in
+ * the DB. Repeated questions are allowed only for the copies the count asks for.
+ */
 export function pickKnownAnswers(fields: FormField[], answers: FormAnswers): FormAnswers {
   const allowed = new Set(
-    fields.filter((f) => !PRESENTATIONAL_TYPES.includes(f.field_type)).map((f) => f.field_key)
+    expandRepeats(fields, answers ?? {})
+      .filter((f) => !PRESENTATIONAL_TYPES.includes(f.field_type))
+      .map((f) => f.field_key)
   );
   const out: FormAnswers = {};
   for (const [k, v] of Object.entries(answers ?? {})) {

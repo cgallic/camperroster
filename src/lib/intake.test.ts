@@ -24,3 +24,8 @@ test("answer values are rendered without losing false or multi-select values", (
   assert.equal(humanizeIntakeValue(null), "Not answered");
 });
 
+
+test("a drawn signature shows as signed rather than as its image data", () => {
+  assert.equal(humanizeIntakeValue("data:image/png;base64,iVBORw0KGgo="), "Signed (drawn signature)");
+  assert.equal(humanizeIntakeValue("Dana Whitfield"), "Dana Whitfield");
+});

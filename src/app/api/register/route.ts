@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { hasServiceRoleKey, supabaseAdmin } from "@/lib/supabase";
-import { lookupCampBySlug } from "@/lib/campLookup";
+import { campUsesPeriodForms, lookupCampBySlug } from "@/lib/campLookup";
 import { isSetupIncompleteError, setupIncompleteResponse } from "@/lib/auth";
 import { notifyInbound } from "@/lib/notify";
 import type { RegisterPayload } from "@/lib/formContracts";
@@ -184,6 +184,18 @@ export async function POST(req: Request) {
   }
 
   const campId = lookup.camp.id;
+
+  // A camp with registration periods takes sign-ups only through its period
+  // forms, which enforce the window. Posting here directly must not bypass it.
+  if (await campUsesPeriodForms(campId)) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: `${lookup.camp.name} uses its own sign-up forms. Open camperroster.com/c/${lookup.camp.slug} and register from there. Nothing was saved.`,
+      },
+      { status: 409 }
+    );
+  }
 
   try {
     const { data: result, error: intakeError } = await (supabaseAdmin as any).rpc(

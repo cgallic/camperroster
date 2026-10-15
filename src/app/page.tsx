@@ -372,7 +372,7 @@ export default function B2BSaasHomePage() {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4">
-            <a href="mailto:director@camperroster.com?subject=Roster%20Setup%20Help" className="btn-primary-agency text-xs sm:text-sm py-4 px-8">
+            <a href="/demo#walkthrough" className="btn-primary-agency text-xs sm:text-sm py-4 px-8">
               <FileSpreadsheet className="w-4 h-4" />
               <span>Ask About Roster Setup</span>
             </a>

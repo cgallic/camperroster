@@ -78,20 +78,24 @@ export default function AdminDashboardClient({
 
   const handleApprove = async () => {
     if (!selectedRecord) return;
-    const supabase = createClient();
-    if (selectedRecord.type === "medical") {
-      await supabase
-        .from("health_profiles")
-        .update({ immunization_status: "approved", special_care_notes: "RN approved" })
-        .eq("id", selectedRecord.data.id);
-      alert("✓ Medical clearance approved and timestamped in Supabase.");
-    } else {
-      await supabase
-        .from("staff_references")
-        .update({ director_reviewed: true })
-        .eq("id", selectedRecord.data.id);
-      alert("✓ Counselor reference approved in Supabase.");
+    // Goes through /api/admin/approve, which records who approved and when and
+    // leaves the camper's special-care notes alone. Writing from the browser
+    // used to overwrite those notes with "RN approved" and ignore failures.
+    const res = await fetch("/api/admin/approve", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: selectedRecord.type, id: selectedRecord.data.id }),
+    });
+    const result = await res.json().catch(() => null);
+    if (!res.ok || !result?.success) {
+      alert(result?.error || "Could not save this approval. Nothing was changed.");
+      return;
     }
+    alert(
+      selectedRecord.type === "medical"
+        ? "✓ Medical clearance approved."
+        : "✓ Counselor reference approved."
+    );
     setDrawerOpen(false);
     fetchLiveData();
   };

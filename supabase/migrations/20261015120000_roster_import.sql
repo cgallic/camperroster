@@ -128,9 +128,10 @@ begin
     raise exception 'session does not belong to this camp' using errcode = '23503';
   end if;
 
-  -- Health records follow the same rule as health_profiles RLS: directors and
-  -- nurses write them, registrars do not.
-  v_can_write_health := public.has_camp_role(p_camp_id, array['nurse']);
+  -- Registrars bring allergies and medications in with the roster (Connor,
+  -- 2026-10-15). Everyone allowed past the role check above may write them;
+  -- the fill-blanks-only rule below still protects what a nurse already has.
+  v_can_write_health := true;
 
   for v_row in select value from jsonb_array_elements(p_rows) loop
     v_index := v_index + 1;

@@ -531,7 +531,6 @@ export default function ImportClient() {
             </div>
             <p className="mt-2 text-xs text-stone-500">
               Registrations are created without an invoice or payment schedule.
-              {role === "registrar" && " Health details are skipped for registrars; a director can import them."}
             </p>
             {previewProgress && busy && (
               <p className="mt-3 flex items-center gap-2 text-sm text-stone-600">
