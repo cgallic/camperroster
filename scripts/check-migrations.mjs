@@ -35,6 +35,7 @@ const expectedFiles = [
   "20260921121000_security_backend.sql",
   "20261008120000_form_repeats_and_family_intake.sql",
   "20261010120000_sales_leads.sql",
+  "20261015120000_roster_import.sql",
 ];
 
 assert.deepEqual(

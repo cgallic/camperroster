@@ -273,7 +273,7 @@ export default function DeepSeoLandingPage() {
             <span className="font-mono text-xs font-bold text-forest-800 bg-forest-100 px-2.5 py-1 rounded-full">STEP 2</span>
             <h4 className="font-display font-black text-base text-stone-950 pt-2">Bring over last year&apos;s roster</h4>
             <p className="text-xs text-stone-600 leading-relaxed">
-              Automatic imports are not available yet. Send us your export and we help you move your roster over during setup.
+              Upload a CSV or Excel export and match its columns, including allergies, medications and dietary notes. You check a preview before anything is saved.
             </p>
           </div>
 

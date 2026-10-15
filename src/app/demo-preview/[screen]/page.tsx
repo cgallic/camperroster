@@ -9,6 +9,7 @@ import CanteenPosClient from "@/app/canteen/pos/CanteenPosClient";
 import CounselorRosterClient from "@/app/counselor/CounselorRosterClient";
 import CheckinClient from "@/app/admin/checkin/CheckinClient";
 import BunkNotesClient from "@/app/admin/bunk-notes/BunkNotesClient";
+import ImportClient from "@/app/admin/import/ImportClient";
 import { demoCabins, demoCampers, demoStaff } from "@/lib/demo/fixtures";
 
 /**
@@ -62,6 +63,7 @@ const SCREENS: Record<string, () => React.ReactNode> = {
   counselor: () => <CounselorRosterClient />,
   checkin: () => <CheckinClient />,
   "bunk-notes": () => <BunkNotesClient />,
+  import: () => <ImportClient />,
 };
 
 export default async function DemoPreview({ params }: { params: Promise<{ screen: string }> }) {

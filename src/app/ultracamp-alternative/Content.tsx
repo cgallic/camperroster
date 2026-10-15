@@ -42,7 +42,7 @@ export default function UltraCampAlternativePage() {
     },
     {
       q: "How do we move our roster over from UltraCamp?",
-      a: "Export your camper and household records from UltraCamp as a spreadsheet and send it to us. There is no automatic import yet, so we help you move your roster over during setup, at no charge."
+      a: "Export your camper and household records from UltraCamp as a spreadsheet, upload it, and match the columns to ours. You check a preview before anything is saved. If you want a hand, we help at no charge."
     },
     {
       q: "Does CamperRoster include health forms, or do we need CampDoc as well?",
@@ -303,7 +303,7 @@ export default function UltraCampAlternativePage() {
             How to Migrate from UltraCamp in 3 Simple Steps
           </h3>
           <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-            You don't need IT consultants. Automatic imports are not available yet, so we help you move your UltraCamp export over during setup.
+            You don't need IT consultants. Upload your UltraCamp export and map the columns yourself.
           </p>
         </div>
 
@@ -318,9 +318,9 @@ export default function UltraCampAlternativePage() {
 
           <div className="p-6 rounded-2xl bg-stone-50 border border-stone-200 space-y-2">
             <span className="font-mono text-xs font-bold text-forest-800 bg-forest-100 px-2.5 py-1 rounded-full">STEP 2</span>
-            <h4 className="font-display font-black text-base text-stone-950 pt-2">Send It to Us</h4>
+            <h4 className="font-display font-black text-base text-stone-950 pt-2">Upload and Map Columns</h4>
             <p className="text-xs text-stone-600 leading-relaxed">
-              Email the export to director@camperroster.com. We work through it with you and move your families over by hand.
+              Upload the file in your admin dashboard, match its columns to ours, and check the preview before importing. Prefer help? Email director@camperroster.com.
             </p>
           </div>
 
