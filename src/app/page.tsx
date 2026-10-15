@@ -159,11 +159,12 @@ export default function B2BSaasHomePage() {
             A short tour of the director workspace, using the demo camp.
           </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {[
               { slug: "cabins", title: "Cabin placement", body: "Campers fill cabins by grade and gender, with each cabin's beds counted against its cap." },
               { slug: "emar", title: "Medication log", body: "The nurse records each dose in the health lodge." },
               { slug: "pos", title: "Canteen register", body: "Campers buy from the camp store with money their parents put on account." },
+              { slug: "team-roles", title: "Team and roles", body: "Invite staff, give each person a role, and they see only the menu for their job." },
             ].map((v) => (
               <div key={v.slug} className="rounded-2xl overflow-hidden border-2 border-stone-200 bg-white shadow-md">
                 <video
