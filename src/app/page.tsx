@@ -143,6 +143,47 @@ export default function B2BSaasHomePage() {
           </p>
         </div>
 
+        <div id="videos" className="space-y-6">
+          <div className="max-w-5xl mx-auto rounded-3xl overflow-hidden border-2 border-stone-800 shadow-2xl bg-stone-950">
+            <video
+              controls
+              playsInline
+              preload="none"
+              poster="/videos/camperroster-overview-poster.png"
+              className="w-full aspect-video"
+            >
+              <source src="/videos/camperroster-overview.mp4" type="video/mp4" />
+            </video>
+          </div>
+          <p className="text-center text-sm text-stone-600 font-medium">
+            A short tour of the director workspace, using the demo camp.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              { slug: "cabins", title: "Cabin placement", body: "Campers fill cabins by grade and gender, with each cabin's beds counted against its cap." },
+              { slug: "emar", title: "Medication log", body: "The nurse records each dose in the health lodge." },
+              { slug: "pos", title: "Canteen register", body: "Campers buy from the camp store with money their parents put on account." },
+            ].map((v) => (
+              <div key={v.slug} className="rounded-2xl overflow-hidden border-2 border-stone-200 bg-white shadow-md">
+                <video
+                  controls
+                  playsInline
+                  preload="none"
+                  poster={`/videos/camperroster-${v.slug}-poster.png`}
+                  className="w-full aspect-video bg-stone-100"
+                >
+                  <source src={`/videos/camperroster-${v.slug}.mp4`} type="video/mp4" />
+                </video>
+                <div className="p-4 space-y-1">
+                  <h3 className="font-display font-black text-lg text-stone-950">{v.title}</h3>
+                  <p className="text-xs text-stone-600 leading-relaxed">{v.body}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           
           {/* TOOL 1: 5-STEP REGISTRATION WIZARD */}
