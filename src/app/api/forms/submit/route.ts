@@ -14,6 +14,7 @@ import {
 import { buildFamilyIntake, formSupportsFamilyIntake, isFamilyAudience } from "@/lib/form-family-intake";
 import { campStartsOn, priceFamilyInvoice } from "@/lib/invoicing";
 import { issueIntakeToken } from "@/lib/signed-payload";
+import { queueConfirmationMessages } from "@/lib/form-confirmation";
 
 /**
  * Public intake for admin-built forms. There is no session here by definition,
@@ -118,6 +119,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "We could not save that submission." }, { status: 500 });
   }
 
+  await queueConfirmationMessages(supabase, definition.camp_id, definition.id, fields, answers);
   return NextResponse.json({ ok: true, submission_id: inserted.id });
 }
 
@@ -193,6 +195,8 @@ async function createHousehold(
   } catch (pricingError) {
     console.error("Family form intake saved but could not be priced:", pricingError);
   }
+
+  await queueConfirmationMessages(supabase, definition.camp_id, definition.id, fields, answers);
 
   return NextResponse.json({
     ok: true,
