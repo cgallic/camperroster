@@ -98,6 +98,18 @@ export function getWebhookSecret(): string {
   return requireEnv("STRIPE_WEBHOOK_SECRET");
 }
 
+/**
+ * Family tuition checkout is opt-in, separate from camp subscriptions.
+ *
+ * The Stripe account behind STRIPE_SECRET_KEY is CamperRoster's own (the
+ * KaiBuilds account). Tuition charged there would land in our balance, not the
+ * camp's, so tuition stays off until STRIPE_TUITION_ENABLED is "true" — set
+ * only once the money is routed to the camp. Families pay by check meanwhile.
+ */
+export function tuitionPaymentsEnabled(): boolean {
+  return process.env.STRIPE_TUITION_ENABLED?.trim() === "true";
+}
+
 // ---- Plans ------------------------------------------------------------------
 
 export type BillingPlan = "starter" | "pro";
