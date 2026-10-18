@@ -128,10 +128,11 @@ async function handleEvent(stripe: Stripe, event: Stripe.Event): Promise<void> {
       const session = event.data.object;
       if (session.mode !== "subscription") return;
 
+      // Only metadata.camp_id, which our checkout always stamps. The KaiBuilds
+      // account also runs other products' checkouts, whose client_reference_id
+      // is not a camp id and would fail the camps update.
       const campId =
-        (typeof session.metadata?.camp_id === "string" && session.metadata.camp_id) ||
-        session.client_reference_id ||
-        null;
+        (typeof session.metadata?.camp_id === "string" && session.metadata.camp_id) || null;
       const customerId = idOf(session.customer);
 
       // Link the customer to the camp now, so later customer.subscription.*
