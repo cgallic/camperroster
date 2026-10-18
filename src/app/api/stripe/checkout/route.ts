@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { createAdminClient, createClient } from "@/lib/supabase/server";
-import { stripeClient, siteUrl } from "@/lib/stripe";
+import { stripeClient, siteUrl, tuitionPaymentsEnabled } from "@/lib/stripe";
 import { INVOICE_COLUMNS, type InvoiceRow } from "@/lib/invoicing";
 import { formatCents } from "@/lib/pricing";
 import { verifyIntakeToken } from "@/lib/signed-payload";
@@ -26,6 +26,13 @@ const BodySchema = z.object({
 });
 
 export async function POST(req: Request) {
+  if (!tuitionPaymentsEnabled()) {
+    return NextResponse.json(
+      { error: "Online payment isn't available for this camp yet. Please pay by check; nothing more is needed here." },
+      { status: 503 }
+    );
+  }
+
   const parsed = BodySchema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json({ error: "invoiceId is required" }, { status: 400 });
