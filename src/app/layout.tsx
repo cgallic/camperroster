@@ -7,6 +7,7 @@ import MarketingOnly from "@/components/MarketingOnly";
 import JsonLd from "@/components/JsonLd";
 import PwaInstallPrompt from "@/components/PwaInstallPrompt";
 import { Analytics } from "@vercel/analytics/next";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -141,6 +142,7 @@ export default function RootLayout({
         </MarketingOnly>
         <PwaInstallPrompt />
         <Analytics />
+        <GoogleAnalytics />
       </body>
     </html>
   );
