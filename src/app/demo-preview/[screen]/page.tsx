@@ -9,13 +9,17 @@ import CanteenPosClient from "@/app/canteen/pos/CanteenPosClient";
 import CounselorRosterClient from "@/app/counselor/CounselorRosterClient";
 import CheckinClient from "@/app/admin/checkin/CheckinClient";
 import BunkNotesClient from "@/app/admin/bunk-notes/BunkNotesClient";
-import { demoCabins, demoCampers, demoStaff } from "@/lib/demo/fixtures";
+import StaffManagerClient from "@/app/admin/staff/StaffManagerClient";
+import { ROLES, type Role } from "@/lib/auth";
+import { roleLabel } from "@/lib/team";
+import { demoCabins, demoCampers, demoStaff, demoTeam, demoTeamInvitations } from "@/lib/demo/fixtures";
 
 /**
  * Screenshot harness. Renders the real staff screens around the demo camp's
  * fixture data so scripts/capture-screenshots.ts can photograph them without a
  * database. The browser-side API calls those screens make are answered by the
- * capture script. 404s unless the server was started with SCREENSHOT_MODE=1,
+ * capture script. `?as=<role>` shows the staff navigation that role gets, as
+ * one of the demo camp's team members. 404s unless the server was started with SCREENSHOT_MODE=1,
  * so it never exists in production.
  */
 export const dynamic = "force-dynamic";
@@ -62,12 +66,15 @@ const SCREENS: Record<string, () => React.ReactNode> = {
   counselor: () => <CounselorRosterClient />,
   checkin: () => <CheckinClient />,
   "bunk-notes": () => <BunkNotesClient />,
+  team: () => <StaffManagerClient initialMembers={demoTeam} initialInvitations={demoTeamInvitations(new Date())} currentUserId={demoTeam[0].userId} />,
 };
 
-export default async function DemoPreview({ params }: { params: Promise<{ screen: string }> }) {
-  const { screen } = await params;
+export default async function DemoPreview({ params, searchParams }: { params: Promise<{ screen: string }>; searchParams: Promise<{ as?: string }> }) {
+  const [{ screen }, { as }] = await Promise.all([params, searchParams]);
   const render = SCREENS[screen];
   if (process.env.SCREENSHOT_MODE !== "1" || !render) notFound();
+  const role: Role = (ROLES as readonly string[]).includes(as ?? "") ? (as as Role) : "director";
+  const member = demoTeam.find((item) => item.role === role);
 
   return (
     <>
@@ -75,11 +82,15 @@ export default async function DemoPreview({ params }: { params: Promise<{ screen
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="flex items-center gap-2 border-b border-stone-100 py-2">
             <span className="font-display text-sm font-black tracking-tight text-forest-950">CamperRoster</span>
+            {member && <span className="text-xs font-semibold text-stone-500">{member.email}</span>}
+            <span className="rounded-full border border-forest-100 bg-forest-50 px-2.5 py-1 font-mono text-[10px] font-bold uppercase text-forest-800">
+              {roleLabel(role)}
+            </span>
             <span className="rounded-full border border-forest-100 bg-forest-50 px-2.5 py-1 font-mono text-[10px] font-bold uppercase text-forest-800">
               Camp Willow Creek (Demo)
             </span>
           </div>
-          <StaffNavigation items={navigationForRole("director")} />
+          <StaffNavigation items={navigationForRole(role)} />
         </div>
       </header>
       {render()}
