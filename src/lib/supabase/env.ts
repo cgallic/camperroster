@@ -3,8 +3,9 @@ function required(name: string, value: string | undefined): string {
   return value;
 }
 
-// NEXT_PUBLIC_* values are inlined into the browser bundle only when referenced
-// as literal `process.env.NAME`; a dynamic `process.env[name]` is undefined there.
+// Next.js only inlines NEXT_PUBLIC_* into browser bundles when the full
+// `process.env.NAME` expression appears in source. A lookup by computed key is
+// undefined in the browser, so these references must stay literal.
 export const SUPABASE_URL = () => required("NEXT_PUBLIC_SUPABASE_URL", process.env.NEXT_PUBLIC_SUPABASE_URL);
 export const SUPABASE_ANON_KEY = () => required("NEXT_PUBLIC_SUPABASE_ANON_KEY", process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 export const SUPABASE_SERVICE_ROLE_KEY = () => required("SUPABASE_SERVICE_ROLE_KEY", process.env.SUPABASE_SERVICE_ROLE_KEY);
