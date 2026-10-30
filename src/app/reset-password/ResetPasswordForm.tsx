@@ -19,7 +19,7 @@ export default function ResetPasswordForm() {
     setError(null);
     const { error: updateError } = await createClient().auth.updateUser({ password });
     setSaving(false);
-    if (updateError) return setError("This reset link is invalid or expired. Request a fresh link from sign in.");
+    if (updateError) return setError("Your session or reset link has expired. Request a fresh link from sign in.");
     setSaved(true);
   };
 

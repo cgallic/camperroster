@@ -41,7 +41,12 @@ export default async function StaffHeader() {
               </span>
             )}
           </div>
-          <SignOutButton />
+          <div className="flex shrink-0 items-center gap-2">
+            {!isDemoEmail(user.email) && (
+              <Link href="/reset-password" className="rounded-xl px-3 py-1.5 text-xs font-bold text-stone-700 hover:bg-stone-50">Change password</Link>
+            )}
+            <SignOutButton />
+          </div>
         </div>
         {navigation.length > 0 && <StaffNavigation items={navigation} />}
       </div>
