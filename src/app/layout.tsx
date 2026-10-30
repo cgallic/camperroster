@@ -8,6 +8,7 @@ import JsonLd from "@/components/JsonLd";
 import PwaInstallPrompt from "@/components/PwaInstallPrompt";
 import { Analytics } from "@vercel/analytics/next";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
+import RetargetingPixels from "@/components/RetargetingPixels";
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -143,6 +144,7 @@ export default function RootLayout({
         <PwaInstallPrompt />
         <Analytics />
         <GoogleAnalytics />
+        <RetargetingPixels />
       </body>
     </html>
   );
