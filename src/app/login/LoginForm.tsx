@@ -6,18 +6,12 @@ import { DEMO_EMAIL } from "@/lib/demo/constants";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AlertTriangle, ArrowRight, Loader2, Lock } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-
-/** Only same-origin, path-only redirects. Blocks //evil.com and https://evil.com. */
-function safeNext(raw: string | null): string {
-  if (!raw) return "/admin";
-  if (!raw.startsWith("/") || raw.startsWith("//")) return "/admin";
-  return raw;
-}
+import { safeAuthNext } from "@/lib/auth-redirect";
 
 export default function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const next = safeNext(searchParams.get("next"));
+  const next = safeAuthNext(searchParams.get("next"));
   const reason = searchParams.get("reason");
 
   // /demo links here with ?demo=1 to fill in the shared demo account's email.
