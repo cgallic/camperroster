@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { homeForRole } from "@/lib/staff-navigation";
 import { roleLabel } from "@/lib/team";
 import type { Role } from "@/lib/auth";
+import { acceptedInvitationDestination } from "@/lib/auth-redirect";
 
 type Invite = { email: string; role: Role; campName: string; status: string };
 
@@ -26,6 +27,7 @@ export default function AcceptInvitation() {
   const [confirmation, setConfirmation] = useState("");
   const [error, setError] = useState<string | null>(token ? null : "This invitation link is missing its token. Ask your director to send it again.");
   const loginHref = `/login?next=${encodeURIComponent(`/staff/invite?token=${token}`)}`;
+  const acceptedHref = invite ? acceptedInvitationDestination(invite.email, signedInAs, homeForRole(invite.role)) : null;
 
   useEffect(() => {
     if (!token) return;
@@ -120,7 +122,12 @@ export default function AcceptInvitation() {
     );
   } else if (invite.status !== "pending") {
     content = invite.status === "accepted"
-      ? <><p className="text-sm text-stone-600">This invitation has already been accepted.</p><Link href={loginHref} className="text-sm font-bold text-forest-900 underline">Sign in</Link></>
+      ? <>
+        <p className="text-sm text-stone-600">This invitation has already been accepted.</p>
+        {acceptedHref
+          ? <Link href={acceptedHref} className={primary}>{signedInAs ? "Open your workspace" : "Sign in to your workspace"}</Link>
+          : <><p className="text-sm text-stone-600">Sign in with {invite.email} to open this workspace.</p><button type="button" onClick={signOut} className={primary}>Sign out and continue</button></>}
+      </>
       : <p className="text-sm text-stone-600">This invitation has {invite.status === "expired" ? "expired" : "been withdrawn"}. Ask your camp director to send a new one.</p>;
   } else if (signedInAs && signedInAs !== invite.email.toLowerCase()) {
     content = (

@@ -16,6 +16,7 @@
 import { NextResponse } from "next/server";
 import { redirect } from "next/navigation";
 import { createClient } from "./supabase/server";
+import { missingMembershipDestination } from "./auth-redirect";
 
 export const ROLES = ["director", "registrar", "nurse", "red_shirt", "counselor", "staff"] as const;
 export type Role = (typeof ROLES)[number];
@@ -152,7 +153,7 @@ export async function getMembership(): Promise<Membership | null> {
 /** Redirects to login when signed out, or to /no-access when the role is wrong. */
 export async function requireRole(allowed: Role[], returnTo: string): Promise<Membership> {
   const membership = await getMembership();
-  if (!membership) redirect(`/login?next=${encodeURIComponent(returnTo)}`);
+  if (!membership) redirect(missingMembershipDestination(Boolean(await getCurrentUser()), returnTo));
   if (!allowed.includes(membership.role)) redirect("/no-access");
   return membership;
 }

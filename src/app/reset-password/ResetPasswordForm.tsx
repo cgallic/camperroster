@@ -3,8 +3,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { useSearchParams } from "next/navigation";
+import { safeAuthNext } from "@/lib/auth-redirect";
 
 export default function ResetPasswordForm() {
+  const next = safeAuthNext(useSearchParams().get("next"));
   const [password, setPassword] = useState("");
   const [confirmation, setConfirmation] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -23,7 +26,7 @@ export default function ResetPasswordForm() {
     setSaved(true);
   };
 
-  if (saved) return <div className="rounded-3xl border-2 border-emerald-200 bg-white p-8 space-y-4"><h2 className="font-display font-black text-2xl">Password updated</h2><Link href="/login" className="inline-block rounded-xl bg-forest-900 px-5 py-3 text-sm font-black text-white">Continue to sign in</Link></div>;
+  if (saved) return <div className="rounded-3xl border-2 border-emerald-200 bg-white p-8 space-y-4"><h2 className="font-display font-black text-2xl">Password updated</h2><Link href={next} className="inline-block rounded-xl bg-forest-900 px-5 py-3 text-sm font-black text-white">Continue</Link></div>;
 
   return (
     <form onSubmit={submit} className="rounded-3xl border-2 border-stone-200 bg-white p-6 sm:p-8 space-y-4">
