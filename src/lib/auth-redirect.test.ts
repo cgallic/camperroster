@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { acceptedInvitationDestination, missingMembershipDestination, passwordResetDestination, safeAuthNext } from "./auth-redirect.ts";
+import { acceptedInvitationDestination, passwordResetDestination, safeAuthNext } from "./auth-redirect.ts";
 
 test("staff invitation return paths retain their token through sign-in", () => {
   const path = "/staff/invite?token=synthetic-token_0123456789";
@@ -40,11 +40,6 @@ test("password reset never forwards an external continuation", () => {
     const reset = new URL(passwordResetDestination(destination), "https://camperroster.com");
     assert.equal(reset.searchParams.get("next"), "/admin");
   }
-});
-
-test("a signed-in account without membership goes to camp access recovery", () => {
-  assert.equal(missingMembershipDestination(true, "/admin"), "/no-access");
-  assert.equal(missingMembershipDestination(false, "/admin/history"), "/login?next=%2Fadmin%2Fhistory");
 });
 
 test("an accepted invitation opens the right account's workspace without a sign-in loop", () => {

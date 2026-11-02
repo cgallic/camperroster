@@ -15,8 +15,7 @@
 
 import { NextResponse } from "next/server";
 import { redirect } from "next/navigation";
-import { createClient } from "./supabase/server";
-import { missingMembershipDestination } from "./auth-redirect";
+import { createAdminClient, createClient } from "./supabase/server";
 
 export const ROLES = ["director", "registrar", "nurse", "red_shirt", "counselor", "staff"] as const;
 export type Role = (typeof ROLES)[number];
@@ -120,8 +119,23 @@ export async function getCurrentCamp(): Promise<CurrentCamp | null> {
     throw error;
   }
 
-  const row = data?.[0];
-  if (!row) return null;
+  let row = data?.[0];
+  if (!row) {
+    // A signed-in user with no camp may still hold an unaccepted invitation:
+    // they signed in or reset their password instead of pressing "Accept" on
+    // the invite page. Without this they bounce back to "Sign in to your camp"
+    // while the header shows them signed in (Camp Hope's director, Nov 2026).
+    if (!(await claimPendingInvitation(userData.user))) return null;
+    const retry = await supabase
+      .from("camp_members")
+      .select("camp_id, role, created_at, camps(name, slug)")
+      .eq("user_id", userData.user.id)
+      .order("created_at", { ascending: true })
+      .limit(1);
+    if (retry.error) throw retry.error;
+    row = retry.data?.[0];
+    if (!row) return null;
+  }
 
   // PostgREST types a to-one embed as an array in some versions; normalise.
   const camp = Array.isArray(row.camps) ? row.camps[0] : row.camps;
@@ -132,6 +146,51 @@ export async function getCurrentCamp(): Promise<CurrentCamp | null> {
     slug: camp?.slug ?? "",
     role: row.role,
   };
+}
+
+/**
+ * Accept the newest pending, unexpired staff invitation addressed to this
+ * user's confirmed email. This does what pressing "Accept invitation" would
+ * have done: the invitation was sent to this address, and the address is
+ * verified, which is the same proof accept_staff_invitation() relies on.
+ *
+ * Only called for a user who belongs to no camp, so the one-account-one-camp
+ * rule holds. Returns true when a membership was created.
+ */
+export async function claimPendingInvitation(user: {
+  id: string;
+  email?: string | null;
+  email_confirmed_at?: string | null;
+}): Promise<boolean> {
+  const email = user.email?.trim().toLowerCase();
+  if (!email || !user.email_confirmed_at) return false;
+
+  const admin = createAdminClient() as any;
+  const { data: invites, error } = await admin
+    .from("staff_invitations")
+    .select("id, camp_id, role, email, invited_at")
+    .ilike("email", email)
+    .eq("status", "pending")
+    .gt("expires_at", new Date().toISOString())
+    .order("invited_at", { ascending: false })
+    .limit(5);
+  if (error) return false;
+
+  // ilike treats "_" as a wildcard; insist on an exact match.
+  const invite = (invites ?? []).find((i: { email: string }) => i.email.trim().toLowerCase() === email);
+  if (!invite) return false;
+
+  const { error: memberError } = await admin
+    .from("camp_members")
+    .upsert({ camp_id: invite.camp_id, user_id: user.id, role: invite.role }, { onConflict: "camp_id,user_id" });
+  if (memberError) return false;
+
+  await admin
+    .from("staff_invitations")
+    .update({ status: "accepted", accepted_by: user.id, accepted_at: new Date().toISOString() })
+    .eq("id", invite.id)
+    .eq("status", "pending");
+  return true;
 }
 
 /** The same lookup, shaped for the page guards. Null rather than throwing. */
@@ -153,7 +212,12 @@ export async function getMembership(): Promise<Membership | null> {
 /** Redirects to login when signed out, or to /no-access when the role is wrong. */
 export async function requireRole(allowed: Role[], returnTo: string): Promise<Membership> {
   const membership = await getMembership();
-  if (!membership) redirect(missingMembershipDestination(Boolean(await getCurrentUser()), returnTo));
+  if (!membership) {
+    // Signed in but on no camp's team: sending them to the sign-in page again
+    // looks like the sign-in failed.
+    if (await getCurrentUser()) redirect("/no-access?reason=no_camp");
+    redirect(`/login?next=${encodeURIComponent(returnTo)}`);
+  }
   if (!allowed.includes(membership.role)) redirect("/no-access");
   return membership;
 }

@@ -23,11 +23,6 @@ export function passwordResetDestination(next: string | null): string {
   return `/reset-password?next=${encodeURIComponent(safeAuthNext(next))}`;
 }
 
-/** Signing in again cannot repair a signed-in account's missing membership. */
-export function missingMembershipDestination(signedIn: boolean, returnTo: string): string {
-  return signedIn ? "/no-access" : `/login?next=${encodeURIComponent(safeAuthNext(returnTo))}`;
-}
-
 /** An accepted invitation continues to the workspace, never back to itself. */
 export function acceptedInvitationDestination(invitedEmail: string, signedInAs: string | null, workspace: string): string | null {
   const next = safeAuthNext(workspace);
