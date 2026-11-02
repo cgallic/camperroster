@@ -6,7 +6,7 @@ import { DEMO_EMAIL } from "@/lib/demo/constants";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AlertTriangle, ArrowRight, Loader2, Lock } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { safeAuthNext } from "@/lib/auth-redirect";
+import { passwordResetDestination, safeAuthNext } from "@/lib/auth-redirect";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -56,7 +56,7 @@ export default function LoginForm() {
     setError(null);
     try {
       const supabase = createClient();
-      const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent("/reset-password")}`;
+      const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(passwordResetDestination(next))}`;
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
       if (resetError) throw resetError;
       setResetSent(true);

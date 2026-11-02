@@ -17,3 +17,15 @@ export function safeAuthNext(raw: string | null): string {
     return "/admin";
   }
 }
+
+/** Preserve the camp invitation while the user chooses a password. */
+export function passwordResetDestination(next: string | null): string {
+  return `/reset-password?next=${encodeURIComponent(safeAuthNext(next))}`;
+}
+
+/** An accepted invitation continues to the workspace, never back to itself. */
+export function acceptedInvitationDestination(invitedEmail: string, signedInAs: string | null, workspace: string): string | null {
+  const next = safeAuthNext(workspace);
+  if (!signedInAs) return `/login?next=${encodeURIComponent(next)}`;
+  return signedInAs.toLowerCase() === invitedEmail.toLowerCase() ? next : null;
+}

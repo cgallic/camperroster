@@ -1,4 +1,5 @@
 import ResetPasswordForm from "./ResetPasswordForm";
+import { Suspense } from "react";
 
 export const metadata = { title: "Choose a new password", robots: { index: false, follow: false } };
 
@@ -9,7 +10,7 @@ export default function ResetPasswordPage() {
         <h1 className="font-display font-black text-3xl text-stone-900">Choose a new password</h1>
         <p className="text-sm text-stone-600 mt-2">Use at least 10 characters. This page works while you're signed in, or from the reset link sent to your email.</p>
       </div>
-      <ResetPasswordForm />
+      <Suspense fallback={<p>Loading password form…</p>}><ResetPasswordForm /></Suspense>
     </main>
   );
 }
