@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { hasServiceRoleKey, supabaseAdmin } from "@/lib/supabase";
 import { campUsesPeriodForms, lookupCampBySlug } from "@/lib/campLookup";
+import { campRegistrationOpen } from "@/lib/registration-invites";
 import { isSetupIncompleteError, setupIncompleteResponse } from "@/lib/auth";
 import { notifyInbound } from "@/lib/notify";
 import type { RegisterPayload } from "@/lib/formContracts";
@@ -193,6 +194,14 @@ export async function POST(req: Request) {
         success: false,
         error: `${lookup.camp.name} uses its own sign-up forms. Open camperroster.com/c/${lookup.camp.slug} and register from there. Nothing was saved.`,
       },
+      { status: 409 }
+    );
+  }
+
+  // The director's switch closes the legacy form too.
+  if (!(await campRegistrationOpen(supabaseAdmin, campId))) {
+    return NextResponse.json(
+      { success: false, error: `${lookup.camp.name} is not taking registrations right now. Nothing was saved.` },
       { status: 409 }
     );
   }

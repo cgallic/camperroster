@@ -548,6 +548,7 @@ export type Database = {
           logo_url: string | null
           name: string
           primary_color: string | null
+          registration_open: boolean
           slug: string
           stripe_customer_id: string | null
         }
@@ -561,6 +562,7 @@ export type Database = {
           logo_url?: string | null
           name: string
           primary_color?: string | null
+          registration_open?: boolean
           slug: string
           stripe_customer_id?: string | null
         }
@@ -574,6 +576,7 @@ export type Database = {
           logo_url?: string | null
           name?: string
           primary_color?: string | null
+          registration_open?: boolean
           slug?: string
           stripe_customer_id?: string | null
         }
@@ -1978,6 +1981,60 @@ export type Database = {
           },
         ]
       }
+      registration_invites: {
+        Row: {
+          camp_id: string
+          created_at: string
+          created_by: string | null
+          id: string
+          label: string | null
+          last_used_at: string | null
+          period_id: string
+          revoked_at: string | null
+          token_sha256: string
+          use_count: number
+        }
+        Insert: {
+          camp_id: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          label?: string | null
+          last_used_at?: string | null
+          period_id: string
+          revoked_at?: string | null
+          token_sha256: string
+          use_count?: number
+        }
+        Update: {
+          camp_id?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          label?: string | null
+          last_used_at?: string | null
+          period_id?: string
+          revoked_at?: string | null
+          token_sha256?: string
+          use_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "registration_invites_camp_id_fkey"
+            columns: ["camp_id"]
+            isOneToOne: false
+            referencedRelation: "camps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "registration_invites_period_id_fkey"
+            columns: ["period_id"]
+            isOneToOne: false
+            referencedRelation: "registration_periods"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       registration_periods: {
         Row: {
           access_token: string | null
@@ -2976,6 +3033,10 @@ export type Database = {
           p_override?: boolean
           p_registration_id: string
         }
+        Returns: undefined
+      }
+      note_registration_invite_use: {
+        Args: { p_invite_id: string }
         Returns: undefined
       }
       promote_from_waitlist: {

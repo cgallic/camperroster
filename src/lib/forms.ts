@@ -554,12 +554,19 @@ export function isPeriodOpen(period: Pick<RegistrationPeriod, "visibility" | "op
  * Whether this request may see the form. A link_only period stays reachable
  * with the right token even once it has dropped off the public listing, but a
  * closed period or an expired window never is.
+ *
+ * `access` carries the director's controls: a live personal invite admits its
+ * holder whatever the switch, window or visibility says, and the camp-wide
+ * switch turned off closes everything else, period links included.
  */
 export function canViewPeriod(
   period: Pick<RegistrationPeriod, "visibility" | "opens_at" | "closes_at" | "access_token">,
   token: string | null | undefined,
-  now: Date = new Date()
+  now: Date = new Date(),
+  access: { campOpen?: boolean; invited?: boolean } = {}
 ): boolean {
+  if (access.invited) return true;
+  if (access.campOpen === false) return false;
   const hasToken = Boolean(period.access_token) && token === period.access_token;
   if (period.visibility === "link_only") return hasToken;
   return isPeriodOpen(period, now);

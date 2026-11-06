@@ -15,6 +15,7 @@ import { buildFamilyIntake, formSupportsFamilyIntake, isFamilyAudience } from "@
 import { campStartsOn, priceFamilyInvoice } from "@/lib/invoicing";
 import { issueIntakeToken } from "@/lib/signed-payload";
 import { queueConfirmationMessages } from "@/lib/form-confirmation";
+import { loadPeriodAccess } from "@/lib/registration-invites";
 
 /**
  * Public intake for admin-built forms. There is no session here by definition,
@@ -57,7 +58,17 @@ export async function POST(req: Request) {
     .maybeSingle();
   const period = periodRow as RegistrationPeriod | null;
 
-  if (!period || !canViewPeriod(period, typeof body.token === "string" ? body.token : null)) {
+  // The director's switch and personal invites are enforced here, not only on
+  // the page: a closed camp turns away everything but a live invite.
+  const token = typeof body.token === "string" ? body.token : null;
+  const access = period
+    ? await loadPeriodAccess(supabase, definition.camp_id, period.id, token)
+    : { campOpen: false, inviteId: null };
+  if (
+    !period ||
+    period.camp_id !== definition.camp_id ||
+    !canViewPeriod(period, token, new Date(), { campOpen: access.campOpen, invited: Boolean(access.inviteId) })
+  ) {
     return NextResponse.json({ error: "Registration for this form is closed." }, { status: 403 });
   }
 
@@ -101,7 +112,7 @@ export async function POST(req: Request) {
   }
 
   if (isFamilyAudience(period.audience as FormAudience) && formSupportsFamilyIntake(fields)) {
-    return createHousehold(req, supabase, definition, answers, fields);
+    return createHousehold(req, supabase, definition, answers, fields, access.inviteId);
   }
 
   const { data: inserted, error } = await supabase
@@ -120,17 +131,26 @@ export async function POST(req: Request) {
   }
 
   await queueConfirmationMessages(supabase, definition.camp_id, definition.id, fields, answers);
+  await noteInviteUse(supabase, access.inviteId);
   return NextResponse.json({ ok: true, submission_id: inserted.id });
 }
 
 type Db = ReturnType<typeof createAdminClient>;
+
+/** Counts a submission against the invite that admitted it. Never fails the submission. */
+async function noteInviteUse(supabase: Db, inviteId: string | null) {
+  if (!inviteId) return;
+  const { error } = await supabase.rpc("note_registration_invite_use", { p_invite_id: inviteId });
+  if (error) console.error("Could not record registration invite use:", error.message);
+}
 
 async function createHousehold(
   req: Request,
   supabase: Db,
   definition: { id: string; camp_id: string },
   answers: FormAnswers,
-  fields: FormField[]
+  fields: FormField[],
+  inviteId: string | null
 ) {
   const intake = buildFamilyIntake(fields, answers);
   if (!intake.ok) {
@@ -197,6 +217,7 @@ async function createHousehold(
   }
 
   await queueConfirmationMessages(supabase, definition.camp_id, definition.id, fields, answers);
+  await noteInviteUse(supabase, inviteId);
 
   return NextResponse.json({
     ok: true,
