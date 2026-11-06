@@ -23,6 +23,7 @@ test("directors can discover every signed-in operational module", () => {
     "/admin/mail",
     "/admin/bunk-notes",
     "/admin/checkin",
+    "/admin/meetings",
     "/admin/staff",
     "/admin/activity",
     "/admin/settings",
@@ -46,7 +47,7 @@ test("registrars see operational tools but not director-only account controls", 
 test("specialist roles only see destinations admitted by their area guards", () => {
   assert.deepEqual(hrefs("nurse"), ["/nurse/emar", "/counselor"]);
   assert.deepEqual(hrefs("counselor"), ["/counselor", "/canteen/pos"]);
-  assert.deepEqual(hrefs("red_shirt"), ["/counselor"]);
+  assert.deepEqual(hrefs("red_shirt"), ["/counselor", "/admin/meetings"]);
   assert.deepEqual(hrefs("staff"), ["/counselor", "/canteen/pos", "/admin/checkin"]);
 });
 
