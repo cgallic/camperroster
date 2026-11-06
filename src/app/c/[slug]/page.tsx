@@ -14,6 +14,8 @@ import {
   periodFormLinks,
   type PeriodFormLink,
 } from "@/lib/public-registration";
+import { campRegistrationOpen } from "@/lib/registration-invites";
+import { supabaseAdmin } from "@/lib/supabase";
 
 /**
  * A camp's public page.
@@ -98,6 +100,7 @@ export default async function CampSlugPage({ params }: { params: Promise<{ slug:
     try {
       periods = await getPublicRegistrationPeriods(lookup.camp.id);
     } catch {}
+    const registrationOpen = await campRegistrationOpen(supabaseAdmin, lookup.camp.id);
     return (
       <RealCampPortal
         slug={lookup.camp.slug}
@@ -105,6 +108,7 @@ export default async function CampSlugPage({ params }: { params: Promise<{ slug:
         directorName={lookup.camp.directorName}
         sessions={sessions}
         periods={periods}
+        registrationOpen={registrationOpen}
       />
     );
   }
@@ -125,18 +129,22 @@ function RealCampPortal({
   directorName,
   sessions,
   periods,
+  registrationOpen,
 }: {
   slug: string;
   name: string;
   directorName: string | null;
   sessions: PublicCampSession[];
   periods: PublicRegistrationPeriod[];
+  registrationOpen: boolean;
 }) {
   // A camp with registration periods takes sign-ups only through
   // /register/<audience>; the legacy generic forms skip its windows and prices.
-  const usesPeriodForms = periods.length > 0;
-  const familyLinks = periodFormLinks(slug, periods, FAMILY_AUDIENCES);
-  const volunteerLinks = periodFormLinks(slug, periods, VOLUNTEER_AUDIENCES);
+  // With the director's switch off there are no public buttons at all; private
+  // invite links still open their form directly.
+  const usesPeriodForms = periods.length > 0 || !registrationOpen;
+  const familyLinks = registrationOpen ? periodFormLinks(slug, periods, FAMILY_AUDIENCES) : [];
+  const volunteerLinks = registrationOpen ? periodFormLinks(slug, periods, VOLUNTEER_AUDIENCES) : [];
   return (
     <main className="space-y-10 sm:space-y-14 pb-20">
       <section className="px-3 sm:px-6 lg:px-8 pt-6 sm:pt-10">

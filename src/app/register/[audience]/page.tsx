@@ -14,6 +14,7 @@ import {
 import PublicFormClient from "./PublicFormClient";
 import { lookupCampBySlug } from "@/lib/campLookup";
 import { normalizeSlug } from "@/lib/formContracts";
+import { loadPeriodAccess } from "@/lib/registration-invites";
 
 export const dynamic = "force-dynamic";
 
@@ -59,10 +60,14 @@ export default async function PublicRegistrationFormPage({
   const period = periodRow as RegistrationPeriod | null;
   const label = AUDIENCE_LABELS[audience as FormAudience];
 
-  if (!period || !canViewPeriod(period, token ?? null)) {
+  const access = period
+    ? await loadPeriodAccess(supabase, campLookup.camp.id, period.id, token)
+    : { campOpen: true, inviteId: null };
+
+  if (!period || !canViewPeriod(period, token ?? null, new Date(), { campOpen: access.campOpen, invited: Boolean(access.inviteId) })) {
     // A public period that hasn't opened yet tells the family when to come back.
     const opensAt =
-      period && period.visibility === "public" && period.opens_at && new Date(period.opens_at) > new Date()
+      period && access.campOpen && period.visibility === "public" && period.opens_at && new Date(period.opens_at) > new Date()
         ? period.opens_at
         : null;
     return (

@@ -548,6 +548,7 @@ export type Database = {
           logo_url: string | null
           name: string
           primary_color: string | null
+          registration_open: boolean
           slug: string
           stripe_customer_id: string | null
         }
@@ -561,6 +562,7 @@ export type Database = {
           logo_url?: string | null
           name: string
           primary_color?: string | null
+          registration_open?: boolean
           slug: string
           stripe_customer_id?: string | null
         }
@@ -574,6 +576,7 @@ export type Database = {
           logo_url?: string | null
           name?: string
           primary_color?: string | null
+          registration_open?: boolean
           slug?: string
           stripe_customer_id?: string | null
         }
@@ -1978,6 +1981,60 @@ export type Database = {
           },
         ]
       }
+      registration_invites: {
+        Row: {
+          camp_id: string
+          created_at: string
+          created_by: string | null
+          id: string
+          label: string | null
+          last_used_at: string | null
+          period_id: string
+          revoked_at: string | null
+          token_sha256: string
+          use_count: number
+        }
+        Insert: {
+          camp_id: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          label?: string | null
+          last_used_at?: string | null
+          period_id: string
+          revoked_at?: string | null
+          token_sha256: string
+          use_count?: number
+        }
+        Update: {
+          camp_id?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          label?: string | null
+          last_used_at?: string | null
+          period_id?: string
+          revoked_at?: string | null
+          token_sha256?: string
+          use_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "registration_invites_camp_id_fkey"
+            columns: ["camp_id"]
+            isOneToOne: false
+            referencedRelation: "camps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "registration_invites_period_id_fkey"
+            columns: ["period_id"]
+            isOneToOne: false
+            referencedRelation: "registration_periods"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       registration_periods: {
         Row: {
           access_token: string | null
@@ -2438,6 +2495,100 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      staff_meeting_attendance: {
+        Row: {
+          camp_id: string
+          id: string
+          meeting_id: string
+          signed_in_at: string
+          signed_in_by: string | null
+          staff_application_id: string
+        }
+        Insert: {
+          camp_id: string
+          id?: string
+          meeting_id: string
+          signed_in_at?: string
+          signed_in_by?: string | null
+          staff_application_id: string
+        }
+        Update: {
+          camp_id?: string
+          id?: string
+          meeting_id?: string
+          signed_in_at?: string
+          signed_in_by?: string | null
+          staff_application_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_meeting_attendance_camp_id_fkey"
+            columns: ["camp_id"]
+            isOneToOne: false
+            referencedRelation: "camps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "staff_meeting_attendance_meeting_id_fkey"
+            columns: ["meeting_id"]
+            isOneToOne: false
+            referencedRelation: "staff_meetings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "staff_meeting_attendance_staff_application_id_fkey"
+            columns: ["staff_application_id"]
+            isOneToOne: false
+            referencedRelation: "staff_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      staff_meetings: {
+        Row: {
+          camp_id: string
+          created_at: string
+          created_by: string | null
+          held_on: string | null
+          id: string
+          name: string
+          season_id: string | null
+        }
+        Insert: {
+          camp_id: string
+          created_at?: string
+          created_by?: string | null
+          held_on?: string | null
+          id?: string
+          name: string
+          season_id?: string | null
+        }
+        Update: {
+          camp_id?: string
+          created_at?: string
+          created_by?: string | null
+          held_on?: string | null
+          id?: string
+          name?: string
+          season_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_meetings_camp_id_fkey"
+            columns: ["camp_id"]
+            isOneToOne: false
+            referencedRelation: "camps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "staff_meetings_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "seasons"
             referencedColumns: ["id"]
           },
         ]
@@ -2976,6 +3127,10 @@ export type Database = {
           p_override?: boolean
           p_registration_id: string
         }
+        Returns: undefined
+      }
+      note_registration_invite_use: {
+        Args: { p_invite_id: string }
         Returns: undefined
       }
       promote_from_waitlist: {

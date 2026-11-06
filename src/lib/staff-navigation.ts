@@ -14,6 +14,7 @@ export type StaffNavigationItem = {
 const DIRECTOR: readonly Role[] = ["director"];
 const ADMIN: readonly Role[] = ["director", "registrar"];
 const CHECK_IN: readonly Role[] = ["director", "registrar", "staff"];
+const MEETINGS: readonly Role[] = ["director", "registrar", "red_shirt"];
 const COUNSELOR: readonly Role[] = ["director", "counselor", "red_shirt", "staff", "nurse", "registrar"];
 const CANTEEN: readonly Role[] = ["director", "staff", "counselor", "registrar"];
 const NURSE: readonly Role[] = ["director", "nurse"];
@@ -37,6 +38,7 @@ export const STAFF_NAVIGATION: readonly StaffNavigationItem[] = [
   { href: "/admin/mail", label: "Family mail", shortLabel: "Mail", group: "Mail", roles: ADMIN, description: "Emails from camp to families. Each one is reviewed and approved before it sends." },
   { href: "/admin/bunk-notes", label: "Bunk notes", group: "Mail", roles: ADMIN, description: "Notes parents write to their camper during the week, printed and handed out at camp." },
   { href: "/admin/checkin", label: "Check-in", roles: CHECK_IN, description: "Use on arrival day to check campers in." },
+  { href: "/admin/meetings", label: "Meeting sign-in", shortLabel: "Meetings", roles: MEETINGS, description: "Sign volunteers in at a meeting and see who is missing required documents." },
   { href: "/admin/staff", label: "Team access", shortLabel: "Team", group: "Camp admin", roles: DIRECTOR, description: "Who can sign in and what each person can see." },
   { href: "/admin/activity", label: "Activity history", shortLabel: "Activity", group: "Camp admin", roles: DIRECTOR, description: "Who changed what, and when." },
   { href: "/admin/settings", label: "Camp settings", shortLabel: "Settings", group: "Camp admin", roles: DIRECTOR, description: "Camp details, seasons, sessions and family pricing." },

@@ -10,6 +10,8 @@ import {
   type RegistrationPeriod,
 } from "@/lib/forms";
 import NewPeriodButton from "./NewPeriodButton";
+import RegistrationControls, { type InviteRow } from "./RegistrationControls";
+import { campRegistrationOpen } from "@/lib/registration-invites";
 import {
   Badge,
   PageHeader,
@@ -43,8 +45,10 @@ const VISIBILITY_TONES: Record<string, StatusTone> = {
 };
 
 export default async function AdminFormsIndexPage() {
-  await requireArea("admin", "/admin/forms");
+  const membership = await requireArea("admin", "/admin/forms");
+  const isDirector = membership.role === "director";
   const supabase = await createClient();
+  const registrationOpen = await campRegistrationOpen(supabase, membership.campId);
 
   const { data: season } = await supabase
     .from("seasons")
@@ -78,7 +82,33 @@ export default async function AdminFormsIndexPage() {
 
   const missing = FORM_AUDIENCES.filter((a) => !periods.some((p) => p.audience === a));
 
-  const accepting = periods.filter((p) => isPeriodOpen(p)).length;
+  // Only directors can read invites (RLS); a missing table just means none yet.
+  const inviteRows = isDirector
+    ? ((
+        await supabase
+          .from("registration_invites")
+          .select("id, label, period_id, created_at, revoked_at, last_used_at, use_count")
+          .eq("camp_id", membership.campId)
+          .order("created_at", { ascending: false })
+          .limit(100)
+      ).data ?? [])
+    : [];
+  const periodName = (p: RegistrationPeriod) => p.name || AUDIENCE_LABELS[p.audience as FormAudience] || p.audience;
+  const invites: InviteRow[] = inviteRows.map((row) => {
+    const period = periods.find((p) => p.id === row.period_id);
+    return {
+      id: row.id,
+      label: row.label,
+      periodName: period ? periodName(period) : "Another season's form",
+      createdAt: row.created_at,
+      revokedAt: row.revoked_at,
+      lastUsedAt: row.last_used_at,
+      useCount: row.use_count,
+    };
+  });
+
+  const isAccepting = (p: RegistrationPeriod) => registrationOpen && isPeriodOpen(p);
+  const accepting = periods.filter(isAccepting).length;
   const publishedCount = periods.filter((p) =>
     definitions.some((d) => d.period_id === p.id && d.published_at),
   ).length;
@@ -136,12 +166,18 @@ export default async function AdminFormsIndexPage() {
           </div>
         ) : (
           <>
+            <RegistrationControls
+              registrationOpen={registrationOpen}
+              canManage={isDirector}
+              periods={periods.map((p) => ({ id: p.id, name: periodName(p) }))}
+              invites={invites}
+            />
             <div className="grid gap-3">
               {periods.map((period) => {
                 const forms = definitions.filter((d) => d.period_id === period.id);
                 const published = forms.find((d) => d.published_at);
                 const draft = forms.find((d) => !d.published_at);
-                const open = isPeriodOpen(period);
+                const open = isAccepting(period);
                 return (
                   <Link
                     key={period.id}

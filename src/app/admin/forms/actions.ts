@@ -5,6 +5,7 @@ import { requireArea } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { serializeVisibleWhen } from "@/lib/forms";
 import type { FieldOption, FieldType, PeriodVisibility, VisibleWhen } from "@/lib/forms";
+import { hashInviteToken, invitePath, newInviteToken } from "@/lib/registration-invites";
 
 export type FieldDraft = {
   field_key: string;
@@ -227,4 +228,97 @@ export async function unpublishForm(periodId: string, formId: string): Promise<A
   revalidatePath("/admin/forms");
   revalidatePath(`/admin/forms/${periodId}`);
   return { ok: true, message: "Form unpublished." };
+}
+
+// Director controls -------------------------------------------------------------
+
+/**
+ * The registration switch and private invites are the director's alone. The
+ * role is checked here and again by RLS (camps_director_update and
+ * registration_invites_director_all), so a registrar cannot reach either.
+ */
+async function requireDirector(): Promise<{ campId: string } | { error: { ok: false; message: string } }> {
+  const membership = await requireArea("admin", "/admin/forms");
+  if (membership.role !== "director") {
+    return { error: { ok: false, message: "Only a camp director can change this." } };
+  }
+  return { campId: membership.campId };
+}
+
+/** Turns public registration on or off for the whole camp. */
+export async function setRegistrationOpen(open: boolean): Promise<ActionResult> {
+  const guard = await requireDirector();
+  if ("error" in guard) return guard.error;
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("camps")
+    .update({ registration_open: open })
+    .eq("id", guard.campId)
+    .select("id")
+    .maybeSingle();
+  if (error) return { ok: false, message: error.message };
+  if (!data) return { ok: false, message: "Nothing was changed. Your account cannot change this camp." };
+  revalidatePath("/admin/forms");
+  return {
+    ok: true,
+    message: open
+      ? "Registration is on. Forms follow their own dates and visibility again."
+      : "Registration is off. Only people with a private invite link can register.",
+  };
+}
+
+export type InviteResult = { ok: true; message: string; path: string } | { ok: false; message: string };
+
+/**
+ * Makes a private link to one form. The token is returned once, here; only its
+ * hash is stored, so a lost link is revoked and replaced rather than recovered.
+ */
+export async function createRegistrationInvite(input: { periodId: string; label: string }): Promise<InviteResult> {
+  const guard = await requireDirector();
+  if ("error" in guard) return guard.error;
+  const label = input.label.trim().slice(0, 200) || null;
+  const supabase = await createClient();
+
+  const [{ data: period }, { data: camp }, { data: auth }] = await Promise.all([
+    supabase.from("registration_periods").select("id, audience").eq("id", input.periodId).eq("camp_id", guard.campId).maybeSingle(),
+    supabase.from("camps").select("slug").eq("id", guard.campId).maybeSingle(),
+    supabase.auth.getUser(),
+  ]);
+  if (!period || !camp) return { ok: false, message: "Pick one of your camp's forms." };
+
+  const token = newInviteToken();
+  const { error } = await supabase.from("registration_invites").insert({
+    camp_id: guard.campId,
+    period_id: period.id,
+    label,
+    token_sha256: hashInviteToken(token),
+    created_by: auth.user?.id ?? null,
+  });
+  if (error) return { ok: false, message: error.message };
+
+  revalidatePath("/admin/forms");
+  return {
+    ok: true,
+    message: label ? `Private link for ${label} created. Copy it now; it is shown only once.` : "Private link created. Copy it now; it is shown only once.",
+    path: invitePath(period.audience, camp.slug, token),
+  };
+}
+
+/** Stops a private link working. The row stays, so the history is kept. */
+export async function revokeRegistrationInvite(inviteId: string): Promise<ActionResult> {
+  const guard = await requireDirector();
+  if ("error" in guard) return guard.error;
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("registration_invites")
+    .update({ revoked_at: new Date().toISOString() })
+    .eq("id", inviteId)
+    .eq("camp_id", guard.campId)
+    .is("revoked_at", null)
+    .select("id")
+    .maybeSingle();
+  if (error) return { ok: false, message: error.message };
+  if (!data) return { ok: false, message: "That link was already revoked." };
+  revalidatePath("/admin/forms");
+  return { ok: true, message: "Link revoked. It no longer opens the form." };
 }
